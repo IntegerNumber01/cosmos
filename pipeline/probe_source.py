@@ -63,7 +63,10 @@ def catalogues(ra,dec,out):
             data['vsx']={'host':url,'rows':table_rows(Table.read(io.BytesIO(r.content),format='votable'))}
         except Exception as e:data['vsx']['harvard_error']=str(e)
     (out/'catalogues.json').write_text(json.dumps(clean_json(data),indent=2))
-    print('CATALOGUES',json.dumps(clean_json(data),indent=2),flush=True)
+    summary={key: {'matches':len(value.get('rows',[])), 'error':value.get('error'),
+                   'ids':[r.get('main_id',r.get('Name',r.get('source_id'))) for r in value.get('rows',[])][:20]}
+             for key,value in data.items()}
+    print('CATALOGUES',json.dumps(clean_json(summary)),flush=True)
     return data
 
 def probe(name,folder,ra,dec,do_catalogues=False):

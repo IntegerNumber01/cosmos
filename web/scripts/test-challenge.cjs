@@ -24,7 +24,10 @@ const { readViewState, viewQuery, observationKey, inDateRange } = require("../sr
 const { CACHE_SCHEMA, ENGINE_VERSION } = require("../src/lib/engine/releases.ts");
 const { getObservations, getFrame, parseCoords } = require("../src/lib/engine/client.ts");
 const { pack } = require("../src/lib/engine/cutout.ts");
-const { pix2sky, waveAt, sky2pix } = require("../src/lib/engine/wcs.ts");
+const { waveAt, sky2pix } = require("../src/lib/engine/wcs.ts");
+const { cloudCutout, mirrorUrl } = require("../src/lib/engine/cloudCutout.ts");
+const { rice32 } = require("../src/lib/engine/rice.ts");
+const { createHash } = require("node:crypto");
 
 function fixture() {
   const file = path.join(root, "public/cache/epsindib/frames/2025W17_4B_0027_3D2_0.1.bin");
@@ -39,6 +42,48 @@ function artificial(value, time = 60000) {
   f.meta.mjdAvg = time;
   return f;
 }
+
+test("official DR1 Rice quality-mask tiles match independent Astropy/CFITSIO checksums", () => {
+  const fixture = require('./fixtures/dr1-flags-rice.json');
+  for (const row of fixture.rows) {
+    const decoded = rice32(Buffer.from(row.compressed, 'base64'), row.pixels);
+    const littleEndian = Buffer.alloc(decoded.length * 4);
+    decoded.forEach((value, i) => littleEndian.writeInt32LE(value, i * 4));
+    assert.equal(createHash('sha256').update(littleEndian).digest('hex'), row.decodedLittleEndianSha256, `Native row ${row.row}`);
+  }
+  assert.throws(() => rice32(new Uint8Array([0]), 2040), /Truncated/);
+  assert.throws(() => rice32(new Uint8Array(8).fill(255), 32), /Invalid Rice split/);
+});
+
+test("AWS fallback restricts the source and refuses ignored or misleading byte ranges", async () => {
+  const url = fixture().meta.sourceFits;
+  assert(mirrorUrl(url).startsWith('https://nasa-irsa-spherex.s3.us-east-1.amazonaws.com/dr1/'));
+  for (const bad of [url.replace('/dr1/', '/qr2/'), url + '?host=evil.test', url.replace('irsa.ipac.caltech.edu', 'evil.test'), url.replace('/level2/', '/level2/../')])
+    assert.throws(() => mirrorUrl(bad), /Not a supported/);
+  const original = global.fetch;
+  let consumed = false;
+  global.fetch = async () => ({ status: 200, headers: new Headers(), body: { cancel: async () => {} }, arrayBuffer: async () => { consumed = true; return new ArrayBuffer(0); } });
+  try {
+    await assert.rejects(cloudCutout(url, 331.09644, -56.80059, 0.1), /exact FITS byte range/);
+    assert.equal(consumed, false, 'Never download a full exposure when Range is ignored');
+    await assert.rejects(cloudCutout(url, NaN, 0, 0.1), /Invalid cloud cutout/);
+  } finally { global.fetch = original; }
+});
+
+test("every prepared menu contains only matching, shipped real cutouts", async () => {
+  const original = global.fetch;
+  global.fetch = async (url) => new Response(fs.readFileSync(path.join(root, 'public', url)));
+  try {
+    for (const target of require('../src/lib/ttTargets.ts').TT_TARGETS) {
+      const menu = await getObservations(target.ra, target.dec, target.slug);
+      assert.equal(menu.source, 'cache'); assert(menu.frames.length > 0); assert.match(menu.sample, /not a complete observation history/);
+      for (const observation of menu.frames) {
+        const data = await getFrame(observation, target.ra, target.dec, 0.1, target.slug);
+        assert.equal(data.source, 'cache'); assert.equal(data.frame.meta.sourceFits, observation.url);
+      }
+    }
+  } finally { global.fetch = original; }
+});
 
 test("all-exposure cadence retains compatible same-day frames; daily cadence still selects one", () => {
   const ref = { obsid: "a", detector: 2, url: "a.fits", mjd: 60000.1, date: "", exptime: 100, inside: true, wl: 1.2, bw: 0.03 };
@@ -191,14 +236,46 @@ test("stale cutouts with a different processing URL are rejected and fetched liv
   finally { global.fetch = original; }
 });
 
+const siaHeader = "dataproduct_subtype,access_url,obs_id,energy_bandpassname,s_region,s_ra,s_dec,t_min,t_exptime\n";
+
 test("full-field discovery includes square corners in its SIA query", async () => {
   const { findObservations } = require("../src/lib/engine/observations.ts");
   const original = global.fetch;
   let url;
-  global.fetch = async (u) => { url = u; return new Response("dataproduct_subtype,access_url\n"); };
+  global.fetch = async (u) => { url = u; return new Response(siaHeader); };
   try {
     await findObservations(1, 2, 30, 0.3);
     const radius = Number(new URL(url).searchParams.get("POS").split(" ").at(-1));
     assert(Math.abs(radius - 0.3 / Math.SQRT2) < 1e-6);
+  } finally { global.fetch = original; }
+});
+
+test("archive search recovers from a timeout and a gateway failure without changing coordinates or coverage", async () => {
+  const { findObservations } = require("../src/lib/engine/observations.ts");
+  const original = global.fetch, calls = [];
+  const csv = siaHeader + 'science,https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/example.fits,real-frame,SPHEREx-D2,"POLYGON ICRS 0.9 1.9 1.1 1.9 1.1 2.1 0.9 2.1",1,2,60000,100\n';
+  global.fetch = async (url, options) => {
+    calls.push({ url, options });
+    if (calls.length === 1) throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+    if (calls.length === 2) return new Response("Bad gateway", { status: 502 });
+    return new Response(csv);
+  };
+  try {
+    const result = await findObservations(1, 2, 30, 0.3);
+    assert.equal(calls.length, 3);
+    assert(calls.every((c) => c.url === calls[0].url && c.options.cache === "no-store"));
+    assert.equal(new URL(calls[0].url).searchParams.get("POS"), "circle 1.000000 2.000000 0.212132");
+    assert.equal(result.length, 1); assert.equal(result[0].obsid, "real-frame"); assert.equal(result[0].inside, true);
+  } finally { global.fetch = original; }
+});
+
+test("an HTML gateway response is an archive failure, never an empty observation result", async () => {
+  const { findObservations } = require("../src/lib/engine/observations.ts");
+  const original = global.fetch;
+  let calls = 0;
+  global.fetch = async () => { calls++; return new Response("<html>Proxy error</html>"); };
+  try {
+    await assert.rejects(findObservations(1, 2), /temporarily unavailable.*invalid image list/);
+    assert.equal(calls, 3);
   } finally { global.fetch = original; }
 });

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import NavBar from "@/components/NavBar";
+import Advanced from "@/components/Advanced";
 import GridCanvas from "@/components/timetravel/GridCanvas";
 import ObsTimeline from "@/components/timetravel/ObsTimeline";
 import MeasurePanel from "@/components/timetravel/MeasurePanel";
@@ -111,7 +112,7 @@ export default function TimeTravelClient() {
   const [start, setStart] = useState(shared.start);
   const [end, setEnd] = useState(shared.end);
   const [page, setPage] = useState(shared.page);
-  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string; legacy?: boolean }>({
+  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string; legacy?: boolean; sample?: string }>({
     status: "idle",
   });
   const [set, setSet] = useState<MatchedSet | null>(null);
@@ -172,7 +173,7 @@ export default function TimeTravelClient() {
       const token = ++searchToken.current;
       loadToken.current++; // cancel any frame loading from the previous search
       getObservations(t.ra, t.dec, t.slug, true, field)
-        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy }))
+        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy, sample: d.sample }))
         .catch((e) => token === searchToken.current && setObsState({ status: "error", error: String(e.message ?? e) }));
     },
     [size],
@@ -297,7 +298,10 @@ export default function TimeTravelClient() {
         lambdaSpread: { centre: Math.max(...cw) - Math.min(...cw), corners: cornerSpread, bw: set.bandwidth },
       });
       const lookup = (key: string, fallback: number) => { const i = keep.findIndex((r) => observationKey(r.frame.meta) === key); return i < 0 ? fallback : i; };
-      setPair(restoring.current ? [lookup(shared.before, 0), lookup(shared.after, keep.length - 1)] : [0, keep.length - 1]);
+      const preferredPair = target.slug ? TT_BY_SLUG[target.slug]?.compare : undefined;
+      const defaultBefore = preferredPair ? lookup(preferredPair[0], 0) : 0;
+      const defaultAfter = preferredPair ? lookup(preferredPair[1], keep.length - 1) : keep.length - 1;
+      setPair(restoring.current ? [lookup(shared.before, defaultBefore), lookup(shared.after, defaultAfter)] : [defaultBefore, defaultAfter]);
       setIdx(restoring.current ? lookup(shared.frame, 0) : 0);
       setView(restoring.current ? shared.mode : "frames");
       setPlaying(!restoring.current && !reduced && keep.length > 1);
@@ -411,160 +415,209 @@ export default function TimeTravelClient() {
   // crosshair follows the target's proper motion to the date shown
   const tgt = loaded && cur ? skyToGrid(loaded.grid, ...targetAt(target!, cur.meta.mjdAvg)) : [0, 0];
 
+  const preset = target?.slug ? TT_BY_SLUG[target.slug] : undefined;
+  const pickPreset = (t: (typeof TT_TARGETS)[number]) => {
+    setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
+    search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
+  };
+  const nPages = set ? Math.ceil(set.frames.length / 12) : 1;
+  const kindLabel = (k: Candidate["kind"]) =>
+    k === "residual" ? "probably not real (subtraction leftover)" : k === "unmatched" ? "colours differ here, can't compare" : k === "moved" ? "possibly moved" : k === "brightened" ? "brighter later" : "fainter later";
+
   return (
     <main className="relative min-h-screen bg-bg pb-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
       {!shared.embed && <NavBar />}
       <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
         <div className="label text-accent">Time Travel</div>
-        <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">Pick any spot in the sky. See how it looked on different dates.</h1>
-        <p className="mt-1 max-w-3xl text-[14px] text-muted">
-          Enter coordinates or pick a target. COSMOS asks NASA/IPAC IRSA for every SPHEREx DR1 exposure covering that position. It then picks out the
-          exposures you can fairly compare (same detector, same wavelength), lines them up, and helps you find what changed. Browse every exposure or one per day.
+        <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">See how one spot in the sky changes over time.</h1>
+        <p className="mt-1 max-w-2xl text-[14px] text-muted">
+          NASA&apos;s SPHEREx telescope photographs the whole sky again and again. Pick a spot and we&apos;ll line up its photos from different dates so you can see what changed.
         </p>
 
-        {/* search */}
-        <form onSubmit={submit} className="glass mt-5 flex flex-wrap items-center gap-2 rounded-2xl p-3">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="RA Dec, e.g. 269.4463 4.7679 or 17:57:47 +04:46:05"
-            aria-label="Sky coordinates (RA Dec)"
-            className="data min-w-[260px] flex-1 rounded-lg border border-line bg-black/30 px-3 py-2 text-[14px] focus:border-accent/60 focus:outline-none"
-          />
-          <label className="flex items-center gap-2 text-[12.5px] text-muted">
-            Field
-            <select
-              value={size}
-              onChange={(e) => { const field = Number(e.target.value); resetSelection(); setSize(field); if (target) search(target, field); }}
-              className="rounded-lg border border-line bg-black/40 px-2 py-2 text-text"
-              aria-label="Field of view"
-            >
-              <option value={0.05}>3′</option>
-              <option value={0.1}>6′</option>
-              <option value={0.2}>12′</option>
-              <option value={0.3}>18′</option>
-            </select>
-          </label>
-          <button className="btn btn-primary" type="submit">
-            Find observations
-          </button>
-          {inputErr && <div className="w-full text-[12px] text-warn">{inputErr}</div>}
-          <div className="flex w-full flex-wrap items-center gap-3 text-[12px] text-muted">
-            <label>Playback <select aria-label="Playback cadence" value={cadence} onChange={(e) => { resetSelection(); setCadence(e.target.value as Cadence); }} className="rounded-lg border border-line bg-bg p-2">
-              <option value="exposures">Every compatible exposure</option><option value="daily">One exposure per day</option>
-            </select></label>
-            <label>From (UTC) <input type="date" aria-label="Start date" value={start} max={end || undefined} onChange={(e) => { resetSelection(); setStart(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
-            <label>Through (UTC) <input type="date" aria-label="End date" value={end} min={start || undefined} onChange={(e) => { resetSelection(); setEnd(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
-            {(start || end) && <button type="button" className="btn" onClick={() => { resetSelection(); setStart(""); setEnd(""); }}>All dates</button>}
-            <span>Larger fields take longer to load; image area grows with the square of the width.</span>
-          </div>
-          <div className="flex w-full flex-wrap gap-1.5 pt-1">
-            {TT_TARGETS.map((t) => (
-              <button
-                key={t.slug}
-                type="button"
-                onClick={() => {
-                  setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
-                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
-                }}
-                className={`rounded-full border px-3 py-1 text-[12px] transition ${
-                  target?.slug === t.slug ? "border-accent/60 bg-accent/10 text-white" : "border-line text-muted hover:text-white"
-                }`}
-                title={t.why}
-              >
-                {t.challenge && <span className="mr-1 text-accent">★</span>}
-                {t.name}
+        {/* step 1: pick a spot */}
+        <section className="glass mt-5 rounded-2xl p-4 sm:p-5">
+          <StepHead n={1} title="Pick a spot" />
+          {!target && obsState.status === "idle" ? (
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {TT_TARGETS.map((t) => (
+                <button
+                  key={t.slug}
+                  onClick={() => pickPreset(t)}
+                  className="flex flex-col items-start justify-start rounded-2xl border border-line bg-white/[0.02] p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40"
+                >
+                  <div className="label">{t.kind}</div>
+                  <div className="font-display mt-1 text-[17px] font-semibold">
+                    {t.challenge && <span className="mr-1 text-accent">★</span>}
+                    {t.name}
+                  </div>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t.why}</p>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {TT_TARGETS.map((t) => (
+                <button
+                  key={t.slug}
+                  type="button"
+                  onClick={() => pickPreset(t)}
+                  className={`rounded-full border px-3 py-1 text-[12.5px] transition ${
+                    target?.slug === t.slug ? "border-accent/60 bg-accent/10 text-white" : "border-line text-muted hover:text-white"
+                  }`}
+                  title={t.why}
+                >
+                  {t.challenge && <span className="mr-1 text-accent">★</span>}
+                  {t.name}
+                </button>
+              ))}
+            </div>
+          )}
+          <p className="mt-2 text-[11.5px] text-dim">★ = targets from the NASA Space Apps challenge.</p>
+          <Advanced className="mt-3" label="Type sky coordinates or change search settings" openLabel="Hide coordinates and settings" defaultOpen={!!initial && !initial.slug}>
+            <form onSubmit={submit} className="flex flex-wrap items-center gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="RA Dec, e.g. 269.4463 4.7679 or 17:57:47 +04:46:05"
+                aria-label="Sky coordinates (RA Dec)"
+                className="data min-w-[240px] flex-1 rounded-lg border border-line bg-black/30 px-3 py-2 text-[14px] text-text focus:border-accent/60 focus:outline-none"
+              />
+              <label className="flex items-center gap-2 text-[12.5px] text-muted">
+                Field
+                <select
+                  value={size}
+                  onChange={(e) => { const field = Number(e.target.value); resetSelection(); setSize(field); if (target) search(target, field); }}
+                  className="rounded-lg border border-line bg-black/40 px-2 py-2 text-text"
+                  aria-label="Field of view"
+                >
+                  <option value={0.05}>3′</option>
+                  <option value={0.1}>6′</option>
+                  <option value={0.2}>12′</option>
+                  <option value={0.3}>18′</option>
+                </select>
+              </label>
+              <button className="btn btn-primary" type="submit">
+                Find observations
               </button>
-            ))}
-            <span className="self-center pl-1 text-[11px] text-dim">★ = challenge validation targets</span>
-          </div>
-        </form>
+              {inputErr && <div className="w-full text-[12px] text-warn">{inputErr}</div>}
+              <div className="flex w-full flex-wrap items-center gap-3 text-[12px] text-muted">
+                <label>Playback <select aria-label="Playback cadence" value={cadence} onChange={(e) => { resetSelection(); setCadence(e.target.value as Cadence); }} className="rounded-lg border border-line bg-bg p-2">
+                  <option value="exposures">Every compatible exposure</option><option value="daily">One exposure per day</option>
+                </select></label>
+                <label>From (UTC) <input type="date" aria-label="Start date" value={start} max={end || undefined} onChange={(e) => { resetSelection(); setStart(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
+                <label>Through (UTC) <input type="date" aria-label="End date" value={end} min={start || undefined} onChange={(e) => { resetSelection(); setEnd(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
+                {(start || end) && <button type="button" className="btn" onClick={() => { resetSelection(); setStart(""); setEnd(""); }}>All dates</button>}
+              </div>
+              <p className="w-full">
+                Coordinates are right ascension and declination (RA, Dec), in degrees or hh:mm:ss / dd:mm:ss. COSMOS asks NASA/IPAC IRSA for every SPHEREx DR1
+                exposure covering that position. Field is the width of the square searched (′ = arcminutes); larger fields take longer to load because image area
+                grows with the square of the width. Playback can use every compatible exposure or one exposure per day. Dates are in UTC; times shown are exposure times.
+              </p>
+            </form>
+          </Advanced>
+        </section>
 
         {target?.name && !target.slug && (
-          <p className="mt-2 text-[12.5px] text-muted">
+          <div className="mt-3 text-[13px] text-muted">
             <b className="text-text">{target.name}</b>
             {fromGaia
-              ? ` · Gaia DR3 position propagated to ${target.epochYear ?? 2016} with its proper motion${
-                  target.pm ? ` (${(Math.hypot(target.pm[0], target.pm[1]) / 1000).toFixed(2)}″/yr). The crosshair and measurements follow it date by date` : ""
-                }.`
-              : " · position from the COSMOS map bookmark."}
-          </p>
+              ? target.pm
+                ? " · This star moves across the sky, so the crosshair and measurements follow it from date to date."
+                : " · Position from the Gaia star catalogue."
+              : " · Position from your COSMOS map bookmark."}
+            {fromGaia && (
+              <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
+                Gaia DR3 position propagated to {target.epochYear ?? 2016} with its proper motion
+                {target.pm ? ` (${(Math.hypot(target.pm[0], target.pm[1]) / 1000).toFixed(2)}″/yr). The crosshair and measurements follow it date by date` : ""}.
+              </Advanced>
+            )}
+          </div>
         )}
-        {target?.slug && TT_BY_SLUG[target.slug] && (
-          <p className="mt-2 text-[12.5px] text-muted">
-            <b className="text-text">{TT_BY_SLUG[target.slug].name}:</b> {TT_BY_SLUG[target.slug].why}{" "}
-            {TT_BY_SLUG[target.slug].pm && <span className="text-dim">Position propagated to 2025.9 with its catalogue proper motion.</span>}{" "}
-            <Link href={`/validation#${target.slug}`} className="text-accent hover:underline">
-              Validation record →
+        {preset && (
+          <div className="mt-3 text-[13px] text-muted">
+            <b className="text-text">{preset.name}:</b> {preset.why}{" "}
+            <Link href={preset.caseFile ?? `/validation#${target!.slug}`} className="text-accent hover:underline">
+              {preset.caseFile ? "Search case file" : "How we checked it"} →
             </Link>
-          </p>
+            {preset.pm && (
+              <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
+                This star moves across the sky. Its position is propagated to 2025.9 (the middle of SPHEREx DR1) with its catalogue proper motion, and the
+                crosshair and measurements follow it date by date.
+              </Advanced>
+            )}
+          </div>
         )}
 
-        {/* observations */}
-        {obsState.status === "loading" && <div className="glass mt-5 rounded-2xl p-5 text-[13px] text-muted">Searching SPHEREx DR1 for every exposure of this position…</div>}
+        {/* step 2: the dates SPHEREx looked here */}
+        {obsState.status === "loading" && (
+          <div role="status" className="glass mt-5 rounded-2xl p-5 text-[13px] text-muted">
+            Asking NASA&apos;s archive for the dated photos of this spot… <span className="text-dim">If the archive is busy, we retry automatically. This can take up to a minute.</span>
+          </div>
+        )}
         {obsState.status === "error" && (
-          <div className="glass mt-5 rounded-2xl p-5 text-[13px] text-warn">
-            The archive search failed: {obsState.error}.{" "}
-            <button className="btn ml-2" onClick={() => target && search(target)}>
-              Try again
-            </button>
+          <div role="alert" className="glass mt-5 rounded-2xl p-5 text-[13px]">
+            <h2 className="font-display text-[19px] font-semibold text-warn">We couldn&apos;t load the dated photos</h2>
+            <p className="mt-2 text-muted">NASA&apos;s archive may be busy or unavailable. Your coordinates are still in the search box; this failure doesn&apos;t tell us whether photos exist here.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button className="btn btn-primary" onClick={() => target && search(target)}>Try again</button>
+              {target && <Link className="btn" href={`/explore?ra=${target.ra}&dec=${target.dec}&fov=${size}`}>See this spot on the infrared map</Link>}
+              <button className="btn" onClick={() => pickPreset(TT_BY_SLUG.epsindib)}>Try the prepared Epsilon Indi B example</button>
+            </div>
+            <p className="mt-2 text-[12px] text-dim">The infrared map is a time-averaged view. The prepared example opens a different, labelled sky position using saved real observations.</p>
+            <Advanced className="mt-3" label="Error details" openLabel="Hide error details">{obsState.error}</Advanced>
           </div>
         )}
         {obsState.status === "ready" && (
           <section className="glass mt-5 rounded-2xl p-4 sm:p-5">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-[20px] font-semibold">
-                {nInside ? (
-                  <>
-                    SPHEREx imaged this spot <span className="text-accent">{nInside}</span> times on <span className="text-accent">{nDays}</span> different days
-                  </>
-                ) : (
-                  "No usable SPHEREx DR1 exposure at this position in the selected date range"
-                )}
-              </h2>
-              <span className="text-[11px] text-dim">
-                {obsState.source === "cache" ? "prepared copy of the IRSA response" : "live from IRSA SIA2"} ·{" "}
-                {target && `${target.ra.toFixed(4)}°, ${target.dec.toFixed(4)}°`}
-              </span>
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <StepHead n={2} title="See when SPHEREx looked here" />
+              {loaded && (
+                <button type="button" className="btn" onClick={() => share()}>
+                  Share this view
+                </button>
+              )}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-muted">
-              <span>DR1 · Archive checked {obsState.queried ? fmtDateTime(obsState.queried) : "at an unknown time"}.</span>
-              <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
-              {loaded && <><button type="button" className="btn" onClick={() => share()}>Share investigation</button><button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button></>}
-            </div>
+            <p className="mt-2 text-[15px]">
+              {nInside ? (
+                <>
+                  {obsState.sample ? "This prepared sample has" : "SPHEREx photographed this spot"} <span className="text-accent">{nInside}</span> {obsState.sample ? "photos" : "times"} on{" "}
+                  <span className="text-accent">{nDays}</span> different days.
+                </>
+              ) : (
+                "SPHEREx has no usable photo of this exact spot in the chosen dates."
+              )}
+            </p>
             {shareStatus && <p role="status" className="mt-2 break-all text-[12px] text-accent">{shareStatus}</p>}
             {refreshError && <p role="alert" className="mt-2 text-[12px] text-warn">{refreshError}</p>}
-            {obsState.legacy && <p className="mt-2 text-[11px] text-dim">Prepared demo searches cover the centre. Check the archive to include exposures overlapping the full field.</p>}
-            {obs.length > nInside && <p className="mt-2 text-[11px] text-dim">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its centre; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
+            {obsState.sample && <p className="mt-2 text-[12px] text-warn">{obsState.sample}</p>}
             {nInside > 0 && (
               <>
-                <p className="mt-1 text-[12.5px] text-muted">
-                  Each dot is one exposure: its date, and the wavelength SPHEREx recorded <i>at this exact spot</i>. SPHEREx&apos;s filter changes colour across
-                  the detector, so a fair &quot;before and after&quot; needs two dots on the same detector at the same height.
-                </p>
+                <p className="mt-1 text-[12.5px] text-muted">Each dot is one photo. Left to right is time; higher dots used a longer (redder) infrared colour.</p>
                 <div className="mt-3">
                   <ObsTimeline obs={obs} selected={set} onPick={(o) => chooseSet(pickSet(obs, o, cadence))} />
                 </div>
                 <div className="mt-3">
-                  <div className="label mb-1.5">Comparable sets (same detector; every pair of dates within half a channel in wavelength)</div>
+                  <div className="label mb-1">Pick an infrared colour to compare</div>
+                  <p className="mb-2 text-[12.5px] text-muted">Only dates with closely matching infrared colours are compared. Quality checks help separate possible changes from camera effects.</p>
                   {sets.length === 0 ? (
                     <p className="text-[12.5px] text-warn">
-                      No two dates share a detector and wavelength here, so a fair comparison isn&apos;t possible. You can still pick a single dot to view it.
+                      No two dates here share the same infrared colour, so a fair comparison isn&apos;t possible. You can still tap a single dot to view it.
                     </p>
                   ) : (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                       {sets.map((s) => (
                         <button
                           key={s.key}
                           onClick={() => chooseSet(s)}
+                          title={`${s.lambdaRef.toFixed(3)} µm · detector D${s.detector} · ${s.frames.length} exposures`}
                           className={`rounded-xl border px-3 py-1.5 text-left transition ${set?.key === s.key ? "border-white/50 bg-white/10" : "border-line hover:bg-white/5"}`}
                         >
-                          <div className="data text-[12.5px]" style={{ color: wavelengthColor(s.lambdaRef) }}>
-                            {s.lambdaRef.toFixed(3)} µm · D{s.detector}
+                          <div className="text-[12.5px]">
+                            {s.nDays} dates · {Math.round(s.spanDays)} days apart
                           </div>
-                          <div className="text-[11px] text-muted">
-                            {s.frames.length} exposures · {s.nDays} days · {Math.round(s.spanDays)} days apart
+                          <div className="data text-[10.5px]" style={{ color: wavelengthColor(s.lambdaRef) }}>
+                            ● {s.lambdaRef.toFixed(3)} µm
                           </div>
                         </button>
                       ))}
@@ -573,36 +626,65 @@ export default function TimeTravelClient() {
                 </div>
               </>
             )}
+            <Advanced className="mt-4" label="About this search" openLabel="Hide search details">
+              <p>
+                SPHEREx Data Release 1 (DR1) · {obsState.source === "cache" ? obsState.sample ? "prepared observation subset" : "prepared copy of the IRSA response" : "live from IRSA SIA2"}
+                {target && ` · ${target.ra.toFixed(4)}°, ${target.dec.toFixed(4)}°`} · Archive checked {obsState.queried ? fmtDateTime(obsState.queried) : "at an unknown time"}.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
+                {loaded && <button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button>}
+              </div>
+              {obsState.legacy && <p className="mt-2">Prepared demo searches cover the centre. Check the archive to include exposures overlapping the full field.</p>}
+              {obs.length > nInside && <p className="mt-2">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its centre; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
+              <p className="mt-2">
+                Each dot is one exposure: its date (exposure start), and the wavelength SPHEREx recorded <i>at this exact spot</i>. SPHEREx&apos;s linear variable
+                filter (LVF) changes colour across each of its six detectors, so a fair &quot;before and after&quot; needs two dots on the same detector at the same
+                height. A comparable set uses one detector, and every pair of dates in it agrees within half a spectral channel in wavelength. Hover a set for its
+                wavelength (µm = micrometres) and detector number.
+              </p>
+            </Advanced>
           </section>
         )}
 
-        {/* viewer */}
+        {/* step 3: compare two dates */}
         {set && (
-          <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+          <div className="mt-8">
+            <StepHead n={3} title="Compare the dates">
+              Play the dates like a flip-book, or swipe between two of them. Click anything in the picture to measure it.
+            </StepHead>
+          </div>
+        )}
+        {set && (
+          <section className="mt-3 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
             <div className="min-w-0">
-              <div className="glass mb-3 flex flex-wrap items-center gap-2 rounded-xl p-3 text-[12px]">
-                <button className="btn" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous exposures</button>
-                <span>Page {page + 1} of {Math.ceil(set.frames.length / 12)} · {set.frames.length} compatible exposures</span>
-                <button className="btn" disabled={(page + 1) * 12 >= set.frames.length} onClick={() => setPage((p) => p + 1)}>Next exposures</button>
-                <span className="text-dim">Loads up to 12 at a time.</span>
-              </div>
+              {nPages > 1 && (
+                <div className="glass mb-3 flex flex-wrap items-center gap-2 rounded-xl p-3 text-[12px]">
+                  <button className="btn" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>← Earlier photos</button>
+                  <span>
+                    Photos {page * 12 + 1}–{Math.min((page + 1) * 12, set.frames.length)} of {set.frames.length}
+                  </span>
+                  <button className="btn" disabled={(page + 1) * 12 >= set.frames.length} onClick={() => setPage((p) => p + 1)}>Later photos →</button>
+                  <span className="text-dim">Loads up to 12 at a time.</span>
+                </div>
+              )}
               {progress && (
                 <div className="glass rounded-2xl p-5 text-[13px] text-muted">
-                  Fetching and aligning SPHEREx frames… {progress.done}/{progress.total}
+                  Downloading and lining up the photos… {progress.done}/{progress.total}
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
                     <div className="h-full bg-accent transition-all" style={{ width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }} />
                   </div>
-                  {progress.error && <div className="mt-2 text-warn">Some frames failed: {progress.error}</div>}
-                  {progress.error && progress.done === progress.total && <button className="btn mt-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry these exposures</button>}
+                  {progress.error && <div className="mt-2 text-warn">Some photos failed to load: {progress.error}</div>}
+                  {progress.error && progress.done === progress.total && <button className="btn mt-2" onClick={() => setLoadAttempt((v) => v + 1)}>Try these photos again</button>}
                 </div>
               )}
               {loaded && cur && (
                 <>
                   {frameWarnings.map((warning) => <p key={warning} role="alert" className="mb-2 text-[12px] text-warn">{warning}</p>)}
-                  {!!frameWarnings.length && <button className="btn mb-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry failed exposures</button>}
+                  {!!frameWarnings.length && <button className="btn mb-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry failed photos</button>}
                   {view === "stacks" ? <VisitStacks frames={loaded.frames} grid={loaded.grid} lo={loaded.lo} hi={loaded.hi} settings={stackSettings} onSettings={setStackSettings} /> : <div
                     className="relative aspect-square w-full cursor-crosshair overflow-hidden rounded-2xl border border-line bg-black"
-                    title="Click a source to measure its position and inspect its spectrum below"
+                    title="Click a spot to measure it below"
                     onClick={(e) => {
                       if (view === "changes") return;
                       const bounds = e.currentTarget.getBoundingClientRect();
@@ -686,7 +768,6 @@ export default function TimeTravelClient() {
                           ["frames", "Play dates"],
                           ["swipe", "Swipe"],
                           ["changes", "Find changes"],
-                          ["stacks", "Stack visits"],
                         ] as const
                       ).map(([v, l]) => (
                         <button
@@ -705,13 +786,8 @@ export default function TimeTravelClient() {
                       )}
                       <label className="ml-auto flex cursor-pointer items-center gap-1.5 text-[12px] text-muted">
                         <input type="checkbox" checked={showGaia} onChange={(e) => setShowGaia(e.target.checked)} className="accent-cyan-300" />
-                        Gaia stars <span className="text-dim">(G &lt; 17, moved to each date; <span className="text-warn">○</span> fast movers)</span>
+                        Circle known stars <span className="text-dim">(<span className="text-warn">○</span> = fast-moving)</span>
                       </label>
-                      <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-muted"><input type="checkbox" checked={showQuality} onChange={(e) => setShowQuality(e.target.checked)} /> Quality overlay</label>
-                      <div className="w-full text-[11px] text-dim">
-                        Dark grey pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
-                        {showQuality && " Overlay: amber = unusable or outside coverage; purple = outlier (retained for moving/variable sources); cyan = other flags."}
-                      </div>
                     </div>
                     {view === "frames" && (
                       <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
@@ -725,7 +801,7 @@ export default function TimeTravelClient() {
                             className={`min-w-[92px] flex-1 rounded-lg border px-2 py-1.5 text-left ${i === idx ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"}`}
                           >
                             <div className="data text-[11.5px]">{fmtDateTime(f.meta.dateAvg)}</div>
-                            <div className="data text-[10.5px]" style={{ color: wavelengthColor(f.meta.target.wl) }}>
+                            <div className="data text-[10px]" style={{ color: wavelengthColor(f.meta.target.wl) }}>
                               {f.meta.target.wl.toFixed(4)} µm
                             </div>
                           </button>
@@ -762,7 +838,7 @@ export default function TimeTravelClient() {
                         </select>
                         {view === "changes" && (
                           <button className="btn !py-1" onClick={runChanges}>
-                            Recompute
+                            Update
                           </button>
                         )}
                         {view === "swipe" && (
@@ -778,6 +854,27 @@ export default function TimeTravelClient() {
                         )}
                       </div>
                     )}
+                    <Advanced className="mt-2" label="More image tools" openLabel="Hide image tools">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          className={`btn ${view === "stacks" ? "btn-primary" : ""}`}
+                          disabled={loaded.frames.length < 2}
+                          onClick={() => { setView("stacks"); setPlaying(false); }}
+                        >
+                          Stack visits
+                        </button>
+                        <label className="flex cursor-pointer items-center gap-1.5"><input type="checkbox" checked={showQuality} onChange={(e) => setShowQuality(e.target.checked)} /> Quality overlay</label>
+                      </div>
+                      <p className="mt-2">
+                        Stack visits averages exposures taken close together to reduce noise. Circles are Gaia DR3 stars brighter than G = 17, moved to each
+                        date with their proper motion; amber circles move faster than 0.3″/yr. Times are exposure start (UTC); the number under each date is the
+                        wavelength at the target in µm. The crosshair marks the target{target?.pm ? " and follows its proper motion" : ""}. N ↑ E ← gives sky orientation.
+                      </p>
+                      <p className="mt-2">
+                        Dark grey pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
+                        {showQuality && " Overlay: amber = unusable or outside coverage; purple = outlier (retained for moving/variable sources); cyan = other flags."}
+                      </p>
+                    </Advanced>
                   </div>
                 </>
               )}
@@ -787,59 +884,25 @@ export default function TimeTravelClient() {
             <div className="min-w-0 space-y-4">
               {loaded && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label">This sequence</div>
+                  <div className="label">About these photos</div>
                   <div className="mt-1 text-[14px]">
-                    Detector D{set.detector} at{" "}
-                    <span className="data" style={{ color: wavelengthColor(set.lambdaRef) }}>
-                      {set.lambdaRef.toFixed(3)} µm
-                    </span>{" "}
-                    · {loaded.frames.length} dates
-                    <span className="text-dim"> · {cadence === "daily" ? "one exposure per day" : "every compatible exposure"} · page {page + 1}</span>
+                    {loaded.frames.length} dates in the same infrared colour{" "}
+                    <span className="data text-[11px]" style={{ color: wavelengthColor(set.lambdaRef) }}>
+                      ({set.lambdaRef.toFixed(3)} µm)
+                    </span>
                   </div>
-                  <ul className="mt-2 space-y-1 text-[12px]">
-                    <li>
-                      <span className={loaded.lambdaSpread.centre <= 0.5 * set.bandwidth ? "text-good" : "text-warn"}>●</span> At the target, exact wavelengths agree within{" "}
-                      <span className="data">{loaded.lambdaSpread.centre.toFixed(4)} µm</span> ({Math.round((loaded.lambdaSpread.centre / set.bandwidth) * 100)}% of the{" "}
-                      {set.bandwidth.toFixed(3)} µm channel width).
-                    </li>
-                    <li>
-                      <span className={loaded.lambdaSpread.corners <= 0.5 * set.bandwidth ? "text-good" : "text-warn"}>●</span> At the field corners they agree within{" "}
-                      <span className="data">{loaded.lambdaSpread.corners.toFixed(4)} µm</span> ({Math.round((loaded.lambdaSpread.corners / set.bandwidth) * 100)}%).{" "}
-                      {loaded.lambdaSpread.corners > 0.5 * set.bandwidth && "Changes near the edges may be partly spectral, not temporal."}
-                    </li>
-                    {loaded.excluded.map((x) => (
-                      <li key={x.obsid} className="text-warn">
-                        Excluded {x.obsid}: {x.reason}
-                      </li>
-                    ))}
-                    <li className="text-dim">
-                      {loaded.sources.every((s) => s === "cache")
-                        ? "Frames from the prepared cache (byte-identical to the live IRSA response)."
-                        : loaded.sources.some((s) => s === "cache")
-                          ? "Mix of live IRSA frames and prepared cache."
-                          : "Frames fetched live from IRSA."}
-                    </li>
-                  </ul>
-                  {cur && <details className="mt-3 text-[12px] text-muted"><summary className="cursor-pointer">Flag definitions for this exposure</summary>
-                    {cur.meta.flags.map((flag) => <p className="mt-1" key={flag.name}><b>{flag.name}</b>: {flag.desc || "No description supplied by the archive."}</p>)}
-                  </details>}
-                  {cur && view === "frames" && (
-                    <div className="mt-3 rounded-xl bg-white/5 p-3 text-[12px]">
-                      <div className="data">
-                        {cur.meta.obsid} · D{cur.meta.detector} · {cur.meta.exposure.toFixed(0)} s · QA {cur.meta.l2dqa}
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-3">
-                        <a className="text-accent hover:underline" href={cur.meta.sourceFits} target="_blank" rel="noreferrer">
-                          Original FITS ↗
-                        </a>
-                        <a className="text-accent hover:underline" href={cur.meta.cutoutUrl} target="_blank" rel="noreferrer">
-                          Exact cutout ↗
-                        </a>
-                      </div>
-                    </div>
+                  <p className="mt-1 text-[12.5px] text-muted">The infrared colours match closely here. A visible difference still needs checks for image quality, blending, and wavelength effects.</p>
+                  {(loaded.lambdaSpread.centre > 0.5 * set.bandwidth || loaded.lambdaSpread.corners > 0.5 * set.bandwidth) && (
+                    <p className="mt-1 text-[12px] text-warn">
+                      {loaded.lambdaSpread.centre > 0.5 * set.bandwidth ? "The colours don't match closely at the centre" : "Near the edges of the picture the colours match less closely"}, so changes there may not be real.
+                    </p>
+                  )}
+                  {loaded.excluded.length > 0 && (
+                    <p className="mt-1 text-[12px] text-warn">
+                      {loaded.excluded.length} photo{loaded.excluded.length === 1 ? " was" : "s were"} left out because the colour didn&apos;t match closely enough.
+                    </p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Link className="btn" href={`/explore?ra=${target!.ra}&dec=${target!.dec}&fov=${size}&wise=0.5`}>Overlay WISE at this position ↗</Link>
                     <button
                       className="btn"
                       onClick={() => {
@@ -847,29 +910,88 @@ export default function TimeTravelClient() {
                         setCand(null);
                       }}
                     >
-                      Measure the target on every date
+                      Measure {target?.name ?? "the target"} on every date
                     </button>
-                    {loaded.frames.length > 1 && view !== "changes" && (
-                      <button className="btn btn-primary" onClick={runChanges}>
-                        Find changes →
-                      </button>
-                    )}
                   </div>
+                  <Advanced className="mt-3">
+                    <div className="text-text/90">
+                      Detector D{set.detector} at{" "}
+                      <span className="data" style={{ color: wavelengthColor(set.lambdaRef) }}>
+                        {set.lambdaRef.toFixed(3)} µm
+                      </span>{" "}
+                      · {loaded.frames.length} dates · {cadence === "daily" ? "one exposure per day" : "every compatible exposure"} · page {page + 1}
+                    </div>
+                    <ul className="mt-2 space-y-1">
+                      <li>
+                        <span className={loaded.lambdaSpread.centre <= 0.5 * set.bandwidth ? "text-good" : "text-warn"}>●</span> At the target, exact wavelengths agree within{" "}
+                        <span className="data">{loaded.lambdaSpread.centre.toFixed(4)} µm</span> ({Math.round((loaded.lambdaSpread.centre / set.bandwidth) * 100)}% of the{" "}
+                        {set.bandwidth.toFixed(3)} µm channel width).
+                      </li>
+                      <li>
+                        <span className={loaded.lambdaSpread.corners <= 0.5 * set.bandwidth ? "text-good" : "text-warn"}>●</span> At the field corners they agree within{" "}
+                        <span className="data">{loaded.lambdaSpread.corners.toFixed(4)} µm</span> ({Math.round((loaded.lambdaSpread.corners / set.bandwidth) * 100)}%).{" "}
+                        {loaded.lambdaSpread.corners > 0.5 * set.bandwidth && "Changes near the edges may be partly spectral, not temporal."}
+                      </li>
+                      {loaded.excluded.map((x) => (
+                        <li key={x.obsid} className="text-warn">
+                          Excluded {x.obsid}: {x.reason}
+                        </li>
+                      ))}
+                      <li className="text-dim">
+                        {loaded.sources.every((s) => s === "cache")
+                          ? "Frames from saved real archive cutouts; no live image service is needed for this selection."
+                          : `Frame delivery: ${[...new Set(loaded.sources)].map((s) => s === "aws" ? "official NASA AWS mirror" : s === "cache" ? "saved archive cutouts" : "IRSA cutout service").join(", ")}.`}
+                      </li>
+                    </ul>
+                    {cur && view === "frames" && (
+                      <div className="mt-3 rounded-xl bg-white/5 p-3">
+                        <div className="data text-text/90">
+                          {cur.meta.obsid} · D{cur.meta.detector} · {cur.meta.exposure.toFixed(0)} s · QA {cur.meta.l2dqa}
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-3">
+                          <a className="text-accent hover:underline" href={cur.meta.sourceFits} target="_blank" rel="noreferrer">
+                            Original FITS ↗
+                          </a>
+                          {cur.meta.mirrorFits && <a className="text-accent hover:underline" href={cur.meta.mirrorFits} target="_blank" rel="noreferrer">AWS original FITS ↗</a>}
+                          <a className="text-accent hover:underline" href={cur.meta.cutoutUrl} target="_blank" rel="noreferrer">
+                            {cur.meta.delivery === "aws" ? "IRSA cutout request ↗" : "Exact cutout ↗"}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    {cur && <details className="mt-3"><summary className="cursor-pointer">Flag definitions for this exposure</summary>
+                      {cur.meta.flags.map((flag) => <p className="mt-1" key={flag.name}><b>{flag.name}</b>: {flag.desc || "No description supplied by the archive."}</p>)}
+                    </details>}
+                    <div className="mt-3">
+                      <Link className="btn" href={`/explore?ra=${target!.ra}&dec=${target!.dec}&fov=${size}&wise=0.5`}>Overlay WISE at this position ↗</Link>
+                    </div>
+                  </Advanced>
                 </div>
               )}
 
+              {/* step 4: what changed? */}
+              {loaded && loaded.frames.length > 1 && !(view === "changes" && change) && (
+                <div className="glass rounded-2xl p-4">
+                  <div className="label text-accent">Step 4</div>
+                  <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">What changed?</h2>
+                  <p className="mt-1 text-[13px] text-muted">The computer subtracts one date from another and circles the spots that look different.</p>
+                  <button className="btn btn-primary mt-3" onClick={runChanges}>
+                    Find changes →
+                  </button>
+                </div>
+              )}
               {view === "changes" && change && loaded && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label">What changed between {fmtDate(loaded.frames[pair[0]].meta.dateAvg)} and {fmtDate(loaded.frames[pair[1]].meta.dateAvg)}</div>
-                  <p className="mt-1 text-[12px] leading-relaxed text-muted">
-                    Blue: fainter later. Red: brighter later. Significance is scaled by the <b className="text-text">measured</b> scatter of this difference image
-                    (σ = {Number.isFinite(change.sigma) ? change.sigma.toPrecision(3) : "unavailable"} MJy/sr), over pixels valid on both dates ({Math.round(change.validFrac * 100)}% of the field). Treat it as an
-                    indicator, not a calibrated probability. Pixels that differ by more than half a channel at their own position are excluded.
-                  </p>
+                  <div className="label text-accent">Step 4</div>
+                  <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">
+                    What changed between {fmtDate(loaded.frames[pair[0]].meta.dateAvg)} and {fmtDate(loaded.frames[pair[1]].meta.dateAvg)}?
+                  </h2>
+                  <p className="mt-1 text-[13px] text-muted">Red means brighter later, blue means fainter later. Click a numbered circle or a row to check it.</p>
+                  <p className="mt-1 text-[12px] text-dim">Not every circle is a real change: small differences in focus and calibration between dates can leave leftovers.</p>
                   {!Number.isFinite(change.sigma) || change.validFrac < 0.05 ? (
-                    <p className="mt-3 text-[13px] text-warn">Insufficient usable, wavelength-matched overlap to evaluate changes. Try another pair of exposures or a smaller field.</p>
+                    <p className="mt-3 text-[13px] text-warn">There isn&apos;t enough clean, colour-matched sky shared by both dates to compare. Try another pair of dates or a smaller field.</p>
                   ) : change.candidates.length === 0 ? (
-                    <p className="mt-3 text-[13px] text-text">No coherent change above 5σ. The sky looks the same on both dates at this wavelength.</p>
+                    <p className="mt-3 text-[13px] text-text">Nothing clearly stood out between these dates. Fainter changes, and spots hidden by bad pixels, aren&apos;t checked.</p>
                   ) : (
                     <ul className="scrollbar-thin mt-3 max-h-[320px] space-y-1 overflow-y-auto">
                       {change.candidates.map((c) => (
@@ -903,10 +1025,10 @@ export default function TimeTravelClient() {
                                           : "text-[#8fb8ff]"
                                   }
                                 >
-                                  {c.kind === "residual" ? "likely subtraction residual" : c.kind === "unmatched" ? "different wavelength here" : c.kind}
+                                  {kindLabel(c.kind)}
                                 </span>
                               </span>
-                              <span className="data text-[11px] text-muted">{c.peakZ.toFixed(0)}σ (empirical)</span>
+                              <span className="data text-[11px] text-muted" title="How much stronger than the map's typical scatter">{c.peakZ.toFixed(0)}× stronger than noise</span>
                             </div>
                             <div className="text-[11px] text-dim">{c.note}</div>
                           </button>
@@ -914,6 +1036,14 @@ export default function TimeTravelClient() {
                       ))}
                     </ul>
                   )}
+                  <Advanced className="mt-3">
+                    Blue: fainter later. Red: brighter later. Map contrast is scaled by the <b className="text-text">measured</b> scatter of this difference image
+                    (σ = {Number.isFinite(change.sigma) ? change.sigma.toPrecision(3) : "unavailable"} MJy/sr), over pixels valid on both dates ({Math.round(change.validFrac * 100)}% of the field). Treat it as an
+                    indicator, not a calibrated probability. PSF and calibration differences can produce strong residuals around a constant source.
+                    Pixels that differ by more than half a channel at their own position are excluded; smaller wavelength shifts can still sample spectral features.
+                    Features are listed when they exceed five times the map scatter in the usable pixels; &quot;subtraction leftover&quot; marks likely residuals and
+                    &quot;colours differ here&quot; marks spots where the two dates differ by more than half a channel at that position, so no temporal claim is made.
+                  </Advanced>
                 </div>
               )}
 
@@ -930,34 +1060,33 @@ export default function TimeTravelClient() {
           </section>
         )}
 
-        {target && obsState.status === "ready" && obs.some((o) => o.inside) && <SpectralLab
-          key={`${target.ra}_${target.dec}_${size}_${start}_${end}_${obsState.queried}`}
-          observations={obs} target={target} size={size}
-          selected={measureAt ? { ra: measureAt.ra, dec: measureAt.dec, pm: measureAt.pm, epochYear: measureAt.epochYear } : undefined}
-        />}
-
-        {!target && obsState.status === "idle" && (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {TT_TARGETS.map((t) => (
-              <button
-                key={t.slug}
-                onClick={() => {
-                  setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
-                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
-                }}
-                className="glass rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40"
-              >
-                <div className="label">{t.kind}</div>
-                <div className="font-display mt-1 text-[18px] font-semibold">
-                  {t.challenge && <span className="mr-1 text-accent">★</span>}
-                  {t.name}
-                </div>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t.why}</p>
-              </button>
-            ))}
-          </div>
+        {target && obsState.status === "ready" && obs.some((o) => o.inside) && (
+          <section className="glass mt-8 rounded-2xl p-4 sm:p-5">
+            <div className="label">Extra</div>
+            <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">See this spot in every infrared colour</h2>
+            <p className="mt-1 max-w-2xl text-[13px] text-muted">
+              SPHEREx splits infrared light into 102 colours. The wavelength lab builds pictures in six colour ranges and a brightness-by-colour chart (a spectrum).
+            </p>
+            <Advanced className="mt-3" label="Open the wavelength lab" openLabel="Close the wavelength lab">
+              <SpectralLab
+                key={`${target.ra}_${target.dec}_${size}_${start}_${end}_${obsState.queried}`}
+                observations={obs} target={target} size={size}
+                selected={measureAt ? { ra: measureAt.ra, dec: measureAt.dec, pm: measureAt.pm, epochYear: measureAt.epochYear } : undefined}
+              />
+            </Advanced>
+          </section>
         )}
       </div>
     </main>
+  );
+}
+
+function StepHead({ n, title, children }: { n: number; title: string; children?: React.ReactNode }) {
+  return (
+    <div>
+      <div className="label text-accent">Step {n}</div>
+      <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">{title}</h2>
+      {children && <p className="mt-1 max-w-2xl text-[13px] text-muted">{children}</p>}
+    </div>
   );
 }

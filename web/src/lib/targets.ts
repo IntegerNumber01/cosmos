@@ -12,6 +12,8 @@ export type Target = {
   /** Suggested wavelength frame (0-based HiPS frame) that shows the object well. */
   frame?: number;
   caution?: string;
+  /** Technical notes shown only under "Show the science". */
+  detail?: string;
   investigate?: boolean;
 };
 
@@ -19,13 +21,14 @@ export const TARGETS: Target[] = [
   {
     id: "galactic-center",
     name: "Galactic Centre",
-    kind: "Milky Way core",
+    kind: "Heart of our galaxy",
     ra: 266.405,
     dec: -28.936,
     fov: 30,
     frame: 47,
     blurb:
-      "Visible light can't get through the dust in front of our Galaxy's heart. Move toward 2–5 µm and the dust clears enough to show the crowded starlight near the centre.",
+      "The heart of our own galaxy, 26,000 light-years away. Thick dust hides it from our eyes, but infrared light shines through.",
+    detail: "Best seen from about 2 µm and longer, where dust extinction drops enough to reveal the crowded starlight near the centre.",
   },
   {
     id: "orion",
@@ -36,7 +39,8 @@ export const TARGETS: Target[] = [
     fov: 12,
     frame: 62,
     blurb:
-      "The nearest large stellar nursery. Near 3.3 µm, emission often linked to organic (PAH) molecules traces gas lit by young stars.",
+      "The closest big star nursery to Earth. New stars are being born inside this cloud right now.",
+    detail: "Near 3.3 µm, emission often attributed to polycyclic aromatic hydrocarbons (PAHs) traces gas lit by young stars.",
   },
   {
     id: "rho-oph",
@@ -45,8 +49,8 @@ export const TARGETS: Target[] = [
     ra: 246.79,
     dec: -24.0,
     fov: 10,
-    frame: 44,
-    blurb: "A dark dusty cloud. In the infrared, embedded young stars show through the haze.",
+    frame: 47,
+    blurb: "A dark, dusty cloud. In infrared, young stars hidden inside it shine through the haze.",
   },
   {
     id: "lmc",
@@ -56,7 +60,8 @@ export const TARGETS: Target[] = [
     dec: -69.76,
     fov: 14,
     frame: 30,
-    blurb: "A dwarf galaxy about 50 kpc away, orbiting the Milky Way. SPHEREx resolves its brightest stars and star-forming regions.",
+    blurb: "A small galaxy circling our own, about 160,000 light-years away. You can pick out its brightest stars.",
+    detail: "Distance about 50 kpc. SPHEREx resolves its brightest stars and star-forming regions.",
   },
   {
     id: "andromeda",
@@ -65,8 +70,8 @@ export const TARGETS: Target[] = [
     ra: 10.6847,
     dec: 41.2687,
     fov: 5,
-    frame: 20,
-    blurb: "Our nearest large spiral neighbour. The near-infrared shows the smooth glow of its older stars.",
+    frame: 30,
+    blurb: "The nearest big galaxy to ours, 2.5 million light-years away. Infrared shows the glow of its older stars.",
   },
   {
     id: "pleiades",
@@ -75,8 +80,9 @@ export const TARGETS: Target[] = [
     ra: 56.75,
     dec: 24.1167,
     fov: 4,
-    frame: 10,
-    blurb: "A young open cluster about 136 pc away. Gaia measured distances for its stars.",
+    frame: 5,
+    blurb: "The Seven Sisters: a family of young stars about 440 light-years away, born together.",
+    detail: "Open cluster at about 136 pc; ESA Gaia measured distances for its stars.",
   },
   {
     id: "carina",
@@ -91,16 +97,16 @@ export const TARGETS: Target[] = [
   {
     id: "swan",
     name: "Comet C/2025 R2 (SWAN)",
-    kind: "Comet · Investigation",
+    kind: "Comet",
     ra: 314.242,
     dec: -5.6897,
     fov: 1.2,
-    frame: 3,
+    frame: 5,
     investigate: true,
     blurb:
-      "Where SPHEREx caught comet SWAN on 2025-10-27 04:53–04:59 UTC. Open the investigation to see the dated frames and the measured motion.",
-    caution:
-      "The all-sky map is a time-average of many dates. The comet was only here for hours, so it doesn't appear as a sharp object. The dated frames are in Investigate.",
+      "SPHEREx photographed comet SWAN right here in October 2025. Open the case file to watch it move.",
+    caution: "This map blends many dates, and the comet was only here for hours, so you won't see it on the map itself.",
+    detail: "Caught on 2025-10-27, 04:53–04:59 UTC. The all-sky map is a time-average of many dates; the dated frames and the measured motion are in Investigate.",
   },
   {
     id: "wise0855",
@@ -111,9 +117,9 @@ export const TARGETS: Target[] = [
     fov: 0.6,
     frame: 88,
     blurb:
-      "One of the Sun's nearest neighbours (about 2.3 pc). It is very cold and very faint, so look at the longest wavelengths.",
-    caution:
-      "Marker at its mid-2025 position, worked out from catalogue proper motion (about 8.1″ per year westward). It is very faint, so it may not stand out in the time-averaged map. Try Time Travel for dated frames.",
+      "A “failed star” 7.4 light-years away, about as cold as a winter day on Earth. Far too cool for our eyes: look in deep infrared.",
+    caution: "It's very faint, so it may not stand out on this map. Time Travel shows dated photos.",
+    detail: "About 2.3 pc away. Marker at its mid-2025 position, worked out from catalogue proper motion (about 8.1″ per year westward).",
   },
   {
     id: "barnard",
@@ -122,10 +128,10 @@ export const TARGETS: Target[] = [
     ra: 269.44636, // 2025.6 position: Gaia DR3 4472832130942575872 propagated with its proper motion
     dec: 4.76705,
     fov: 0.6,
-    frame: 20,
-    blurb: "At 1.8 pc, the closest single star to the Sun, and the star with the fastest proper motion in our sky (about 10.4″/yr).",
-    caution:
-      "This marker is the star's position in mid-2025, worked out from Gaia DR3's measured proper motion (source 4472832130942575872). That's 4.4′ from its J2000 catalogue position. It moves about 1.7 SPHEREx pixels per year, so in the time-averaged map it may look slightly smeared.",
+    frame: 30,
+    blurb: "The closest single star to the Sun, 6 light-years away, and the fastest-moving star across our sky.",
+    caution: "It moves so fast that it can look slightly smeared on this map, which blends many dates.",
+    detail: "1.8 pc away; proper motion about 10.4″/yr. The marker is its mid-2025 position from Gaia DR3's measured proper motion (source 4472832130942575872), 4.4′ from its J2000 catalogue position. It moves about 1.7 SPHEREx pixels per year.",
   },
 ];
 

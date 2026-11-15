@@ -9,7 +9,7 @@ const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "COSMOS — The Infrared Universe Explorer",
   description:
-    "Google Earth for the infrared universe. Explore NASA SPHEREx's 102-colour infrared sky, fly through Gaia-measured stars, and investigate real dated observations.",
+    "See the sky in light your eyes can't see. Explore real infrared pictures from NASA's SPHEREx space telescope, fly between real nearby stars, and see how the sky changes over time.",
 };
 
 export const viewport: Viewport = {

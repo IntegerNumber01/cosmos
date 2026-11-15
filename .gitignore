@@ -9,6 +9,9 @@ data/work/
 # Node / Next
 node_modules/
 .next/
+.next-dev/
+.next-build/
+debug.log
 out/
 .vercel/
 *.tsbuildinfo

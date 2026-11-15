@@ -92,3 +92,39 @@ export function frameForWavelength(um: number) {
   }
   return best;
 }
+
+/**
+ * Five plain-language "stops" along the spectrum for the default Explore view. They match the
+ * landing-page globe captures. These are the wavelengths kept preloaded for instant switching.
+ */
+export const STOPS = [
+  { frame: 5, name: "Almost visible", note: "Just past red light. Dark dust clouds still block the view." },
+  { frame: 30, name: "Through the haze", note: "Infrared slips through thin dust. Hidden stars start to appear." },
+  { frame: 47, name: "Galaxy's heart", note: "Dust turns nearly see-through. The crowded centre of our galaxy shines." },
+  { frame: 62, name: "Glowing dust", note: "Carbon-rich dust glows around newborn stars." },
+  { frame: 88, name: "Warm dust", note: "Near the longest infrared SPHEREx sees. Warm dust glows." },
+];
+export const STOP_FRAMES = STOPS.map((s) => s.frame);
+export function nearestStop(frame: number) {
+  let best = STOPS[0];
+  for (const s of STOPS) if (Math.abs(s.frame - frame) < Math.abs(best.frame - frame)) best = s;
+  return best;
+}
+
+/** ICRS (≈J2000) RA/Dec in degrees → Galactic longitude/latitude in degrees (IAU 1958 / Hipparcos rotation). */
+export function toGalactic(raDeg: number, decDeg: number) {
+  const d2r = Math.PI / 180;
+  const ra = raDeg * d2r;
+  const dec = decDeg * d2r;
+  const x = Math.cos(dec) * Math.cos(ra);
+  const y = Math.cos(dec) * Math.sin(ra);
+  const z = Math.sin(dec);
+  // rows of the equatorial → galactic rotation matrix
+  const gx = -0.0548755604 * x - 0.8734370902 * y - 0.4838350155 * z;
+  const gy = 0.4941094279 * x - 0.4448296300 * y + 0.7469822445 * z;
+  const gz = -0.8676661490 * x - 0.1980763734 * y + 0.4559837762 * z;
+  let l = Math.atan2(gy, gx) / d2r;
+  if (l < 0) l += 360;
+  const b = Math.asin(Math.max(-1, Math.min(1, gz))) / d2r;
+  return { l, b };
+}

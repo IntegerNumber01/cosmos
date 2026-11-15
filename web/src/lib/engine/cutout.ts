@@ -4,6 +4,7 @@
 import { flagDefs, parseFits, readImage, readInt32Image } from "./fits";
 import { sky2pix, waveAt, wcsFromHeader, WcsParams } from "./wcs";
 import { ENGINE_VERSION } from "./releases";
+import { cloudCutout } from "./cloudCutout";
 
 export type CutoutMeta = {
   obsid: string;
@@ -25,6 +26,9 @@ export type CutoutMeta = {
   cutoutUrl: string;
   engine?: string;
   release?: string;
+  delivery?: "irsa" | "aws";
+  mirrorFits?: string;
+  nativeCrop?: { x: number; y: number; nx: number; ny: number };
 };
 
 export const IBE_PREFIX = "https://irsa.ipac.caltech.edu/ibe/data/spherex/";
@@ -37,12 +41,13 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
   if (!url.startsWith(IBE_PREFIX) || !url.endsWith(".fits")) throw new Error("not a SPHEREx IBE file");
   const cu = cutoutUrl(url, ra, dec, size);
   let buf: ArrayBuffer | null = null;
-  const deadline = Date.now() + 52000;
-  for (let attempt = 0; attempt < 4; attempt++) {
+  const started = Date.now();
+  const deadline = started + 14000;
+  for (let attempt = 0; attempt < 2; attempt++) {
     const remaining = deadline - Date.now();
     if (remaining < 1000) break;
     try {
-      const r = await fetch(cu, { cache: "no-store", signal: AbortSignal.timeout(Math.min(12000, remaining)) });
+      const r = await fetch(cu, { cache: "no-store", signal: AbortSignal.timeout(Math.min(6000, remaining)) });
       if (r.ok) {
         const b = await r.arrayBuffer();
         if (b.byteLength >= 6 && new TextDecoder().decode(new Uint8Array(b, 0, 6)) === "SIMPLE") {
@@ -51,18 +56,19 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
         }
       }
     } catch { /* bounded retry for a busy archive */ }
-    if (attempt < 3 && Date.now() + 1200 * (attempt + 1) < deadline) await new Promise((res) => setTimeout(res, 1200 * (attempt + 1)));
+    if (attempt === 0) await new Promise((res) => setTimeout(res, 500));
   }
-  if (!buf) throw new Error("IRSA cutout service did not return a FITS file");
-  const hdus = parseFits(buf);
+  const hdus = buf ? parseFits(buf) : [];
   const img = hdus.find((h) => h.name === "IMAGE");
   const flg = hdus.find((h) => h.name === "FLAGS");
   const vr = hdus.find((h) => h.name === "VARIANCE");
-  if (!img || !flg || !vr) throw new Error("cutout is missing IMAGE/FLAGS/VARIANCE");
-  const h = img.header;
-  const { data, nx, ny } = readImage(buf, img);
-  const flags = readInt32Image(buf, flg);
-  const variance = readImage(buf, vr).data;
+  const mirrored = !buf || !img || !flg || !vr ? await cloudCutout(url, ra, dec, size, started + 54000).catch((e) => {
+    throw new Error(`IRSA cutout unavailable; AWS mirror fallback failed: ${(e as Error).message}`);
+  }) : null;
+  const h = mirrored ? mirrored.header : img!.header;
+  const { data, nx, ny } = mirrored ?? readImage(buf!, img!);
+  const flags = mirrored ? mirrored.flags : readInt32Image(buf!, flg!);
+  const variance = mirrored ? mirrored.variance : readImage(buf!, vr!).data;
   const wcs = wcsFromHeader(h);
   const det = Number(h.DETECTOR);
   const crpixW: [number, number] = [Number(h.CRPIX1W), Number(h.CRPIX2W)];
@@ -82,12 +88,14 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
     ny,
     wcs,
     crpixW,
-    flags: flagDefs(flg.header).map((f) => ({ name: f.name, mask: f.mask, desc: f.desc })),
+    flags: flagDefs(mirrored ? mirrored.flagHeader : flg!.header).map((f) => ({ name: f.name, mask: f.mask, desc: f.desc })),
     target: { ra, dec, x: tx, y: ty, wl: w.wl, bw: w.bw },
     sourceFits: url,
     cutoutUrl: cutoutUrl(url, ra, dec, size),
     engine: ENGINE_VERSION,
     release: url.slice(IBE_PREFIX.length).split("/")[0],
+    delivery: mirrored ? "aws" : "irsa",
+    ...(mirrored ? { mirrorFits: mirrored.source, nativeCrop: mirrored.crop } : {}),
   };
   return pack(meta, data, flags, variance);
 }

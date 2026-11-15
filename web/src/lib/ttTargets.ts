@@ -2,6 +2,7 @@
 // astrometry (SIMBAD, Harvard mirror, retrieved 2026-11-14), so fast-moving stars are where SPHEREx saw them.
 export type TTTarget = {
   slug: string;
+  gaiaSourceId?: string; // Exact identity only; never map nearby stars onto a prepared example.
   name: string;
   kind: string;
   ra: number;
@@ -10,11 +11,14 @@ export type TTTarget = {
   challenge?: boolean;
   pm?: [number, number]; // mas/yr (for display)
   prefer?: { obsid: string; detector: number }; // open on the wavelength set containing this exposure
+  caseFile?: string;
+  compare?: [string, string]; // preferred before/after exposure keys, when both are loaded
 };
 
 export const TT_TARGETS: TTTarget[] = [
   {
     slug: "barnard",
+    gaiaSourceId: "4472832130942575872",
     name: "Barnard's Star",
     kind: "Fastest-moving star",
     ra: 269.44629,
@@ -63,6 +67,27 @@ export const TT_TARGETS: TTTarget[] = [
     dec: 66.75502,
     challenge: true,
     why: "A pulsating giant with a period of about 246 days. It sits near the ecliptic pole, where SPHEREx looks often.",
+  },
+  {
+    slug: "gy152",
+    name: "GY 152",
+    kind: "Search follow-up: infrared dip",
+    ra: 246.726222,
+    dec: -24.410601,
+    why: "A blind search found this known young source fainter in two exposures on 16 August 2025. The event remains a candidate; novelty is unproven.",
+    prefer: { obsid: "2025W33_2C_0440_3", detector: 5 },
+    caseFile: "/investigate/search#gy152",
+    compare: ["2025W33_1B_0472_2D5", "2025W33_2C_0440_3D5"],
+  },
+  {
+    slug: "gpmon",
+    name: "GP Mon",
+    kind: "Search follow-up: chromatic variability",
+    ra: 100.1743974,
+    dec: 9.8623153,
+    why: "This known unresolved variable system brightened much more near 1.19 µm than near 3.94 µm between September and November 2025.",
+    prefer: { obsid: "2025W40_1A_0132_1", detector: 2 },
+    caseFile: "/investigate/search#gpmon",
   },
   {
     slug: "swan",

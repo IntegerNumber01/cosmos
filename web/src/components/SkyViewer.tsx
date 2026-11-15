@@ -28,16 +28,26 @@ type Props = {
   onMarkerClick?: (id: string) => void;
   onStatus?: (s: "loading" | "ready" | "error", msg?: string) => void;
   onPointer?: (p: { ra: number; dec: number } | null) => void;
+  /**
+   * Wavelength frames to prefetch for the current view. Their tiles are fetched in the
+   * background into the browser cache, so switching to them doesn't wait on the network.
+   */
+  stops?: number[];
 };
 
+/** Wait for the slider to settle before asking IRSA for a new wavelength. Each request flood
+ *  of intermediate wavelengths otherwise queues ahead of the one the user actually stopped on. */
+const SETTLE_MS = 220;
+
 /**
- * Full-sky SPHEREx viewer. Two HiPS layers of the same cube are stacked: the TOP layer jumps
- * to a new wavelength immediately, and the BASE layer follows a moment later. Tiles that
- * haven't arrived on top are see-through, so the previous wavelength stays visible instead
- * of flashing to black.
+ * Full-sky SPHEREx viewer. Layers of the same cube are stacked:
+ *  - BASE (bottom) follows the current wavelength a moment later, as a fallback.
+ * Optional `stops` are prefetched into the HTTP cache for whatever the user is looking at.
+ *  - FREE (top) jumps to the new wavelength (after the slider settles) and fades in. Tiles that haven't arrived are see-through, so the
+ *    previous view stays visible instead of flashing to black.
  */
 const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
-  { ra, dec, fov, frame, colormap, showGrid = false, wiseOpacity = 0, onWiseStatus, markers = [], lines = [], onView, onMarkerClick, onStatus, onPointer },
+  { ra, dec, fov, frame, colormap, showGrid = false, wiseOpacity = 0, onWiseStatus, markers = [], lines = [], onView, onMarkerClick, onStatus, onPointer, stops = [] },
   ref,
 ) {
   const divRef = useRef<HTMLDivElement>(null);
@@ -50,6 +60,12 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
   const catsRef = useRef<Map<string, any>>(new Map());
   const lineOverlayRef = useRef<any>(null);
   const followTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stopsRef = useRef(stops);
+  stopsRef.current = stops;
+  const freeFrame = useRef(-1);
+  const frameRef = useRef(frame);
+  frameRef.current = frame;
   const [ready, setReady] = useState(false);
   const cbRef = useRef({ onView, onMarkerClick, onStatus, onPointer });
   cbRef.current = { onView, onMarkerClick, onStatus, onPointer };
@@ -118,6 +134,7 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
           name: "SPHEREx DR1 (fade)",
           successCallback: (h: any) => {
             h.setFrequency({ value: frameToFrequencyHz(frame), unit: "Hz" });
+            freeFrame.current = frame;
             setReady(true);
             cbRef.current.onStatus?.("ready");
           },
@@ -147,20 +164,84 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // wavelength change with crossfade
+  // wavelength change
   useEffect(() => {
     if (!ready) return;
     const f = frameToFrequencyHz(frame);
-    try {
-      topRef.current?.setFrequency({ value: f, unit: "Hz" });
-    } catch {}
+    if (settleTimer.current) clearTimeout(settleTimer.current);
     if (followTimer.current) clearTimeout(followTimer.current);
-    followTimer.current = setTimeout(() => {
+    // Wait for the slider to settle, then fetch only the final wavelength. Prefetched stops
+    // come straight from the browser cache, so they go immediately.
+    settleTimer.current = setTimeout(() => {
       try {
-        baseRef.current?.setFrequency({ value: f, unit: "Hz" });
+        if (freeFrame.current !== frame) topRef.current?.setFrequency({ value: f, unit: "Hz" });
+        freeFrame.current = frame;
       } catch {}
-    }, 1800);
+      followTimer.current = setTimeout(() => {
+        try {
+          baseRef.current?.setFrequency({ value: f, unit: "Hz" });
+        } catch {}
+      }, 1800);
+    }, stopsRef.current.includes(frame) ? 0 : SETTLE_MS);
   }, [frame, ready]);
+
+  // Prefetch: note which tiles Aladin loads for the view, then fetch the same tiles at each stop
+  // wavelength into the HTTP cache. HiPS cube tiles are named Npix<N>_<frame>.png (frame 0 has no suffix).
+  useEffect(() => {
+    if (!ready || typeof PerformanceObserver === "undefined") return;
+    const seen = new Set<string>(); // tile path without the frame suffix
+    const done = new Set<string>();
+    const queue: string[] = [];
+    let active = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const pump = () => {
+      while (active < 4 && queue.length) {
+        const url = queue.shift()!;
+        active++;
+        fetch(url, { mode: "cors", credentials: "omit" })
+          .then((r) => r.blob())
+          .catch(() => {})
+          .finally(() => {
+            active--;
+            pump();
+          });
+      }
+    };
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        for (const stem of [...seen].slice(-80)) {
+          for (const s of stopsRef.current) {
+            const url = `${stem}${s === 0 ? "" : "_" + s}.png`;
+            if (!done.has(url)) {
+              done.add(url);
+              queue.push(url);
+            }
+          }
+        }
+        pump();
+      }, 1500);
+    };
+    const obs = new PerformanceObserver((list) => {
+      if (!stopsRef.current.length) return;
+      let added = false;
+      for (const e of list.getEntries()) {
+        if (!e.name.startsWith(HIPS_URL + "/Norder")) continue;
+        const stem = e.name.replace(/(_\d+)?\.png$/, "");
+        if (!seen.has(stem)) {
+          seen.add(stem);
+          added = true;
+        }
+      }
+      if (added) schedule();
+    });
+    obs.observe({ type: "resource", buffered: true });
+    return () => {
+      obs.disconnect();
+      if (timer) clearTimeout(timer);
+      queue.length = 0;
+    };
+  }, [ready]);
 
   useEffect(() => {
     if (!ready) return;

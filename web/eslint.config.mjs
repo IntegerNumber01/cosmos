@@ -15,11 +15,17 @@ const eslintConfig = [
     ignores: [
       "node_modules/**",
       ".next/**",
+      ".next-*/**",
+      ".qa/**",
       "out/**",
       "build/**",
       "next-env.d.ts",
       "public/vendor/**",
     ],
+  },
+  {
+    files: ["scripts/**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
   },
 ];
 

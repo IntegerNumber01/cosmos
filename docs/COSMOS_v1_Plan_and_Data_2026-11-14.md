@@ -3,7 +3,7 @@
 Source: ChatGPT "NASA Space Apps Guide" chat, COSMOS v1 plan written in-chat Nov 14, 2026 (no canvas created).
 Challenge: **Planet X and SPHEREx** — https://www.spaceappschallenge.org/2026/challenges/planet-x-and-spherex/ (Advanced; Astrophysics / Planets & Moons / Software)
 Tagline: "Google Earth for the infrared universe"
-Deadline in plan: **Sunday, November 15, 2026, 11:59 p.m. Pacific** — submit by 10:30 p.m. with buffer.
+Internal submission target: **Sunday, November 15, 2026, 10:30 p.m. Pacific**, to leave a buffer. This is not the event deadline. Official submission closes at **11:59 p.m. in the Local Event's timezone**, or the Team Owner's residential timezone for the Universal Event.
 
 ## The pivot (from Krishna's latest ChatGPT messages)
 Re-ranked challenges: SPHEREx project chosen over FloodSight (FloodSight ranked 7th, dropped by supersession). COSMOS = explore the whole infrared sky in 102 wavelengths (Explore), fly a Gaia-measured 3D star field (Fly), compare dated SPHEREx observations (Time Travel), and investigate one object with evidence and flags (Investigate) — without claiming discoveries. Krishna's 2D→3D question resolved honestly: SPHEREx has no depth per pixel; real 3D comes only from Gaia star distances; AI depth is an optional, clearly labelled illustration.

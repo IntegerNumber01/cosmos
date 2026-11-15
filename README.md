@@ -2,7 +2,7 @@
 
 **Google Earth for the infrared universe.** NASA Space Apps Challenge 2026, *Planet X and SPHEREx*.
 
-Enter any sky coordinates (or fly to a star) and COSMOS lists NASA SPHEREx exposures of that patch of sky. Play every compatible exposure or one per day, filter by date, and page through the sequence in groups of 12. Then find what changed and check whether it's already known.
+Compare real dated NASA SPHEREx images, measure what changed, and check whether the source is already known. Eight featured fields open a labelled, saved subset of real observations that works during archive outages. Arbitrary coordinates and searches for additional observations use IRSA's live discovery service.
 
 | Mode | What you do | Data |
 |---|---|---|
@@ -21,7 +21,9 @@ Enter any sky coordinates (or fly to a star) and COSMOS lists NASA SPHEREx expos
 6. `/api/known` checks Gaia DR3 (propagated to the epoch), SIMBAD (propagated from J2000), and NASA/JPL small bodies at the time the object was visible. Only requested services run. A failed or malformed response is reported as a failure, never as an empty result (`web/scripts/test-known.ts`). A SIMBAD object and a Gaia source are treated as the same only if their proper motions agree. A JPL object becomes "consistent" only if our measured position matches its prediction within tolerance; otherwise it's a "possible association".
 7. Find changes and every measurement re-check the wavelength match **at their own position**. The filter wavelength drifts across the field, so changes where the dates differ by more than half a channel get no temporal reading. Measurements follow the validation pipeline's rules: any flagged pixel in the core (r ≤ 1.5 px) means no measurement, and centroids come only from fully valid apertures. Cached catalogue answers are used only for the exact query they answer (position, radius, time, services).
 
-The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position and 4e-7 µm in wavelength (`web/scripts/check-wcs.ts`). Featured targets ship a prepared cache, byte-identical to the live API output (`web/scripts/build-cache.ts`), so demos work if the archive is unreachable.
+The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position and 4e-7 µm in wavelength (`web/scripts/check-wcs.ts`). Featured targets ship 130 saved real cutouts across eight fields. `npm run prepare:offline` validates the saved cutouts and generates menus containing only exposures actually shipped; the original archive inventories remain available for provenance. `npm run build` runs this step automatically.
+
+When IRSA's image service fails, known DR1 image URLs fall back to NASA's official public AWS mirror. The server reads small byte ranges, crops native IMAGE/VARIANCE pixels, losslessly decompresses the corresponding RICE_1 FLAGS rows, and adjusts both sky and wavelength reference pixels. Delivery and original URLs remain visible under the science details. No AWS account, credentials, paid AWS resources, or hosting migration is required; Vercel can continue hosting the app. AWS image reads do not replace coordinate discovery. See [outage recovery and checks](docs/ARCHIVE_RESILIENCE.md).
 
 ## Challenge considerations in the public tool
 
@@ -32,6 +34,12 @@ The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position 
 - **Field, overlays, and links:** Time Travel offers 3′, 6′, 12′, and 18′ fields, Gaia predictions, and a quality overlay. Explore adds a WISE mosaic with adjustable opacity and epoch warnings. Investigation links preserve field, wavelength window, selected exposures, comparison mode, visit settings, and proper motion; “Copy embed code” provides an iframe presentation.
 
 Details, limitations, and acceptance checks: [docs/CHALLENGE_COVERAGE.md](docs/CHALLENGE_COVERAGE.md).
+
+## A blind search with the tool
+
+The new `/investigate/search` case file follows a real search of six fresh fields: 59 initial native images, 774 source-pair comparisons, and 13 candidate clusters, each inspected. It includes a **candidate infrared dip in GY 152**, **strong wavelength-dependent brightening in the known GP Mon system**, and an ASR 7 spectral feature that imitated a temporal change. No new-object discovery or proven event novelty is claimed.
+
+GY 152 and GP Mon have prepared, explicitly selected follow-up sequences in Time Travel. The case file provides native photometry, reference-star controls, original-source provenance, CSV/JSON downloads and PDF figures. Measurement panels report the local wavelength span, since even the half-channel cutoff can admit spectral false positives. Full methods, catalogue checks, limitations and reproduction commands: [docs/DISCOVERY_SEARCH.md](docs/DISCOVERY_SEARCH.md).
 
 ```bash
 cd web
@@ -71,7 +79,7 @@ npm run dev          # http://localhost:3000
 npm run build && npm start
 ```
 
-Deploy on Vercel with `web/` as the project root. The API routes need the Node.js runtime (60 s limit is enough).
+Deploy on Vercel with `web/` as the project root. The API routes use the Node.js runtime and declare a 60 s limit; ensure the deployment supports that limit. Dev and production use separate `.next-dev` and `.next-build` directories automatically, so building does not overwrite a running dev server.
 
 ## Rebuild the data (Python 3.12)
 

@@ -3,7 +3,7 @@
 import { decodeFrame, Frame, Observation } from "./sequence";
 import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE } from "./releases";
 
-export type Source = "live" | "cache";
+export type Source = "live" | "cache" | "aws";
 
 async function getJSON(url: string, timeoutMs: number, fresh = false) {
   const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), ...(fresh ? { cache: "no-store" as const } : {}) });
@@ -20,14 +20,15 @@ async function getJSON(url: string, timeoutMs: number, fresh = false) {
 export async function getObservations(ra: number, dec: number, slug?: string, preferCache = true, size = 0.1, refresh = false) {
   const live = () => getJSON(`/api/observations?ra=${ra}&dec=${dec}&size=${size}${refresh ? "&refresh=1" : ""}`, 60000, refresh).then((d) => ({ ...d, source: "live" as Source }));
   const cache = async () => {
-    const d = await getJSON(`/cache/${slug}/observations.json`, 15000);
+    const d = await getJSON(`/cache/${slug}/prepared.json`, 15000)
+      .catch(() => getJSON(`/cache/${slug}/observations.json`, 15000));
     // Legacy centre searches remain useful for the original 6′ demo, but cannot claim full-field coverage.
     const legacy = d.schema === undefined;
     if ((!legacy && (d.schema !== CACHE_SCHEMA || d.engine !== ENGINE_VERSION || d.release !== RELEASE.id)) ||
       !Number.isFinite(d.target?.ra) || !Number.isFinite(d.target?.dec) ||
       Math.abs(d.target?.ra - ra) > 1e-5 || Math.abs(d.target?.dec - dec) > 1e-5 ||
       (legacy ? size !== 0.1 : d.fieldSize !== size)) throw new Error("Prepared observations do not match this field/release.");
-    return { ...d, legacy, source: "cache" as Source };
+    return { ...d, legacy: legacy || d.legacy === true, source: "cache" as Source };
   };
   // A refresh must either return a new archive answer or report failure, never silently return old data.
   if (refresh) return live();
@@ -75,6 +76,7 @@ async function loadFrame(o: Observation, ra: number, dec: number, size: number, 
     }
   }
   const frame = decodeFrame(buf);
+  if (source === "live" && frame.meta.delivery === "aws") source = "aws";
   return { frame, source } as { frame: Frame; source: Source };
 }
 
@@ -82,7 +84,7 @@ async function loadFrame(o: Observation, ra: number, dec: number, size: number, 
 // unbounded sky survey in browser memory; failed requests never poison a later retry.
 const frameRequests = new Map<string, ReturnType<typeof loadFrame>>();
 export function getFrame(o: Observation, ra: number, dec: number, size: number, slug?: string, preferCache = true) {
-  const key = `${ENGINE_VERSION}|${o.url}|${ra}|${dec}|${size}|${preferCache}`;
+  const key = `${ENGINE_VERSION}|${o.url}|${ra}|${dec}|${size}|${slug ?? ""}|${preferCache}`;
   const old = frameRequests.get(key);
   if (old) return old;
   const promise = loadFrame(o, ra, dec, size, slug, preferCache).catch((e) => { frameRequests.delete(key); throw e; });

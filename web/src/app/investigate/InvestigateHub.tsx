@@ -3,16 +3,53 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
 import { TT_TARGETS } from "@/lib/ttTargets";
+import { VERDICT_STYLE, plainFor } from "@/components/investigate/plainVerdicts";
 
 type V = { id: string; name: string; test_type: string; result?: { verdict: string; summary: string } };
 
-const VERDICT_STYLE: Record<string, string> = {
-  confirmed: "bg-good/15 text-good",
-  consistent: "bg-good/15 text-good",
-  not_detected: "bg-warn/15 text-warn",
-  inconclusive: "bg-white/10 text-muted",
-  unreliable: "bg-bad/15 text-bad",
+/** Everyday description of each challenge target (the catalogue wording lives in ttTargets). */
+const KIND_PLAIN: Record<string, string> = {
+  barnard: "Fastest-moving star across our sky",
+  wise0855: "Coldest known brown dwarf (a “failed star”)",
+  epsindib: "A pair of brown dwarfs",
+  rwaur: "Young star that dims and brightens",
+  rdra: "Giant star that slowly pulses",
 };
+
+function CaseRow({
+  href,
+  img,
+  imgAlt,
+  title,
+  hook,
+  status,
+  statusCls,
+  imgClass = "pixelated",
+}: {
+  href: string;
+  img: string;
+  imgAlt: string;
+  title: string;
+  hook: string;
+  status: string;
+  statusCls: string;
+  imgClass?: string;
+}) {
+  return (
+    <Link href={href} className="glass group grid grid-cols-[96px_1fr] overflow-hidden rounded-2xl transition hover:border-accent/40 sm:grid-cols-[200px_1fr]">
+      <div className="h-full min-h-[120px] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={img} alt={imgAlt} className={`h-full w-full object-cover ${imgClass}`} />
+      </div>
+      <div className="p-4 sm:p-5">
+        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusCls}`}>{status}</span>
+        <h2 className="font-display mt-1.5 text-[20px] font-semibold leading-tight sm:text-[23px]">{title}</h2>
+        <p className="mt-1 text-[13.5px] leading-relaxed text-text/80">{hook}</p>
+        <div className="mt-2 text-[13px] text-accent group-hover:underline">Open the case →</div>
+      </div>
+    </Link>
+  );
+}
 
 export default function InvestigateHub() {
   const [vals, setVals] = useState<Record<string, V | null>>({});
@@ -29,62 +66,63 @@ export default function InvestigateHub() {
     <main className="relative min-h-screen bg-bg pb-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
       <NavBar />
-      <div className="relative mx-auto max-w-[1180px] px-4 pt-24 sm:px-6">
+      <div className="relative mx-auto max-w-[1000px] px-4 pt-24 sm:px-6">
         <div className="label text-accent">Investigate</div>
         <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight sm:text-[42px]">Case files</h1>
-        <p className="mt-2 max-w-2xl text-[14.5px] text-muted">
-          Each investigation starts from real SPHEREx exposures and asks three questions. What changed? Can we measure it? Is it already known? Some answers
-          are &quot;SPHEREx can&apos;t tell&quot;, and we say so.
+        <p className="mt-2 max-w-2xl text-[15px] text-muted">
+          Detective work with real pictures from NASA&apos;s SPHEREx space telescope. Each case asks one question and shows you the evidence. Sometimes the
+          honest answer is &quot;we can&apos;t tell&quot;.
         </p>
 
-        <Link
-          href="/investigate/swan"
-          className="glass group mt-8 grid overflow-hidden rounded-2xl transition hover:border-accent/40 md:grid-cols-[320px_1fr]"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/img/investigate.webp" alt="Comet C/2025 R2 (SWAN) in a SPHEREx exposure" className="pixelated h-full max-h-[260px] w-full object-cover md:max-h-none" />
-          <div className="p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="label text-accent">Featured case file · moving object</span>
-              <span className="rounded-full bg-good/15 px-2 py-0.5 text-[11px] font-semibold text-good">confirmed known-object match</span>
-            </div>
-            <h2 className="font-display mt-1 text-[24px] font-semibold">Comet C/2025 R2 (SWAN)</h2>
-            <p className="mt-2 text-[13.5px] leading-relaxed text-text/80">
-              From the orbit prediction to the pixels. We found the comet in all 20 SPHEREx frames from 27–28 Oct 2025, measured its motion against the prediction,
-              checked field stars as a control, and confirmed the spot is empty again on 1 May 2026 at a matched wavelength.
-            </p>
-            <div className="mt-3 text-[13px] text-accent group-hover:underline">Open the case file →</div>
-          </div>
-        </Link>
+        <div className="mt-8 space-y-4">
+          <CaseRow
+            href="/investigate/swan"
+            img="/img/investigate.webp"
+            imgAlt="Comet C/2025 R2 (SWAN) in a SPHEREx picture"
+            title="Comet SWAN on the move"
+            hook="Its orbit says where it should be. Did SPHEREx really photograph it there?"
+            status="Confirmed in the images · a known comet"
+            statusCls="bg-good/15 text-good"
+          />
+          <CaseRow
+            href="/investigate/search"
+            img="/data/discovery/gy152-images.png"
+            imgAlt="SPHEREx pictures of the young star GY 152 on several dates"
+            title="What a blind search found"
+            hook="We scanned six star-forming clouds for anything that changed. Three things stood out."
+            status="Known objects · no new discovery claimed"
+            statusCls="bg-warn/15 text-warn"
+            imgClass="object-[41%_34%] origin-[41%_34%] translate-x-[9%] translate-y-[16%] scale-[5.5] invert"
+          />
+        </div>
 
-        <h2 className="font-display mt-12 text-[22px] font-semibold">The challenge&apos;s five test targets</h2>
-        <p className="mt-1 max-w-2xl text-[13px] text-muted">
-          The challenge asks every tool to be tested on these. Each one exercises a different case: proper motion, a faint cold brown dwarf, and variability.
-        </p>
+        <h2 className="font-display mt-14 text-[22px] font-semibold">The challenge&apos;s five test targets</h2>
+        <p className="mt-1 max-w-2xl text-[13.5px] text-muted">Every team is asked to test their tool on these five. Here is how ours did.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {TT_TARGETS.filter((t) => t.challenge).map((t) => {
             const v = vals[t.slug];
+            const plain = plainFor(t.slug, v?.result?.verdict);
             return (
               <div key={t.slug} id={t.slug} className="glass flex flex-col rounded-2xl p-4">
-                <div className="label">{t.kind}</div>
-                <div className="font-display mt-1 text-[19px] font-semibold">{t.name}</div>
-                {v?.result ? (
+                <div className="text-[12px] text-muted">{KIND_PLAIN[t.slug] ?? t.kind}</div>
+                <div className="font-display mt-0.5 text-[19px] font-semibold">{t.name}</div>
+                {v?.result && plain ? (
                   <>
                     <span className={`mt-2 w-fit rounded-full px-2 py-0.5 text-[11px] font-semibold ${VERDICT_STYLE[v.result.verdict] ?? "bg-white/10 text-muted"}`}>
-                      {v.result.verdict.replace("_", " ")}
+                      {plain.status}
                     </span>
-                    <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-text/80">{v.result.summary}</p>
+                    <p className="mt-2 flex-1 text-[13px] leading-relaxed text-text/80">{plain.text ?? v.result.summary}</p>
                   </>
                 ) : (
-                  <p className="mt-2 flex-1 text-[12.5px] leading-relaxed text-muted">{t.why}</p>
+                  <p className="mt-2 flex-1 text-[13px] leading-relaxed text-muted">{t.why}</p>
                 )}
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Link href={`/timetravel?target=${t.slug}`} className="btn btn-primary !py-1 !text-[12px]">
-                    Open in Time Travel
+                    See the pictures
                   </Link>
                   {v && (
                     <Link href={`/validation#${t.slug}`} className="btn !py-1 !text-[12px]">
-                      Validation record
+                      How we tested it
                     </Link>
                   )}
                 </div>
@@ -92,11 +130,9 @@ export default function InvestigateHub() {
             );
           })}
           <Link href="/timetravel" className="flex flex-col justify-center rounded-2xl border border-dashed border-line p-4 transition hover:border-accent/50">
-            <div className="label text-accent">Your own investigation</div>
-            <div className="font-display mt-1 text-[19px] font-semibold">Any coordinates →</div>
-            <p className="mt-1 text-[12.5px] text-muted">
-              Fly to a star, pick a spot on the infrared map, or type RA/Dec. Then compare dates taken at the same wavelength, and find what changed.
-            </p>
+            <div className="text-[12px] text-accent">Your own case</div>
+            <div className="font-display mt-0.5 text-[19px] font-semibold">Any spot in the sky →</div>
+            <p className="mt-1 text-[13px] text-muted">Pick a place, then compare pictures from different dates to see what changed.</p>
           </Link>
         </div>
       </div>

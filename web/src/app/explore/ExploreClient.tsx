@@ -2,10 +2,13 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Advanced from "@/components/Advanced";
 import NavBar from "@/components/NavBar";
 import SkyViewer, { SkyViewerHandle } from "@/components/SkyViewer";
 import WavelengthDial from "@/components/WavelengthDial";
-import { BLANK_FRAMES, HIPS_DOI, WAVELENGTHS_UM, nearestValidFrame } from "@/lib/spherex";
+import WavelengthStops from "@/components/WavelengthStops";
+import WhereAmI from "@/components/WhereAmI";
+import { BLANK_FRAMES, HIPS_DOI, STOP_FRAMES, WAVELENGTHS_UM, nearestValidFrame } from "@/lib/spherex";
 import { TARGETS, TARGET_BY_ID, Target } from "@/lib/targets";
 
 const COLORMAPS = [
@@ -14,6 +17,7 @@ const COLORMAPS = [
   { id: "cubehelix", label: "Helix" },
   { id: "viridis", label: "Viridis" },
 ];
+const INTRO_KEY = "cosmos.explore.intro.v1";
 
 function num(v: string | null, d: number) {
   const n = v === null ? NaN : parseFloat(v);
@@ -42,6 +46,14 @@ function fmtFov(fov: number) {
   if (fov * 60 >= 1) return `${(fov * 60).toFixed(1)}′`;
   return `${(fov * 3600).toFixed(0)}″`;
 }
+/** How much of the sky is on screen, in words (full moon ≈ 0.5°). */
+function fovWords(fov: number) {
+  if (fov >= 90) return "about half the sky";
+  if (fov >= 30) return "a big patch of sky";
+  if (fov >= 2) return `about ${Math.round(fov / 0.5)} full moons across`;
+  if (fov >= 0.5) return "about one full moon across";
+  return "a tiny patch, smaller than the Moon";
+}
 
 export default function ExploreClient() {
   const sp = useSearchParams();
@@ -60,7 +72,7 @@ export default function ExploreClient() {
   const viewer = useRef<SkyViewerHandle>(null);
   const [clean] = useState(() => sp.get("clean") === "1"); // hide all UI (for recording / captures)
   const [frame, setFrame] = useState(init.frame);
-  const [cmap, setCmap] = useState(() => COLORMAPS.some((c) => c.id === sp.get("cmap")) ? sp.get("cmap")! : "magma");
+  const [cmap, setCmap] = useState(() => (COLORMAPS.some((c) => c.id === sp.get("cmap")) ? sp.get("cmap")! : "magma"));
   const [grid, setGrid] = useState(() => sp.get("grid") === "1");
   const [wiseOpacity, setWiseOpacity] = useState(() => Math.max(0, Math.min(1, num(sp.get("wise"), 0))));
   const [wiseStatus, setWiseStatus] = useState("");
@@ -68,11 +80,20 @@ export default function ExploreClient() {
   const [pointer, setPointer] = useState<{ ra: number; dec: number } | null>(null);
   const [status, setStatus] = useState<{ s: "loading" | "ready" | "error"; msg?: string }>({ s: "loading" });
   const [selected, setSelected] = useState<Target | null>(initTarget ?? null);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [placesOpen, setPlacesOpen] = useState(true);
+  const [mapOpen, setMapOpen] = useState(true);
+  const [advanced, setAdvanced] = useState(() => sp.get("adv") === "1");
+  const [intro, setIntro] = useState(false);
   const [copied, setCopied] = useState(false);
   const [gotoText, setGotoText] = useState("");
+  // Preloading five wavelengths costs ~5× the tile downloads per view: skip on small screens / data saver.
+  const [stops] = useState<number[]>(() => {
+    if (typeof window === "undefined") return [];
+    const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    return window.innerWidth >= 768 && !saveData ? STOP_FRAMES : [];
+  });
 
-  // keep the URL shareable: ?ra&dec&fov&frame
+  // keep the URL shareable
   useEffect(() => {
     const id = setTimeout(() => {
       const q = new URLSearchParams({
@@ -80,25 +101,44 @@ export default function ExploreClient() {
         dec: view.dec.toFixed(4),
         fov: view.fov.toPrecision(4),
         frame: String(frame),
-        cmap, grid: grid ? "1" : "0", wise: String(wiseOpacity),
       });
+      if (cmap !== "magma") q.set("cmap", cmap);
+      if (grid) q.set("grid", "1");
+      if (wiseOpacity > 0) q.set("wise", String(wiseOpacity));
       if (clean) q.set("clean", "1");
       window.history.replaceState(null, "", `/explore?${q.toString()}`);
     }, 400);
     return () => clearTimeout(id);
   }, [view, frame, clean, cmap, grid, wiseOpacity]);
 
-  // phones: start with the destinations panel tucked away so the sky is visible
+  // phones: start with panels tucked away so the sky is visible; first visit: show the intro
   useEffect(() => {
-    if (window.innerWidth < 768) setPanelOpen(false);
+    if (window.innerWidth < 768) {
+      setPlacesOpen(false);
+      setMapOpen(false);
+    }
+    try {
+      if (!localStorage.getItem(INTRO_KEY) && !initTarget && !sp.get("ra")) setIntro(true);
+    } catch {
+      if (!initTarget && !sp.get("ra")) setIntro(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const dismissIntro = () => {
+    setIntro(false);
+    try {
+      localStorage.setItem(INTRO_KEY, "1");
+    } catch {}
+  };
 
   const onFrame = useCallback((f: number) => setFrame(f), []);
 
   const goTarget = (t: Target) => {
     setSelected(t);
+    dismissIntro();
     viewer.current?.flyTo(t.ra, t.dec, t.fov, 3);
     if (t.frame !== undefined && !BLANK_FRAMES.has(t.frame)) setFrame(t.frame);
+    if (window.innerWidth < 768) setPlacesOpen(false);
   };
 
   const onGoto = (e: React.FormEvent) => {
@@ -124,6 +164,8 @@ export default function ExploreClient() {
     } catch {}
   };
 
+  const um = WAVELENGTHS_UM[frame];
+
   return (
     <main className="fixed inset-0 overflow-hidden bg-bg">
       <SkyViewer
@@ -141,6 +183,7 @@ export default function ExploreClient() {
         onPointer={setPointer}
         onStatus={(s, msg) => setStatus({ s, msg })}
         onMarkerClick={(id) => TARGET_BY_ID[id] && goTarget(TARGET_BY_ID[id])}
+        stops={stops}
       />
       {/* vignette for legibility */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(3,4,10,0.65)_100%)]" />
@@ -149,177 +192,253 @@ export default function ExploreClient() {
 
       {!clean && status.s === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
-          <div className="glass rounded-full px-5 py-2.5 text-[13px] text-muted">Loading the SPHEREx infrared sky…</div>
+          <div className="glass rounded-full px-5 py-2.5 text-[13px] text-muted">Loading NASA&apos;s infrared map of the sky…</div>
         </div>
       )}
       {status.s === "error" && (
         <div className="absolute inset-x-0 top-20 z-30 mx-auto w-fit max-w-lg">
           <div className="glass rounded-xl px-5 py-3 text-[13px] text-warn">
-            {status.msg ?? "The sky map could not be loaded."} The tiles stream live from NASA/IPAC IRSA. Check your
-            connection and reload.
+            The sky map couldn&apos;t load. It streams live from NASA&apos;s archive, so check your connection and reload.
           </div>
         </div>
       )}
 
-      {!clean && (<>
-      {/* destinations */}
-      <aside
-        className={`absolute left-4 top-20 z-30 w-[300px] transition-transform duration-500 sm:left-5 ${
-          panelOpen ? "" : "-translate-x-[280px]"
-        }`}
-      >
-        <div className="glass scrollbar-thin max-h-[calc(100vh-290px)] overflow-y-auto rounded-2xl p-3">
-          <div className="flex items-center justify-between px-1 pb-2">
-            <div className="label">Destinations</div>
-            <button className="text-[12px] text-muted hover:text-white" onClick={() => setPanelOpen((o) => !o)}>
-              {panelOpen ? "Hide ‹" : "›"}
-            </button>
-          </div>
-          <form onSubmit={onGoto} className="mb-2 px-1">
-            <input
-              value={gotoText}
-              onChange={(e) => setGotoText(e.target.value)}
-              placeholder="RA Dec in degrees, or a destination"
-              className="w-full rounded-lg border border-line bg-black/30 px-3 py-2 text-[13px] text-text placeholder:text-dim focus:border-accent/60 focus:outline-none"
-              aria-label="Go to coordinates"
-            />
-          </form>
-          <ul className="space-y-1">
-            {TARGETS.map((t) => (
-              <li key={t.id}>
-                <button
-                  onClick={() => goTarget(t)}
-                  className={`group w-full rounded-xl px-3 py-2 text-left transition ${
-                    selected?.id === t.id ? "bg-white/10" : "hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13.5px] font-medium">{t.name}</span>
-                    {t.investigate && (
-                      <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent">
-                        case file
-                      </span>
+      {!clean && (
+        <>
+          {/* first visit: what am I looking at? */}
+          {intro && status.s === "ready" && (
+            <div className="absolute inset-0 z-40 grid place-items-center bg-black/30 px-4" onClick={dismissIntro}>
+              <div className="glass-strong fade-up max-w-[440px] rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+                <div className="label text-accent">What you&apos;re looking at</div>
+                <h2 className="font-display mt-2 text-[24px] font-semibold leading-tight">The whole sky around Earth, in light your eyes can&apos;t see</h2>
+                <p className="mt-3 text-[14px] leading-relaxed text-text/85">
+                  Imagine standing on Earth inside a giant ball painted with every star. That&apos;s this map, and you&apos;re at its
+                  centre looking out. The glowing band is our own galaxy, the Milky Way, seen from the inside.
+                </p>
+                <p className="mt-2 text-[14px] leading-relaxed text-text/85">
+                  It was made by NASA&apos;s SPHEREx telescope, which photographs the entire sky in infrared light.
+                </p>
+                <ul className="mt-4 space-y-1.5 text-[13px] text-muted">
+                  <li>
+                    <b className="text-text">Drag</b> to look around · <b className="text-text">scroll or pinch</b> to zoom
+                  </li>
+                  <li>
+                    <b className="text-text">Change the colour</b> at the bottom to see through dust
+                  </li>
+                  <li>
+                    <b className="text-text">Pick a place</b> to fly there
+                  </li>
+                </ul>
+                <button className="btn btn-primary mt-5 w-full justify-center !py-2.5" onClick={dismissIntro}>
+                  Start exploring
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* places */}
+          {!advanced && <aside className="absolute left-4 top-20 z-30 sm:left-5">
+            {placesOpen ? (
+              <div className="glass scrollbar-thin max-h-[calc(100vh-420px)] min-h-[140px] w-[248px] overflow-y-auto rounded-2xl p-2">
+                <div className="flex items-center justify-between px-2 pb-1 pt-1">
+                  <div className="label">Places to visit</div>
+                  <button className="text-[12px] text-muted hover:text-white" onClick={() => setPlacesOpen(false)} aria-label="Hide places">
+                    ✕
+                  </button>
+                </div>
+                <ul>
+                  {TARGETS.map((t) => (
+                    <li key={t.id}>
+                      <button
+                        onClick={() => goTarget(t)}
+                        className={`w-full rounded-lg px-2 py-1.5 text-left transition ${selected?.id === t.id ? "bg-white/10" : "hover:bg-white/5"}`}
+                      >
+                        <div className="text-[13px] font-medium leading-tight">{t.name}</div>
+                        <div className="text-[11.5px] text-muted">{t.kind}</div>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <button className="btn glass" onClick={() => setPlacesOpen(true)}>
+                ☆ Places to visit
+              </button>
+            )}
+          </aside>}
+
+          {/* orientation */}
+          {!advanced && <div className={`absolute left-4 top-[132px] z-30 sm:left-5 md:bottom-4 md:top-auto ${placesOpen || selected ? "hidden md:block" : ""}`}>
+            {mapOpen ? (
+              <WhereAmI ra={view.ra} dec={view.dec} fov={view.fov} onClose={() => setMapOpen(false)} />
+            ) : (
+              <button className="btn glass" onClick={() => setMapOpen(true)}>
+                ◎ Where am I?
+              </button>
+            )}
+          </div>}
+
+          {/* selected place */}
+          {selected && (
+            <div key={selected.id} className="fade-up absolute inset-x-4 bottom-[218px] z-30 md:inset-x-auto md:bottom-auto md:right-5 md:top-20 md:w-[320px]">
+              <div className="glass rounded-2xl p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="label">{selected.kind}</div>
+                    <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">{selected.name}</h2>
+                  </div>
+                  <button className="text-muted hover:text-white" onClick={() => setSelected(null)} aria-label="Close">
+                    ✕
+                  </button>
+                </div>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-text/90">{selected.blurb}</p>
+                {selected.caution && <p className="mt-2 text-[12.5px] leading-relaxed text-warn/90">{selected.caution}</p>}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {selected.investigate ? (
+                    <Link href="/investigate/swan" className="btn btn-primary">
+                      Open the case file →
+                    </Link>
+                  ) : (
+                    <Link
+                      href={`/timetravel?ra=${selected.ra.toFixed(5)}&dec=${selected.dec.toFixed(5)}&name=${encodeURIComponent(selected.name)}`}
+                      className="btn btn-primary"
+                    >
+                      See it on different dates →
+                    </Link>
+                  )}
+                </div>
+                <Advanced className="mt-3">
+                  {selected.detail && <p>{selected.detail}</p>}
+                  <p className="data mt-1.5">
+                    RA {selected.ra.toFixed(4)}° · Dec {selected.dec.toFixed(4)}°
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {selected.investigate && (
+                      <Link
+                        className="text-accent hover:underline"
+                        href={`/timetravel?ra=${selected.ra.toFixed(5)}&dec=${selected.dec.toFixed(5)}&name=${encodeURIComponent(selected.name)}`}
+                      >
+                        Time Travel here
+                      </Link>
+                    )}
+                    <button className="text-accent hover:underline" onClick={() => router.push(`/fly?ra=${selected.ra.toFixed(3)}&dec=${selected.dec.toFixed(3)}`)}>
+                      Face this way in 3D Fly
+                    </button>
+                  </div>
+                </Advanced>
+              </div>
+            </div>
+          )}
+
+          {/* advanced drawer */}
+          {advanced && (
+            <div className="fade-up absolute left-4 top-20 z-30 w-[min(330px,calc(100vw-2rem))] sm:left-5">
+              <div className="glass-strong scrollbar-thin max-h-[calc(100vh-290px)] overflow-y-auto rounded-2xl p-4 text-[12.5px]">
+                <div className="flex items-center justify-between">
+                  <div className="label">Advanced</div>
+                  <button className="text-muted hover:text-white" onClick={() => setAdvanced(false)} aria-label="Close advanced">
+                    ✕
+                  </button>
+                </div>
+
+                <div className="mt-3 text-muted">Colour scheme</div>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {COLORMAPS.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setCmap(c.id)}
+                      className={`rounded-full border px-3 py-1 transition ${cmap === c.id ? "border-accent/50 bg-white/10 text-white" : "border-line text-muted hover:text-white"}`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mt-3 flex flex-col gap-1.5 text-muted">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={grid} onChange={(e) => setGrid(e.target.checked)} /> Coordinate grid
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" checked={wiseOpacity > 0} onChange={(e) => setWiseOpacity(e.target.checked ? 0.5 : 0)} /> Older WISE
+                    infrared map on top
+                  </label>
+                  {wiseOpacity > 0 && (
+                    <div className="pl-6">
+                      <input
+                        aria-label="WISE overlay opacity"
+                        type="range"
+                        min={0.05}
+                        max={1}
+                        step={0.05}
+                        value={wiseOpacity}
+                        onChange={(e) => setWiseOpacity(Number(e.target.value))}
+                        className="w-full accent-cyan-300"
+                      />
+                      <div className="text-[11.5px] text-dim">{wiseStatus || "Loading WISE…"}</div>
+                      <div className="text-[11.5px] text-warn/90">Different dates and wavelengths: for visual context only.</div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 text-muted">View centre</div>
+                <div className="data mt-1 text-[11.5px] text-text">
+                  {fmtRA(view.ra)} {fmtDec(view.dec)}
+                  <div className="text-muted">
+                    field {fmtFov(view.fov)}
+                    {pointer && (
+                      <>
+                        {" "}
+                        · cursor {pointer.ra.toFixed(3)}°, {pointer.dec.toFixed(3)}°
+                      </>
                     )}
                   </div>
-                  <div className="text-[11.5px] text-muted">{t.kind}</div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </aside>
+                </div>
+                <form onSubmit={onGoto} className="mt-2">
+                  <input
+                    value={gotoText}
+                    onChange={(e) => setGotoText(e.target.value)}
+                    placeholder="Go to RA Dec (degrees)"
+                    className="w-full rounded-lg border border-line bg-black/30 px-3 py-1.5 text-[12.5px] text-text placeholder:text-dim focus:border-accent/60 focus:outline-none"
+                    aria-label="Go to coordinates"
+                  />
+                </form>
+                <div className="mt-2 flex flex-wrap gap-3">
+                  <button className="text-accent hover:underline" onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}>
+                    Time Travel the centre
+                  </button>
+                  <button className="text-accent hover:underline" onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}>
+                    Fly from here
+                  </button>
+                </div>
 
-      {/* selected target card */}
-      {selected && (
-        <div key={selected.id} className="fade-up absolute right-4 top-20 z-30 w-[340px] sm:right-5">
-          <div className="glass rounded-2xl p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="label">{selected.kind}</div>
-                <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">{selected.name}</h2>
+                <div className="mt-4 text-muted">About this map</div>
+                <p className="mt-1 leading-relaxed text-dim">
+                  NASA SPHEREx DR1 all-sky spectral cube (IRSA, doi:{HIPS_DOI}): 102 wavelengths from 0.75 to 5 µm. It is a
+                  time-averaged mosaic, not a single date. Colours are false colour. {um.toFixed(3)} µm is{" "}
+                  {(um / 0.7).toFixed(1)}× longer than the reddest light your eyes can see. Use ← → to step one channel, Shift to
+                  jump a band.
+                </p>
               </div>
-              <button className="text-muted hover:text-white" onClick={() => setSelected(null)} aria-label="Close">
-                ✕
-              </button>
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-text/85">{selected.blurb}</p>
-            {selected.caution && (
-              <p className="mt-2 rounded-lg border border-warn/25 bg-warn/5 px-3 py-2 text-[12px] leading-relaxed text-warn/90">
-                {selected.caution}
-              </p>
-            )}
-            <div className="data mt-3 text-[11.5px] text-muted">
-              RA {selected.ra.toFixed(4)}° · Dec {selected.dec.toFixed(4)}°
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {selected.investigate && (
-                <Link href="/investigate/swan" className="btn btn-primary">
-                  Open the case file →
-                </Link>
-              )}
-              <Link href={`/timetravel?ra=${selected.ra.toFixed(5)}&dec=${selected.dec.toFixed(5)}&name=${encodeURIComponent(selected.name)}`} className="btn">
-                Time Travel here
-              </Link>
-              <button
-                className="btn"
-                onClick={() => router.push(`/fly?ra=${selected.ra.toFixed(3)}&dec=${selected.dec.toFixed(3)}`)}
-              >
-                Fly this direction in 3D
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* bottom: wavelength + readouts */}
-      <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-3 pb-3 sm:px-5 sm:pb-4">
-        <div className="glass flex max-w-[980px] flex-wrap items-center justify-center gap-2 rounded-xl px-3 py-2 text-[12px] text-muted">
-          <label className="flex items-center gap-2"><input type="checkbox" checked={wiseOpacity > 0} onChange={(e) => setWiseOpacity(e.target.checked ? 0.5 : 0)} /> WISE context</label>
-          {wiseOpacity > 0 && <><label className="flex items-center gap-2">Opacity <input aria-label="WISE overlay opacity" type="range" min={0.05} max={1} step={0.05} value={wiseOpacity} onChange={(e) => setWiseOpacity(Number(e.target.value))} className="w-28 accent-cyan-300" /></label><span>{wiseStatus || "Loading WISE context…"}</span><span className="text-warn">Different epochs and wavelengths; visual context only.</span></>}
-        </div>
-        <div className="flex w-full max-w-[980px] flex-wrap items-center justify-between gap-2">
-          <div className="glass data hidden items-center gap-4 rounded-full px-4 py-1.5 text-[11.5px] text-muted sm:flex">
-            <span>
-              <span className="text-dim">centre </span>
-              <span className="text-text">{fmtRA(view.ra)}</span> <span className="text-text">{fmtDec(view.dec)}</span>
-            </span>
-            <span>
-              <span className="text-dim">field </span>
-              <span className="text-text">{fmtFov(view.fov)}</span>
-            </span>
-            {pointer && (
-              <span className="hidden lg:inline">
-                <span className="text-dim">cursor </span>
-                {pointer.ra.toFixed(3)}°, {pointer.dec.toFixed(3)}°
-              </span>
-            )}
+          {/* bottom: wavelength */}
+          <div className={`absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-1.5 px-3 pb-3 sm:px-5 sm:pb-4 ${advanced ? "md:pr-[150px]" : "md:pl-[270px] md:pr-[150px] xl:px-5"}`}>
+            {advanced ? <WavelengthDial frame={frame} onChange={onFrame} /> : <WavelengthStops frame={frame} onChange={onFrame} />}
+            <div className="text-center text-[11px] text-dim">
+              NASA SPHEREx infrared sky map, 2025–26 · colours are artificial · showing {fovWords(view.fov)}
+            </div>
           </div>
-          <div className="glass flex items-center gap-1 rounded-full p-1 text-[12px]">
-            <span className="hidden items-center gap-1 md:flex">
-            {COLORMAPS.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setCmap(c.id)}
-                className={`rounded-full px-3 py-1 transition ${cmap === c.id ? "bg-white/12 text-white" : "text-muted hover:text-white"}`}
-              >
-                {c.label}
-              </button>
-            ))}
-            <span className="mx-1 h-4 w-px bg-line" />
-            <button
-              onClick={() => setGrid((g) => !g)}
-              className={`rounded-full px-3 py-1 transition ${grid ? "bg-white/12 text-white" : "text-muted hover:text-white"}`}
-            >
-              Grid
+          <div className="absolute right-4 top-20 z-30 flex flex-col items-end gap-2 sm:right-5 md:bottom-4 md:top-auto">
+            <button className={`btn glass ${advanced ? "!border-accent/60 text-white" : ""}`} onClick={() => setAdvanced((a) => !a)} aria-expanded={advanced}>
+              ⚙ Advanced
             </button>
-            </span>
-            <button
-              onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}
-              className="rounded-full px-3 py-1 text-accent transition hover:text-white"
-              title="Find every dated SPHEREx exposure of the centre of this view"
-            >
-              Time Travel here
-            </button>
-            <button
-              onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}
-              className="rounded-full px-3 py-1 text-accent transition hover:text-white"
-              title="Leave the 2D sky and fly into 3D, facing this direction"
-            >
-              Fly from here
-            </button>
-            <button onClick={share} className="rounded-full px-3 py-1 text-muted transition hover:text-white">
+            <button className="btn glass" onClick={share}>
               {copied ? "Link copied ✓" : "Share view"}
             </button>
           </div>
-        </div>
-        <WavelengthDial frame={frame} onChange={onFrame} />
-        <div className="text-center text-[10.5px] text-dim">
-          NASA SPHEREx DR1 all-sky cube (IRSA, doi:{HIPS_DOI}) · a time-averaged mosaic, not a single date · false
-          colour · {WAVELENGTHS_UM[frame].toFixed(3)} µm is {(WAVELENGTHS_UM[frame] / 0.7).toFixed(1)}× longer than the
-          reddest light your eyes can see
-        </div>
-      </div>
-      </>)}
+        </>
+      )}
     </main>
   );
 }

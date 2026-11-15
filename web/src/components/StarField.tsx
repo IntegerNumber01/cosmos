@@ -352,11 +352,54 @@ function SunLabel() {
   });
   return (
     <Html position={[0, 0, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-      <div ref={el} className="whitespace-nowrap text-[11px] font-medium text-[#ffe9a8]" style={{ transform: "translate(14px,-10px)", opacity: 0 }}>
-        ☉ Sun
+      <div ref={el} className="relative" style={{ opacity: 0 }}>
+        {/* a ring marks home: from light-years away the Sun itself is far too small to see */}
+        <div className="h-5 w-5 rounded-full border border-[#ffe9a8]/80 shadow-[0_0_12px_rgba(255,233,168,0.45)]" />
+        <div
+          className="absolute left-6 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-black/55 px-2 py-0.5 text-[12px] font-semibold text-[#ffe9a8]"
+        >
+          ☉ Home: Sun &amp; Earth
+        </div>
       </div>
     </Html>
   );
+}
+
+/** When the Sun is off-screen (or behind you), pin a small "Sun this way" chip to the screen edge. */
+function SunPointer({ chip, arrow }: { chip: React.RefObject<HTMLButtonElement | null>; arrow: React.RefObject<HTMLSpanElement | null> }) {
+  const { size } = useThree();
+  const cam = useMemo(() => new THREE.Vector3(), []);
+  const ndc = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera }) => {
+    const node = chip.current;
+    if (!node) return;
+    cam.set(0, 0, 0).applyMatrix4(camera.matrixWorldInverse); // the Sun in camera space
+    const inFront = cam.z < 0;
+    ndc.set(0, 0, 0).project(camera);
+    const onScreen = inFront && Math.abs(ndc.x) < 0.9 && Math.abs(ndc.y) < 0.85;
+    if (camera.position.length() < 0.05 || onScreen) {
+      node.style.opacity = "0";
+      node.style.pointerEvents = "none";
+      return;
+    }
+    // screen-space direction towards the Sun (y down)
+    let dx = inFront ? ndc.x * size.width : cam.x;
+    let dy = inFront ? -ndc.y * size.height : -cam.y;
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len;
+    dy /= len;
+    const cx = size.width / 2;
+    const cy = size.height / 2;
+    const left = 70, right = size.width - 70, top = 110, bottom = size.height - 170;
+    const tx = dx > 0 ? (right - cx) / dx : dx < 0 ? (left - cx) / dx : Infinity;
+    const ty = dy > 0 ? (bottom - cy) / dy : dy < 0 ? (top - cy) / dy : Infinity;
+    const t = Math.max(0, Math.min(tx, ty));
+    node.style.opacity = "1";
+    node.style.pointerEvents = "auto";
+    node.style.transform = `translate(${cx + dx * t}px, ${cy + dy * t}px) translate(-50%, -50%)`;
+    if (arrow.current) arrow.current.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+  });
+  return null;
 }
 
 function CamTracker({ camPos }: { camPos: React.MutableRefObject<THREE.Vector3> }) {
@@ -375,6 +418,8 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
   const rig = useRef<Rig>({ pos: new THREE.Vector3(0, 0, 0.0001), yaw: 0, pitch: 0, speed: 2, tween: null });
   const clock = useRef<THREE.Clock | null>(null);
   const cameraRef = useRef<THREE.Camera | null>(null);
+  const sunChip = useRef<HTMLButtonElement>(null);
+  const sunArrow = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     loadGaia()
@@ -402,6 +447,9 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
     rig.current.tween = { from: rig.current.pos.clone(), to, fromQ: cam.quaternion.clone(), toQ, t0: clock.current.elapsedTime, dur };
   };
 
+  const goHome = () =>
+    startTween(new THREE.Vector3(0, 0, 0.0001), new THREE.Vector3(...dirFromRaDec(266.4, -28.9)).multiplyScalar(10), 3);
+
   useImperativeHandle(ref, () => ({
     flyToStar(i: number) {
       if (!g) return;
@@ -415,9 +463,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
       const to = target.clone().sub(dir.normalize().multiplyScalar(stand));
       startTween(to, target, Math.min(6, 2 + Math.log10(1 + len) * 1.6));
     },
-    home() {
-      startTween(new THREE.Vector3(0, 0, 0.0001), new THREE.Vector3(...dirFromRaDec(266.4, -28.9)).multiplyScalar(10), 3);
-    },
+    home: goHome,
   }));
 
   if (loadErr)
@@ -426,7 +472,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
         The Gaia star data couldn&apos;t be loaded. Check your connection and reload.
       </div>
     );
-  return (
+  const canvas = (
     <Canvas
       camera={{ fov: 60, near: 0.0005, far: 50000, position: [0, 0, 0.0001] }}
       gl={{ antialias: true, powerPreference: "high-performance" }}
@@ -444,10 +490,30 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
           <Sun />
           {showLabels && <Labels g={g} selected={selected} camPos={camPos} />}
           <Picker g={g} enabled={mode === "fly"} onPick={(i) => onSelect?.(i === null ? null : starInfo(g, i))} />
+          {mode === "fly" && showLabels && <SunPointer chip={sunChip} arrow={sunArrow} />}
         </>
       )}
       <CameraRig rig={rig} mode={mode} onCamera={onCamera} reducedMotion={reduced} />
     </Canvas>
+  );
+  if (mode !== "fly") return canvas;
+  return (
+    <div className="relative h-full w-full">
+      {canvas}
+      <button
+        ref={sunChip}
+        type="button"
+        onClick={goHome}
+        title="Fly back home to the Sun"
+        className="absolute left-0 top-0 z-20 flex items-center gap-1.5 whitespace-nowrap rounded-full border border-[#ffe9a8]/40 bg-black/60 px-2.5 py-1 text-[12px] font-semibold text-[#ffe9a8] backdrop-blur transition-colors hover:bg-black/80"
+        style={{ opacity: 0, pointerEvents: "none" }}
+      >
+        <span ref={sunArrow} className="inline-block" aria-hidden>
+          →
+        </span>
+        ☉ Sun &amp; Earth
+      </button>
+    </div>
   );
 });
 

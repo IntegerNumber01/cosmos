@@ -9,43 +9,35 @@ const StarField = dynamic(() => import("@/components/StarField"), { ssr: false }
 const MODES = [
   {
     href: "/explore",
-    k: "01",
     title: "Explore",
-    line: "The whole sky in 102 infrared colours",
-    body: "Pan and zoom NASA SPHEREx's all-sky map. Slide from 0.75 to 5 µm and watch dust melt away, nebulae ignite and hidden starlight appear.",
+    line: "Pan and zoom around the whole sky in infrared.",
     img: "/img/explore-orion.webp",
-    alt: "Orion Molecular Cloud in the SPHEREx all-sky map at 3.29 µm",
-    stat: "102 wavelengths · DR1",
+    alt: "The Orion star-forming cloud in SPHEREx's infrared map of the sky",
+    tag: "Real NASA SPHEREx data",
   },
   {
     href: "/fly",
-    k: "02",
     title: "Fly",
-    line: "Travel between real stars",
-    body: "59,218 stars placed in 3D by ESA Gaia's measured parallaxes. Fly out to Epsilon Eridani or Barnard's Star and read each star's distance and its uncertainty.",
+    line: "Fly in 3D between real stars near the Sun.",
     img: "/img/fly-eps-eri.webp",
-    alt: "The COSMOS 3D flight view approaching Epsilon Eridani",
-    stat: "Gaia DR3 · measured distances",
+    alt: "The COSMOS 3D flight view approaching the nearby star Epsilon Eridani",
+    tag: "Real star distances from ESA's Gaia",
   },
   {
-    href: "/timetravel",
-    k: "03",
+    href: "/timetravel?target=epsindib",
     title: "Time Travel",
-    line: "Any coordinates, dated views",
-    body: "Type a position or pick a star. COSMOS finds every SPHEREx exposure of that spot, keeps only dates at the same wavelength, lines them up and helps you find what changed.",
+    line: "Compare real dated photos, starting with a nearby brown dwarf.",
     img: "/img/timetravel.webp",
-    alt: "Swipe comparison: comet SWAN present in October 2025, absent in May 2026",
-    stat: "live IRSA search · matched wavelengths",
+    alt: "Before-and-after comparison: comet SWAN present in October 2025, gone in May 2026",
+    tag: "Real NASA SPHEREx data",
   },
   {
     href: "/investigate",
-    k: "04",
     title: "Investigate",
-    line: "Case files you can check",
-    body: "Comet SWAN from orbit prediction to pixels, plus the challenge's five test targets. Each comes with what SPHEREx can and can't show, and whether the object is already known.",
+    line: "Follow a comet and check real cases, step by step.",
     img: "/img/investigate.webp",
-    alt: "Comet C/2025 R2 (SWAN) in a SPHEREx exposure",
-    stat: "1 comet · 5 validation targets",
+    alt: "Comet C/2025 R2 (SWAN) in a SPHEREx picture",
+    tag: "Real NASA SPHEREx data",
   },
 ];
 
@@ -65,41 +57,35 @@ export default function HomeClient() {
           <Link href="/fly" className="hover:text-white">Fly</Link>
           <Link href="/timetravel" className="hover:text-white">Time Travel</Link>
           <Link href="/investigate" className="hover:text-white">Investigate</Link>
-          <Link href="/about" className="hover:text-white">Data &amp; Method</Link>
+          <Link href="/about" className="hover:text-white">About</Link>
         </nav>
       </header>
 
-      <section className="relative z-10 mx-auto grid min-h-[80vh] max-w-[1320px] items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="fade-up max-w-3xl">
-          <div className="label text-accent">NASA Space Apps 2026 · Planet X and SPHEREx</div>
-          <h1 className="font-display mt-4 text-[44px] font-semibold leading-[1.02] sm:text-[64px]">
-            Most of the universe
-            <br />
-            is <span className="bg-gradient-to-r from-[#7c5cff] via-[#28d2e6] to-[#ff5c48] bg-clip-text text-transparent">invisible</span> to our eyes.
+      <section className="relative z-10 mx-auto grid min-h-[78vh] max-w-[1320px] items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[1.1fr_0.9fr]">
+        <div className="fade-up max-w-2xl">
+          <div className="label text-accent">Real NASA data · NASA Space Apps 2026</div>
+          <h1 className="font-display mt-4 text-[44px] font-semibold leading-[1.04] sm:text-[64px]">
+            See the sky in light your eyes{" "}
+            <span className="bg-gradient-to-r from-[#7c5cff] via-[#28d2e6] to-[#ff5c48] bg-clip-text text-transparent">can&apos;t see</span>.
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-text/80">
-            <b className="text-white">COSMOS</b> is Google Earth for the infrared universe. Explore real NASA SPHEREx observations in 102
-            colours of light your eyes can&apos;t see, fly through stars that ESA&apos;s Gaia measured, and investigate how the sky changes.
+            NASA&apos;s SPHEREx space telescope maps the whole sky in infrared light. Explore its real pictures here.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/explore" className="btn btn-primary !px-6 !py-3 !text-[15px]">
-              Start exploring the infrared sky →
+              Start exploring →
             </Link>
-            <Link href="/timetravel" className="btn !px-6 !py-3 !text-[15px]">
-              Time Travel any spot in the sky
+            <Link href="/timetravel?target=epsindib" className="btn !px-6 !py-3 !text-[15px]">
+              See a real change →
             </Link>
           </div>
-          <p className="mt-6 text-[12px] text-dim">
-            Every pixel, date and distance here comes from a public archive and links back to it. No invented measurements, no
-            discovery claims.
-          </p>
         </div>
-        <div className="fade-up flex justify-center pb-10" style={{ animationDelay: "0.2s" }}>
+        <div className="fade-up flex justify-center pb-4" style={{ animationDelay: "0.2s" }}>
           <HeroGlobe />
         </div>
       </section>
 
-      <section className="relative z-10 mx-auto max-w-[1320px] px-5 pb-20 sm:px-8">
+      <section id="ways-in" className="relative z-10 mx-auto max-w-[1320px] scroll-mt-6 px-5 pb-16 sm:px-8">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MODES.map((m, i) => (
             <Link
@@ -112,36 +98,24 @@ export default function HomeClient() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={m.img} alt={m.alt} className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#070a16] via-transparent to-transparent" />
-                <span className="data absolute left-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-[10.5px] text-muted">{m.k}</span>
               </div>
               <div className="p-4 pt-1">
-                <div className="font-display text-[22px] font-semibold">{m.title}</div>
-                <div className="text-[13px] text-accent">{m.line}</div>
-                <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{m.body}</p>
-                <div className="data mt-3 text-[10.5px] uppercase tracking-wider text-dim">{m.stat}</div>
+                <div className="font-display text-[22px] font-semibold">
+                  {m.title} <span className="text-accent transition group-hover:translate-x-0.5">→</span>
+                </div>
+                <p className="mt-1 text-[14px] leading-snug text-text/80">{m.line}</p>
+                <div className="mt-3 text-[11.5px] text-dim">{m.tag}</div>
               </div>
             </Link>
           ))}
         </div>
 
-        <div className="mt-14 grid gap-6 border-t border-line pt-8 text-[12.5px] text-muted md:grid-cols-3">
-          <div>
-            <div className="label mb-2">Data</div>
-            NASA SPHEREx DR1 (all-sky cube and Level-2 images) via NASA/IPAC IRSA · ESA Gaia DR3 · IRSA Moving Object Search Tool.
-          </div>
-          <div>
-            <div className="label mb-2">Honesty</div>
-            SPHEREx images have no depth, so 3D comes only from Gaia distances. The all-sky map is a time-average, so Time Travel uses dated
-            frames. A prediction isn&apos;t a detection.
-          </div>
-          <div>
-            <div className="label mb-2">Mission</div>
-            Make the infrared universe a place that anyone can explore, question and understand.{" "}
-            <Link href="/about" className="text-accent hover:underline">
-              Read the method →
-            </Link>
-          </div>
-        </div>
+        <p className="mt-12 border-t border-line pt-6 text-center text-[13px] text-muted">
+          Everything here is real data from public space archives — nothing is invented.{" "}
+          <Link href="/about" className="text-accent hover:underline">
+            Where it comes from →
+          </Link>
+        </p>
       </section>
     </main>
   );

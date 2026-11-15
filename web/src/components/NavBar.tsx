@@ -3,11 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/explore", label: "Explore", hint: "102-colour infrared sky" },
-  { href: "/fly", label: "Fly", hint: "Gaia-measured 3D stars" },
-  { href: "/timetravel", label: "Time Travel", hint: "Any coordinates: every date SPHEREx looked" },
-  { href: "/investigate", label: "Investigate", hint: "Case files and validation targets" },
-  { href: "/about", label: "Data & Method", hint: "Sources and limits" },
+  { href: "/explore", label: "Explore", hint: "Pan and zoom around the infrared sky" },
+  { href: "/fly", label: "Fly", hint: "Fly in 3D between real nearby stars" },
+  { href: "/timetravel", label: "Time Travel", hint: "See how one spot in the sky changed over time" },
+  { href: "/investigate", label: "Investigate", hint: "Follow real cases, like a comet, step by step" },
+  { href: "/about", label: "About", hint: "Where the data comes from, and what it can't tell you" },
 ];
 
 export function Logo({ className = "" }: { className?: string }) {
@@ -42,11 +42,7 @@ export default function NavBar() {
                 active ? "bg-white/10 text-white" : "text-muted hover:text-white"
               }`}
             >
-              {l.href === "/about" ? (
-                <>
-                  <span className="hidden lg:inline">Data &amp; </span>Method
-                </>
-              ) : l.href === "/timetravel" ? (
+              {l.href === "/timetravel" ? (
                 <>
                   <span className="hidden sm:inline">Time </span>Travel
                 </>

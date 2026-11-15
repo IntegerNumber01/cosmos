@@ -5,15 +5,10 @@ import { useEffect, useState } from "react";
 import NavBar from "@/components/NavBar";
 import { TT_TARGETS } from "@/lib/ttTargets";
 import { wavelengthColor } from "@/lib/spherex";
+import Advanced from "@/components/Advanced";
+import { TEST_PLAIN, VERDICT_STYLE, plainFor } from "@/components/investigate/plainVerdicts";
 
 const IDS = ["barnard", "wise0855", "epsindib", "rwaur", "rdra"];
-const VERDICT_STYLE: Record<string, string> = {
-  confirmed: "bg-good/15 text-good",
-  consistent: "bg-good/15 text-good",
-  not_detected: "bg-warn/15 text-warn",
-  inconclusive: "bg-white/10 text-muted",
-  unreliable: "bg-bad/15 text-bad",
-};
 
 function Val({ v }: { v: any }) {
   if (v === null || v === undefined) return <span className="text-dim">—</span>;
@@ -65,28 +60,34 @@ export default function ValidationClient() {
     <main className="relative min-h-screen bg-bg pb-24">
       <NavBar />
       <div className="mx-auto max-w-[1080px] px-4 pt-24 sm:px-6">
-        <div className="label text-accent">Validation</div>
-        <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight">How COSMOS does on the challenge&apos;s five test targets</h1>
-        <p className="mt-2 max-w-3xl text-[14px] text-muted">
-          For each target: which SPHEREx DR1 observations exist, which of them can fairly be compared (same detector, wavelength within half a channel), what
-          we measured on the native pixels, and the limits. A clear &quot;not detected&quot; or &quot;inconclusive&quot; is a valid test result. We never force
-          a detection.
+        <Link href="/investigate" className="text-[13px] text-accent">
+          ← All case files
+        </Link>
+        <div className="label mt-4 text-accent">Validation</div>
+        <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight">How COSMOS did on the challenge&apos;s five test targets</h1>
+        <p className="mt-2 max-w-3xl text-[15px] text-muted">
+          We only compare pictures taken in the same infrared colour, so a change is real and not a colour trick. &quot;Too bright to measure&quot; is an honest
+          result. We never force a detection.
         </p>
+        <Advanced className="mt-2">
+          For each target: which SPHEREx DR1 observations exist, which of them can fairly be compared (same detector, wavelength within half a channel), what
+          we measured on the native pixels, and the limits. A clear &quot;not detected&quot; or &quot;inconclusive&quot; is a valid test result.
+        </Advanced>
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-line">
           <table className="w-full text-[13px]">
             <thead className="bg-white/5 text-left text-muted">
               <tr>
                 <th className="px-4 py-2 font-medium">Target</th>
-                <th className="px-4 py-2 font-medium">Test</th>
+                <th className="px-4 py-2 font-medium">Question</th>
                 <th className="px-4 py-2 font-medium">Result</th>
-                <th className="px-4 py-2 font-medium">Summary</th>
               </tr>
             </thead>
             <tbody>
               {IDS.map((id) => {
                 const r = recs[id];
                 const t = TT_TARGETS.find((x) => x.slug === id);
+                const plain = plainFor(id, r?.result?.verdict);
                 return (
                   <tr key={id} className="border-t border-line/60 align-top">
                     <td className="px-4 py-2">
@@ -94,17 +95,16 @@ export default function ValidationClient() {
                         {r?.name ?? t?.name}
                       </a>
                     </td>
-                    <td className="px-4 py-2 text-muted">{r?.test_type?.replace(/_/g, " ") ?? "—"}</td>
+                    <td className="px-4 py-2 text-muted">{r?.test_type ? (TEST_PLAIN[r.test_type] ?? r.test_type.replace(/_/g, " ")) : "—"}</td>
                     <td className="px-4 py-2">
-                      {r?.result?.verdict ? (
-                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${VERDICT_STYLE[r.result.verdict] ?? "bg-white/10"}`}>
-                          {r.result.verdict.replace(/_/g, " ")}
+                      {r?.result?.verdict && plain ? (
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${VERDICT_STYLE[r.result.verdict] ?? "bg-white/10"}`}>
+                          {plain.status}
                         </span>
                       ) : (
                         <span className="text-dim">{errs[id] ? "not available" : "loading…"}</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-[12.5px] text-text/80">{r?.result?.summary ?? ""}</td>
                   </tr>
                 );
               })}
@@ -116,27 +116,36 @@ export default function ValidationClient() {
           const r = recs[id];
           if (!r) return null;
           const t = TT_TARGETS.find((x) => x.slug === id);
+          const plain = plainFor(id, r.result?.verdict);
           return (
             <section key={id} id={id} className="glass mt-8 scroll-mt-24 rounded-2xl p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="label">{r.test_type?.replace(/_/g, " ")}</div>
+                  <div className="text-[12.5px] text-muted">{r.test_type ? (TEST_PLAIN[r.test_type] ?? r.test_type.replace(/_/g, " ")) : ""}</div>
                   <h2 className="font-display mt-0.5 text-[24px] font-semibold">{r.name}</h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {r.result?.verdict && (
+                  {r.result?.verdict && plain && (
                     <span className={`rounded-full px-3 py-1 text-[12px] font-semibold ${VERDICT_STYLE[r.result.verdict] ?? "bg-white/10"}`}>
-                      {r.result.verdict.replace(/_/g, " ")}
+                      {plain.status}
                     </span>
                   )}
                   {t && (
                     <Link href={`/timetravel?target=${id}`} className="btn btn-primary !py-1 !text-[12px]">
-                      Open in Time Travel
+                      See the pictures
                     </Link>
                   )}
                 </div>
               </div>
-              {r.result?.summary && <p className="mt-3 text-[14px] leading-relaxed text-text/90">{r.result.summary}</p>}
+              {(plain?.text ?? r.result?.summary) && <p className="mt-3 max-w-3xl text-[14.5px] leading-relaxed text-text/90">{plain?.text ?? r.result?.summary}</p>}
+
+              <Advanced className="mt-3">
+              {r.result?.verdict && (
+                <p className="text-[13px] leading-relaxed text-text/85">
+                  <span className="data text-text">Verdict: {r.result.verdict.replace(/_/g, " ")}</span>
+                  {r.result.summary && plain?.text ? <> · {r.result.summary}</> : null}
+                </p>
+              )}
 
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 {r.result?.numbers && (
@@ -215,6 +224,7 @@ export default function ValidationClient() {
                 </details>
               )}
               {r.generated && <div className="mt-3 text-[11px] text-dim">Generated {r.generated} by pipeline/validate_targets.py</div>}
+              </Advanced>
             </section>
           );
         })}

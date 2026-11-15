@@ -95,12 +95,12 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
       </svg>
       {mode === "difference" && (
         <div className="absolute bottom-3 right-3 rounded-lg bg-black/70 px-2.5 py-1.5 text-[11px] leading-snug">
-          <span className="text-[#e46a5a]">red</span>: brighter in the last exposure ·{" "}
-          <span className="text-[#6aa5e4]">blue</span>: brighter in the first
+          <span className="text-[#6aa5e4]">blue</span>: brighter in the first picture (where the comet was) · <span className="text-[#e46a5a]">red</span>:
+          brighter in the last (where it went)
           <br />
           <span className="text-muted">
-            The comet leaves a blue/red pair. These exposures are {seq.diff_wavelength_gap_channels} channel widths apart in wavelength, so star
-            residuals remain. Use this for position only.
+            The two pictures are different infrared colours ({seq.diff_wavelength_gap_channels} channel widths apart), so stars leave faint marks. Use
+            this for position only.
           </span>
         </div>
       )}

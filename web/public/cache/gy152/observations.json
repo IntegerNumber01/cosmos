@@ -1,0 +1,92 @@
+{
+  "target": {
+    "ra": 246.726222,
+    "dec": -24.410601
+  },
+  "schema": 2,
+  "engine": "dr1-wcs-v2",
+  "release": "dr1",
+  "fieldSize": 0.1,
+  "queried": "2026-11-15T06:25:11.477Z",
+  "sample": "Selected DR1 follow-up sample at two wavelength windows. This is not a complete exposure inventory. Check the archive for full coverage.",
+  "source": "DR1 SIA centre-covering inventory + candidate-local FITS wavelengths",
+  "frames": [
+    {
+      "obsid": "2025W32_2D_0607_3",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W32_2D/l2b-v27-2026-226/5/level2_2025W32_2D_0607_3D5_spx_l2b-v27-2026-226.fits",
+      "mjd": 60897.714632347,
+      "date": "2025-08-10T17:09:04.235",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.8508407855255893,
+      "bw": 0.035478978336908135
+    },
+    {
+      "obsid": "2025W33_1B_0460_1",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_1B/l2b-v27-2026-227/5/level2_2025W33_1B_0460_1D5_spx_l2b-v27-2026-227.fits",
+      "mjd": 60900.496905992,
+      "date": "2025-08-13T11:55:32.678",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.9172247151043877,
+      "bw": 0.03603392686366472
+    },
+    {
+      "obsid": "2025W33_1B_0472_2",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_1B/l2b-v27-2026-227/5/level2_2025W33_1B_0472_2D5_spx_l2b-v27-2026-227.fits",
+      "mjd": 60900.564164036,
+      "date": "2025-08-13T13:32:23.773",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.8504528403704175,
+      "bw": 0.03570939638969914
+    },
+    {
+      "obsid": "2025W33_2C_0440_3",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/5/level2_2025W33_2C_0440_3D5_spx_l2b-v27-2026-228.fits",
+      "mjd": 60903.349208793,
+      "date": "2025-08-16T08:22:51.640",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.8560980091143766,
+      "bw": 0.03561126440504823
+    },
+    {
+      "obsid": "2025W33_2C_0526_1",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W33_2C/l2b-v27-2026-228/5/level2_2025W33_2C_0526_1D5_spx_l2b-v27-2026-228.fits",
+      "mjd": 60903.623268458,
+      "date": "2025-08-16T14:57:30.395",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.923033988862252,
+      "bw": 0.03610113874545685
+    },
+    {
+      "obsid": "2026W09_2A_0600_1",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W09_2A/l2b-v27-2026-229/5/level2_2026W09_2A_0600_1D5_spx_l2b-v27-2026-229.fits",
+      "mjd": 61100.720656965,
+      "date": "2026-03-01T17:17:44.762",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.852630866498777,
+      "bw": 0.035786155415625485
+    },
+    {
+      "obsid": "2026W09_2A_0600_3",
+      "detector": 5,
+      "url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W09_2A/l2b-v27-2026-229/5/level2_2026W09_2A_0600_3D5_spx_l2b-v27-2026-229.fits",
+      "mjd": 61100.723641467,
+      "date": "2026-03-01T17:22:02.623",
+      "exptime": 113.5826,
+      "inside": true,
+      "wl": 3.919335550140175,
+      "bw": 0.03601438575617649
+    }
+  ]
+}

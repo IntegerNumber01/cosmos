@@ -106,15 +106,30 @@ export async function findObservations(ra: number, dec: number, margin = 30, siz
   const radius = (size / Math.SQRT2).toFixed(6);
   const url = `https://irsa.ipac.caltech.edu/SIA?COLLECTION=${RELEASE.collection}&POS=circle+${ra.toFixed(6)}+${dec.toFixed(6)}+${radius}&RESPONSEFORMAT=csv`;
   let text = "";
+  let lastError = "No archive response";
+  // Keep all attempts (including reading the response body) inside the route's 60 s budget.
+  // fetch throws on network timeouts: these must be retried just like temporary HTTP errors.
+  const deadline = Date.now() + 50000;
   for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000) });
-    if (r.ok) {
-      text = await r.text();
+    const remaining = deadline - Date.now();
+    if (remaining < 1000) break;
+    try {
+      const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(Math.min(15000, remaining)) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const body = await r.text();
+      const header = body.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
+      const required = ["dataproduct_subtype", "access_url", "obs_id", "energy_bandpassname", "s_region", "s_ra", "s_dec", "t_min", "t_exptime"];
+      // A proxy can return an HTML error page with status 200. Never call that an empty sky.
+      if (required.some((column) => !header.includes(column))) throw new Error("The archive returned an invalid image list");
+      text = body;
       break;
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
     }
-    await new Promise((res) => setTimeout(res, 1500 * (attempt + 1)));
+    const delay = 750 * (attempt + 1);
+    if (attempt < 2 && Date.now() + delay < deadline) await new Promise((res) => setTimeout(res, delay));
   }
-  if (!text) throw new Error("IRSA SIA2 search failed");
+  if (!text) throw new Error(`NASA/IPAC's photo search is temporarily unavailable (${lastError}). Please try again.`);
   const rows = parseCsv(text).filter((r) => r.dataproduct_subtype === "science" && r.access_url);
   const out: Observation[] = [];
   for (const r of rows) {

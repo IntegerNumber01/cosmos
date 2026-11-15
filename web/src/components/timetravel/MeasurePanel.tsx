@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
+import Advanced from "@/components/Advanced";
 import { getKnown, Known } from "@/lib/engine/client";
 import { exactWindow, Frame, measure, Measurement } from "@/lib/engine/sequence";
 
@@ -176,7 +177,10 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
 
   // photometric variation: only dates whose wavelengths match AT THIS POSITION, with clean apertures
   const good = cmp.keep.filter((r) => Number.isFinite(r.flux) && Number.isFinite(r.fluxErrEmp) && !r.partial);
+  const wavelengthSpan = good.length > 1 ? Math.max(...good.map((r) => r.wl)) - Math.min(...good.map((r) => r.wl)) : 0;
+  const channelSpan = good.length > 1 ? wavelengthSpan / Math.min(...good.map((r) => r.bw)) : 0;
   let varText = "";
+  let plainVar = "";
   if (good.length >= 2) {
     const hi = good.reduce((a, b) => (b.flux > a.flux ? b : a));
     const lo = good.reduce((a, b) => (b.flux < a.flux ? b : a));
@@ -189,6 +193,14 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         : loIsZero
           ? `Present on ${fmtDate(hi.date)} but consistent with nothing on ${fmtDate(lo.date)}: a ${sig.toFixed(0)}× change compared with the empirical noise.`
           : `Brightness differs between dates by ${pct.toFixed(0)}% (${sig.toFixed(1)}× the empirical noise).`;
+    plainVar =
+      sig < 5
+        ? "The brightness looks the same on every date, within the noise."
+        : loIsZero
+          ? `Visible on ${fmtDate(hi.date)} but not on ${fmtDate(lo.date)}.`
+          : Number.isFinite(pct)
+            ? `The brightness changes by about ${pct.toFixed(0)}% between dates.`
+            : "The brightness changes between dates.";
   }
   const nUnusable = rows.filter((r) => !Number.isFinite(r.flux)).length;
   const saturated = rows.some((r) => r.flagsHere.some((f) => ["OVERFLOW", "NONLINEAR", "SUR_ERROR"].includes(f)));
@@ -224,6 +236,21 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     }
   }
   const catalogueGaps = [!known?.gaia.ok && "Gaia", !known?.simbad.ok && "SIMBAD"].filter(Boolean) as string[];
+  // everyday-language summary of the same verdict (full wording stays under "Show the science")
+  let plainVerdict = "";
+  if (known && assoc) {
+    plainVerdict =
+      assoc.level === "consistent"
+        ? `This matches a known asteroid or comet, ${sbRows[0].name}. That makes it a known object, not a discovery.`
+        : `A known asteroid or comet (${sbRows[0].name}) may be nearby, but the match isn't confirmed.`;
+  } else if (known) {
+    if (simbadTop) plainVerdict = `Already known: ${simbadTop.main_id.replace(/^NAME /, "")}${simbadTop.otype_label ? ` (${simbadTop.otype_label})` : ""}.`;
+    else if (gaiaMatch) plainVerdict = "Already known: a star listed in the Gaia star catalogue.";
+    else
+      plainVerdict = catalogueGaps.length
+        ? "We couldn't reach the star catalogues, so we can't say whether this is already known."
+        : "Nothing known is listed here. That is NOT a discovery: it could be a glitch, so it needs more checks.";
+  }
   let verdict = "";
   if (known && assoc) {
     verdict = assoc.text;
@@ -246,16 +273,13 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
 
   return (
     <div className="glass rounded-2xl p-4">
-      <div className="label">Investigate · {at.label}</div>
-      <div className="data mt-0.5 text-[11.5px] text-muted">
-        RA {at.ra.toFixed(5)}°, Dec {at.dec.toFixed(5)}°
-        {at.pm && ` · following proper motion ${(Math.hypot(at.pm[0], at.pm[1]) / 1000).toFixed(2)}″/yr`}
-      </div>
+      <div className="label">Take a closer look · {at.label}</div>
+      <p className="mt-1 text-[12.5px] text-muted">We measure how bright this spot is, and where exactly it sits, on every date.</p>
 
       <div className="mt-3 rounded-xl border border-line p-3">
-        <div className="label mb-1">Is it already known? <span className="normal-case tracking-normal text-dim">(catalogues checked for {fmtDate(whenIso)}{at.when ? `, ${at.when}` : ""})</span></div>
-        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking Gaia DR3 and SIMBAD at this date…</div>}
-        {knownErr && <div className="text-[12.5px] text-warn">Catalogue lookup failed ({knownErr}).</div>}
+        <div className="label mb-1">Is it already known?</div>
+        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogues for this date…</div>}
+        {knownErr && <div className="text-[12.5px] text-warn">The catalogue check failed ({knownErr}).</div>}
         {known && (
           <>
             <p
@@ -263,39 +287,18 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                 assoc ? (assoc.level === "consistent" ? "text-good" : "text-warn") : simbadTop || gaiaMatch ? "text-good" : catalogueGaps.length ? "text-warn" : "text-text"
               }`}
             >
-              {verdict}
+              {plainVerdict}
             </p>
-            <ul className="mt-1.5 space-y-0.5 text-[11.5px] text-muted">
-              {!known.gaia.ok && <li className="text-warn">Gaia unavailable: {known.gaia.error}</li>}
-              {!known.simbad.ok && <li className="text-warn">SIMBAD unavailable: {known.simbad.error}</li>}
-              {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
-                <li className="text-warn">
-                  Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbour.
-                  Try a different wavelength set.
-                </li>
-              )}
-              {gaiaMatch && (
-                <li>
-                  {gaiaIsTarget ? "" : "Nearest Gaia star: "}Gaia: G = {gaiaMatch.g.toFixed(2)}, proper motion {Math.hypot(gaiaMatch.pmra, gaiaMatch.pmdec).toFixed(0)} mas/yr
-                  {gaiaMatch.parallax && gaiaMatch.parallax_error && gaiaMatch.parallax / gaiaMatch.parallax_error > 5
-                    ? `, distance ${(1000 / gaiaMatch.parallax).toFixed(gaiaMatch.parallax > 100 ? 2 : 0)} pc`
-                    : ""}
-                </li>
-              )}
-              {known.simbad.ok &&
-                simbadRows.slice(0, 4).map((s) => (
-                  <li key={s.main_id}>
-                    SIMBAD: {s.main_id.replace(/^NAME /, "")} · {s.otype_label ?? s.otype} · {s.sep_arcsec.toFixed(1)}″
-                  </li>
-                ))}
-            </ul>
+            {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
+              <p className="mt-1 text-[12px] text-warn">We may be measuring a neighbouring star instead of the target here. Try a different infrared colour.</p>
+            )}
             <div className="mt-2">
               {sb === null && (
                 <button className="btn !py-1 !text-[12px]" onClick={checkSmallBodies}>
-                  Check known asteroids &amp; comets (JPL)
+                  Check known asteroids &amp; comets (NASA JPL)
                 </button>
               )}
-              {sb === "loading" && <span className="text-[12px] text-muted">Asking NASA/JPL which small bodies were here on {fmtDate(whenIso)}… (up to a minute)</span>}
+              {sb === "loading" && <span className="text-[12px] text-muted">Asking NASA/JPL which asteroids and comets were here on {fmtDate(whenIso)}… (up to a minute)</span>}
               {sb && sb !== "loading" && (
                 <div className="space-y-0.5 text-[12px]">
                   {sbRows.slice(0, 4).map((r) => (
@@ -320,16 +323,50 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                 </div>
               )}
             </div>
+            <Advanced className="mt-2">
+              <p className="data">
+                RA {at.ra.toFixed(5)}°, Dec {at.dec.toFixed(5)}°
+                {at.pm && ` · following proper motion ${(Math.hypot(at.pm[0], at.pm[1]) / 1000).toFixed(2)}″/yr`}
+              </p>
+              <p className="mt-1">
+                Gaia DR3 and SIMBAD checked for {fmtDate(whenIso)}
+                {at.when ? `, ${at.when}` : ""}.
+              </p>
+              <p className="mt-1 text-text/85">{verdict}</p>
+              <ul className="mt-1.5 space-y-0.5">
+                {!known.gaia.ok && <li className="text-warn">Gaia unavailable: {known.gaia.error}</li>}
+                {!known.simbad.ok && <li className="text-warn">SIMBAD unavailable: {known.simbad.error}</li>}
+                {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
+                  <li className="text-warn">
+                    Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbour.
+                    Try a different wavelength set.
+                  </li>
+                )}
+                {gaiaMatch && (
+                  <li>
+                    {gaiaIsTarget ? "" : "Nearest Gaia star: "}Gaia: G = {gaiaMatch.g.toFixed(2)}, proper motion {Math.hypot(gaiaMatch.pmra, gaiaMatch.pmdec).toFixed(0)} mas/yr
+                    {gaiaMatch.parallax && gaiaMatch.parallax_error && gaiaMatch.parallax / gaiaMatch.parallax_error > 5
+                      ? `, distance ${(1000 / gaiaMatch.parallax).toFixed(gaiaMatch.parallax > 100 ? 2 : 0)} pc`
+                      : ""}
+                  </li>
+                )}
+                {known.simbad.ok &&
+                  simbadRows.slice(0, 4).map((s) => (
+                    <li key={s.main_id}>
+                      SIMBAD: {s.main_id.replace(/^NAME /, "")} · {s.otype_label ?? s.otype} · {s.sep_arcsec.toFixed(1)}″
+                    </li>
+                  ))}
+              </ul>
+            </Advanced>
           </>
         )}
       </div>
 
       <div className="mt-3">
-        <div className="label mb-1">Brightness on each date (same wavelength, native pixels)</div>
+        <div className="label mb-1">Brightness on each date</div>
         {cmp.drop.length > 0 && (
           <p className="text-[12px] text-warn">
-            Left out at this position: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}. The filter wavelength here differs from the other dates by more than half a
-            channel. (The sequence was matched at the search target, not at this spot.)
+            Left out here: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}, because the infrared colour at this spot doesn&apos;t match the other dates.
           </p>
         )}
         <Chart
@@ -340,25 +377,48 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         {nUnusable > 0 && (
           <p className="text-[12px] text-warn">
             {nUnusable === rows.length
-              ? "No date had a usable aperture."
-              : `${nUnusable} of ${rows.length} dates ${nUnusable === 1 ? "has" : "have"} no usable aperture.`}{" "}
-            Pixels in the core are flagged (often saturation of a bright star, or a bad pixel or cosmic-ray hit), so no brightness or position is reported for{" "}
-            {nUnusable === rows.length ? "any date" : nUnusable === 1 ? "that date" : "those dates"}.
+              ? "No date could be measured here"
+              : `${nUnusable} of ${rows.length} dates could not be measured here`}
+            , usually because a bright star overloaded the camera or a pixel was bad.
           </p>
         )}
-        {varText && <p className="text-[12px] text-text/85">{varText}</p>}
-        {varText && (
-          <p className="mt-1 text-[11px] text-dim">
-            &quot;Noise&quot; here is the scatter of blank-sky apertures in each frame. It doesn&apos;t include calibration or point-spread differences between dates,
-            so large ratios overstate the confidence. Our validation records use reference stars in the same frames for that.
-          </p>
-        )}
-        {saturated && <p className="text-[12px] text-warn">Saturation/nonlinearity flags at this position on some dates: brightness there is unreliable.</p>}
+        {plainVar && <p className="text-[12.5px] text-text/85">{plainVar}</p>}
+        {good.length > 1 && <p className="mt-1 text-[12px] text-warn">Tiny colour differences can still fake a brightness change, so treat this as a hint, not proof.</p>}
+        {saturated && <p className="text-[12px] text-warn">On some dates this spot is too bright for the camera (saturated), so its brightness there is unreliable.</p>}
+        <Advanced className="mt-1">
+          <p>Brightness is measured in a small circle (aperture) on native pixels, using only dates whose wavelengths match at this position.</p>
+          {cmp.drop.length > 0 && (
+            <p className="mt-1">
+              The filter wavelength here differs from the other dates by more than half a channel. (The sequence was matched at the search target, not at this spot.)
+            </p>
+          )}
+          {nUnusable > 0 && (
+            <p className="mt-1">
+              Pixels in the core are flagged (often saturation of a bright star, or a bad pixel or cosmic-ray hit), so no brightness or position is reported for{" "}
+              {nUnusable === rows.length ? "any date" : nUnusable === 1 ? "that date" : "those dates"}.
+            </p>
+          )}
+          {varText && <p className="mt-1 text-text/85">{varText}</p>}
+          {good.length > 1 && (
+            <p className="mt-1">
+              These wavelengths span {wavelengthSpan.toFixed(5)} µm ({channelSpan.toFixed(3)} channel widths).
+              Even within the half-channel cutoff, a strong spectral feature can imitate a brightness change.
+              Check the spectrum and independent exposures before interpreting it as variability.
+            </p>
+          )}
+          {varText && (
+            <p className="mt-1">
+              &quot;Noise&quot; here is the scatter of blank-sky apertures in each frame. It doesn&apos;t include calibration or point-spread differences between dates,
+              so large ratios overstate the confidence. Our validation records use reference stars in the same frames for that.
+            </p>
+          )}
+          {saturated && <p className="mt-1">Saturation/nonlinearity flags (OVERFLOW, NONLINEAR, SUR_ERROR) are set at this position on some dates.</p>}
+        </Advanced>
       </div>
 
       {withC.length >= 2 && (
         <div className="mt-3">
-          <div className="label mb-1">Position on each date (measured centroid)</div>
+          <div className="label mb-1">Position on each date</div>
           <Chart
             unit="Δ north (″)"
             label="Northward shift of the measured position"
@@ -369,41 +429,53 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
             label="Eastward shift of the measured position"
             pts={track.map((p) => ({ t: p.t, v: p.dE, e: p.e, label: p.label, pred: p.predE }))}
           />
-          <p className="text-[12px] text-text/85">
-            Measured shift {withC[0].label} → {lastT.label}: <b className="data">{totalShift.toFixed(1)}″</b> ± {shiftErr.toFixed(1)}″ (about{" "}
-            {(totalShift / 6.15).toFixed(2)} SPHEREx pixels).
-            {gaiaMatch && (
+          <p className="text-[12.5px] text-text/85">
+            It shifted about <b className="data">{totalShift.toFixed(1)}″</b> between {withC[0].label} and {lastT.label}
+            {gaiaMatch && Number.isFinite(predShift) && (
               <>
-                {" "}
-                {at.pm || simbadPm ? "The catalogue" : "Gaia's"} proper motion predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line).
+                ; the star catalogue predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line)
               </>
             )}
+            . <span className="text-dim">(″ = arcseconds, a tiny angle on the sky.) Shifts under about 1.5″ don&apos;t mean much.</span>
           </p>
-          <p className="mt-1 text-[11px] text-dim">
-            Error bars combine an S/N-based centroid estimate with a 0.5″ allowance for alignment between dates. (Field stars shifted 0.25–0.8″ between
-            SPHEREx dates in our comet analysis.) Treat shifts under about 1.5″ as not significant.
-          </p>
+          <Advanced className="mt-1">
+            <p>
+              Measured centroid shift {withC[0].label} → {lastT.label}: <span className="data">{totalShift.toFixed(1)}″</span> ± {shiftErr.toFixed(1)}″ (about{" "}
+              {(totalShift / 6.15).toFixed(2)} SPHEREx pixels).
+              {gaiaMatch && (
+                <>
+                  {" "}
+                  {at.pm || simbadPm ? "The catalogue" : "Gaia's"} proper motion predicts <span className="data">{predShift.toFixed(1)}″</span> (dashed line).
+                </>
+              )}
+            </p>
+            <p className="mt-1">
+              Error bars combine an S/N-based centroid estimate with a 0.5″ allowance for alignment between dates. (Field stars shifted 0.25–0.8″ between
+              SPHEREx dates in our comet analysis.) Treat shifts under about 1.5″ as not significant.
+            </p>
+          </Advanced>
         </div>
       )}
 
       {partnerRows && (
-        <div className="mt-3 rounded-xl bg-white/5 p-3 text-[12px]">
-          <div className="label mb-1">Paired spot (where it faded)</div>
-          {partnerRows.map((r) => (
-            <div key={r.obsid} className="data flex justify-between">
-              <span>{fmtDate(r.date)}</span>
-              <span>
-                {Number.isFinite(r.snr) ? `S/N ${r.snr.toFixed(1)}` : "—"}
-                {r.partial ? " (partial)" : ""}
-              </span>
-            </div>
-          ))}
-        </div>
+        <Advanced className="mt-3" label="Show the paired spot (where it faded)" openLabel="Hide the paired spot">
+          <div className="rounded-xl bg-white/5 p-3">
+            <div className="label mb-1">Paired spot (where it faded)</div>
+            {partnerRows.map((r) => (
+              <div key={r.obsid} className="data flex justify-between">
+                <span>{fmtDate(r.date)}</span>
+                <span>
+                  {Number.isFinite(r.snr) ? `S/N ${r.snr.toFixed(1)}` : "—"}
+                  {r.partial ? " (partial)" : ""}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Advanced>
       )}
 
-      <details className="mt-3 text-[11.5px]">
-        <summary className="cursor-pointer text-muted">Per-date measurements and flags</summary>
-        <table className="data mt-2 w-full">
+      <Advanced className="mt-3" label="Per-date measurements and flags" openLabel="Hide per-date measurements">
+        <table className="data mt-1 w-full text-[11.5px]">
           <thead className="text-dim">
             <tr>
               <th className="text-left font-normal">date</th>
@@ -426,7 +498,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
             ))}
           </tbody>
         </table>
-      </details>
+      </Advanced>
     </div>
   );
 }

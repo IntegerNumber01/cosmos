@@ -84,7 +84,7 @@ export default function ObsTimeline({ obs, selected, onPick }: Props) {
           );
         })}
         <text x={W - PAD.r} y={PAD.t + 10} textAnchor="end" fontSize={10.5} fill="#5d668c">
-          click a dot to compare every date at that wavelength
+          click a dot to compare every date in that infrared colour
         </text>
       </svg>
       {hover && (

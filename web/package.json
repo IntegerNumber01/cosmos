@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/prepare-offline.cjs && next build",
     "start": "next start",
     "test": "node --test scripts/test-challenge.cjs",
+    "prepare:offline": "node scripts/prepare-offline.cjs",
     "lint": "eslint"
   },
   "dependencies": {

@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checks": {
+    "native_frames": 17,
+    "native_apertures": 64,
+    "pair_statistics": 56,
+    "prepared_checksums": 11
+  },
+  "scope": "Original native FITS headers, flags, local wavelengths, aperture measurements; portable pair statistics; binary cache provenance and SHA256; frozen screen totals. Does not validate novelty or remove unflagged systematics."
+}

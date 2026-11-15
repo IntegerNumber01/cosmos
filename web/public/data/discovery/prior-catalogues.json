@@ -1,0 +1,944 @@
+{
+  "gy152": {
+    "aliases": {
+      "main_id": "[GY92] 152",
+      "host": "https://simbad.harvard.edu/simbad/sim-tap/sync",
+      "identifiers": [
+        {
+          "id": "WISE J162654.30-242438.2"
+        },
+        {
+          "id": "TIC 175596947"
+        },
+        {
+          "id": "WISEA J162654.29-242438.4"
+        },
+        {
+          "id": "BKLT J162654-242440"
+        },
+        {
+          "id": "ISO-Oph  77"
+        },
+        {
+          "id": "[GY92] 152"
+        },
+        {
+          "id": "2MASS J16265429-2424381"
+        },
+        {
+          "id": "SSTc2d J162654.3-242438"
+        },
+        {
+          "id": "[EDJ2009] 844"
+        },
+        {
+          "id": "CFHTWIR-Oph  50"
+        },
+        {
+          "id": "[GMM2009] Oph L1688  74"
+        },
+        {
+          "id": "SSTc2d J162654.2-242437"
+        },
+        {
+          "id": "[HL2013] 246.72619-24.41052"
+        }
+      ],
+      "references": [
+        {
+          "bibcode": "2019MNRAS.482..698C",
+          "title": "The Ophiuchus DIsc Survey Employing ALMA (ODISEA) - I: project description and continuum images at 28 au resolution.",
+          "doi": "10.1093/mnras/sty2653"
+        },
+        {
+          "bibcode": "2019ApJ...875L...9W",
+          "title": "The Ophiuchus DIsk Survey Employing ALMA (ODISEA): disk dust mass distributions across protostellar evolutionary Classes.",
+          "doi": "10.3847/2041-8213/ab1338"
+        },
+        {
+          "bibcode": "2020AJ....159..282E",
+          "title": "A survey for new stars and brown dwarfs in the Ophiuchus star-forming complex.",
+          "doi": "10.3847/1538-3881/ab8dbd"
+        },
+        {
+          "bibcode": "2021AJ....162...28V",
+          "title": "A stellar mass dependence of structured disks: a possible link with exoplanet demographics.",
+          "doi": "10.3847/1538-3881/ac0255"
+        },
+        {
+          "bibcode": "2022ApJ...938...54R",
+          "title": "Discovery of a Brown Dwarf with Quasi-spherical Mass Loss.",
+          "doi": "10.3847/1538-4357/ac8ff5"
+        },
+        {
+          "bibcode": "1997ApJS..112..109B",
+          "title": "A near-infrared imaging survey of the {rho} Ophiuchi cloud core.",
+          "doi": "10.1086/313029"
+        },
+        {
+          "bibcode": "2004A&A...427..651D",
+          "title": "Multiple protostellar systems. I. A deep near infrared survey of Taurus and Ophiuchus protostellar objects.",
+          "doi": "10.1051/0004-6361:20041209"
+        },
+        {
+          "bibcode": "2001A&A...372..173B",
+          "title": "ISOCAM observations of the {rho} Ophiuchi cloud: Luminosity and mass functions of the pre-main sequence embedded cluster.",
+          "doi": "10.1051/0004-6361:20010474"
+        },
+        {
+          "bibcode": "1992ApJ...395..516G",
+          "title": "Near-infrared observations of young stellar objects in the rho Ophiuchi dark cloud.",
+          "doi": "10.1086/171672"
+        },
+        {
+          "bibcode": "2010ApJS..188...75M",
+          "title": "The evolutionary state of the pre-main sequence population in Ophiuchus:  a large infrared spectrograph survey.",
+          "doi": "10.1088/0067-0049/188/1/75"
+        },
+        {
+          "bibcode": "2009ApJS..181..321E",
+          "title": "The Spitzer c2d legacy results: star-formation rates and efficiencies:  evolution and lifetimes.",
+          "doi": "10.1088/0067-0049/181/2/321"
+        },
+        {
+          "bibcode": "2010A&A...515A..75A",
+          "title": "The low-mass population of the {rho} Ophiuchi molecular cloud.",
+          "doi": "10.1051/0004-6361/200913900"
+        },
+        {
+          "bibcode": "2009ApJS..184...18G",
+          "title": "A Spitzer survey of young stellar clusters within one kiloparsec of the  Sun: cluster core extraction and basic structural analysis.",
+          "doi": "10.1088/0067-0049/184/1/18"
+        },
+        {
+          "bibcode": "2008yCat.2289....0W",
+          "title": "JKH photometry in LDN 1688.",
+          "doi": ""
+        },
+        {
+          "bibcode": "2013ApJS..205....5H",
+          "title": "Populations of young stellar objects in nearby molecular clouds.",
+          "doi": "10.1088/0067-0049/205/1/5"
+        },
+        {
+          "bibcode": "2012ApJ...751...22B",
+          "title": "A significant population of candidate new members of the {rho} Ophiuchi  cluster.",
+          "doi": "10.1088/0004-637X/751/1/22"
+        },
+        {
+          "bibcode": "2015ApJS..220...11D",
+          "title": "Young stellar objects in the Gould belt.",
+          "doi": "10.1088/0067-0049/220/1/11"
+        },
+        {
+          "bibcode": "2021ApJ...920..132P",
+          "title": "Quantifying variability of young stellar objects in the mid-infrared over 6 years with the Near-Earth Object Wide-field Infrared Survey Explorer.",
+          "doi": "10.3847/1538-4357/ac1745"
+        },
+        {
+          "bibcode": "2022AJ....163...26L",
+          "title": "Spectroscopy of candidate members of the Sco-Cen complex.",
+          "doi": "10.3847/1538-3881/ac35e4"
+        }
+      ]
+    },
+    "allwise_p3as_psd": {
+      "catalog": "allwise_p3as_psd",
+      "ra": 246.726222,
+      "dec": -24.410601,
+      "radius_arcsec": 15,
+      "url": "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query?catalog=allwise_p3as_psd&spatial=cone&objstr=246.726222+-24.410601&radius=15&radunits=arcsec&outfmt=3",
+      "rows": [
+        {
+          "designation": "J162654.29-242438.4",
+          "ra": 246.7262316,
+          "dec": -24.410671,
+          "clon": "16h26m54.30s",
+          "clat": "-24d24m38.42s",
+          "sigra": 0.0453,
+          "sigdec": 0.0431,
+          "sigradec": -0.0093,
+          "w1mpro": 11.502,
+          "w1sigmpro": 0.03,
+          "w1snr": 35.7,
+          "w1rchi2": 3.531,
+          "w2mpro": 9.933,
+          "w2sigmpro": 0.02,
+          "w2snr": 53.4,
+          "w2rchi2": 1.725,
+          "w3mpro": 8.931,
+          "w3sigmpro": 0.268,
+          "w3snr": 4.1,
+          "w3rchi2": 0.2519,
+          "w4mpro": 6.288,
+          "w4sigmpro": 0.154,
+          "w4snr": 7.1,
+          "w4rchi2": 2.492,
+          "nb": 1,
+          "na": 0,
+          "w1sat": 0.0,
+          "w2sat": 0.0,
+          "w3sat": 0.0,
+          "w4sat": 0.0,
+          "pmra": -173,
+          "sigpmra": 60,
+          "pmdec": -346,
+          "sigpmdec": 59,
+          "cc_flags": "00DH",
+          "ext_flg": 1,
+          "var_flg": "53nn",
+          "ph_qual": "AABB",
+          "moon_lev": "1111",
+          "w1nm": 21,
+          "w1m": 21,
+          "w2nm": 21,
+          "w2m": 21,
+          "w3nm": 10,
+          "w3m": 11,
+          "w4nm": 9,
+          "w4m": 11,
+          "dist": 0.258419,
+          "angle": 171.53788
+        }
+      ]
+    },
+    "J_ApJ_920_132": {
+      "catalog": "J/ApJ/920/132",
+      "ra": 246.726222,
+      "dec": -24.410601,
+      "radius_arcsec": 10,
+      "url": "https://vizier.cfa.harvard.edu/viz-bin/votable?-source=J%2FApJ%2F920%2F132&-c=246.726222+-24.410601&-c.rs=10&-out.all=1",
+      "tables": [
+        {
+          "id": "J_ApJ_920_132_table7",
+          "rows": [
+            {
+              "_r": 1.73,
+              "recno": 4269,
+              "ID": "D2164",
+              "RAJ2000": 246.72583,
+              "DEJ2000": -24.41028,
+              "NW1": 14,
+              "NW2": 14,
+              "Np": 28,
+              "Class": "P",
+              "SD_sig": 1.659999966621399,
+              "DeltaW2": 0.25,
+              "LSP": 0.07314000278711319,
+              "Lin": 0.9955000281333923,
+              "secVar": "",
+              "stochVar": "",
+              "SlopeW2": null,
+              "Per": null,
+              "fAmp": null,
+              "Cloud": "Ophiuchus",
+              "LC": "LC",
+              "SimbadName": null
+            }
+          ]
+        }
+      ]
+    },
+    "ysol1688obj": {
+      "catalog": "ysol1688obj",
+      "ra": 246.726222,
+      "dec": -24.410601,
+      "radius_arcsec": 15,
+      "url": "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query?catalog=ysol1688obj&spatial=cone&objstr=246.726222+-24.410601&radius=15&radunits=arcsec&outfmt=3",
+      "rows": []
+    }
+  },
+  "serpensa": {
+    "aliases": {
+      "main_id": "2MASS J18300274+0112280",
+      "host": "https://simbad.harvard.edu/simbad/sim-tap/sync",
+      "identifiers": [
+        {
+          "id": "TIC 404750907"
+        },
+        {
+          "id": "GCNM 160"
+        },
+        {
+          "id": "STGM NIRS 10"
+        },
+        {
+          "id": "[EC92] 129"
+        },
+        {
+          "id": "[HB96] PS 2"
+        },
+        {
+          "id": "[KOB2004] 347"
+        },
+        {
+          "id": "2MASS J18300274+0112280"
+        },
+        {
+          "id": "[HMH2007] 208"
+        },
+        {
+          "id": "SSTc2d J183002.7+011228"
+        },
+        {
+          "id": "STGM 182730.4+011022"
+        },
+        {
+          "id": "[WMW2007] 10"
+        },
+        {
+          "id": "[EDJ2009] 703"
+        },
+        {
+          "id": "[EES2009] Ser-emb 29"
+        },
+        {
+          "id": "WDS J18300+0112CD"
+        },
+        {
+          "id": "[GMM2009] Serpens 24"
+        },
+        {
+          "id": "[GSL2010] 4"
+        },
+        {
+          "id": "** HCH   11"
+        },
+        {
+          "id": "WVSC 298"
+        },
+        {
+          "id": "[HL2013] 277.51137+01.20784"
+        }
+      ],
+      "references": [
+        {
+          "bibcode": "2024ApJ...972..149F",
+          "title": "iSHELL {\\em K}-band Survey of Class I and Flat Spectrum Sources: Magnetic Field Measurements in the Protostellar Phase.",
+          "doi": "10.3847/1538-4357/ad58b1"
+        },
+        {
+          "bibcode": "2024ApJ...973..138H",
+          "title": "The ALMA Legacy Survey of Class 0/I Disks in Corona australis, Aquila, chaMaeleon, oPhiuchus north, Ophiuchus, Serpens (CAMPOS). I. Evolution of Protostellar Disk Radii.",
+          "doi": "10.3847/1538-4357/ad6152"
+        },
+        {
+          "bibcode": "2006A&A...446..985M",
+          "title": "First results from a VLBA proper motion survey of H_2_O masers in low-mass YSOs: the Serpens core and RNO 15-FIR.",
+          "doi": "10.1051/0004-6361:20053610"
+        },
+        {
+          "bibcode": "2006AJ....131..512C",
+          "title": "The radial velocity distribution of class I and flat-spectrum protostars.",
+          "doi": "10.1086/498064"
+        },
+        {
+          "bibcode": "2005AJ....130.1145D",
+          "title": "The physical natures of class I and flat-spectrum protostellar photospheres: a near-infrared spectroscopic study.",
+          "doi": "10.1086/431954"
+        },
+        {
+          "bibcode": "2005MmSAI..76..389M",
+          "title": "First results from VLBA survey of water masers towards low-mass YSOs: the Serpens core and RNO 15-FIR.",
+          "doi": ""
+        },
+        {
+          "bibcode": "2004A&A...421..623K",
+          "title": "The young stellar population in the Serpens Cloud Core: An ISOCAM survey.",
+          "doi": "10.1051/0004-6361:20035775"
+        },
+        {
+          "bibcode": "2004AJ....127.1747H",
+          "title": "A near-infrared multiplicity survey of class I/Flat-spectrum systems in six nearby molecular clouds.",
+          "doi": "10.1086/381952"
+        },
+        {
+          "bibcode": "2000A&A...363..253L",
+          "title": "The ISO-LWS map of the Serpens cloud core. I. The SEDs of the IR/SMM sources.",
+          "doi": ""
+        },
+        {
+          "bibcode": "1998A&A...330..990G",
+          "title": "Deep optical and near infrared imaging photometry of the Serpens cloud core.",
+          "doi": ""
+        },
+        {
+          "bibcode": "1998ApJ...508L..91T",
+          "title": "Star formation in clusters: a survey of compact millimeter-wave sources in the Serpens core.",
+          "doi": "10.1086/311724"
+        },
+        {
+          "bibcode": "1997AJ....113.1057S",
+          "title": "Infrared polarimetry of star-forming regions: the Serpens cloud core.",
+          "doi": "10.1086/118322"
+        },
+        {
+          "bibcode": "1996A&A...306..427C",
+          "title": "The photospheres of embedded young stellar objects.",
+          "doi": ""
+        },
+        {
+          "bibcode": "1996ApJ...460L..45H",
+          "title": "A cluster of class 0 protostars in Serpens: an IRAS HIRES study.",
+          "doi": "10.1086/309969"
+        },
+        {
+          "bibcode": "1992A&A...262..468E",
+          "title": "Near-infrared images of the Serpens cloud core: the stellar cluster.",
+          "doi": ""
+        },
+        {
+          "bibcode": "2007A&A...476..229D",
+          "title": "Multiple protostellar systems. II. A high resolution near-infrared imaging survey in nearby star-forming regions.",
+          "doi": "10.1051/0004-6361:20077270"
+        },
+        {
+          "bibcode": "2008A&A...487..605A",
+          "title": "The direction of outflows from filaments: constraints on core formation.",
+          "doi": "10.1051/0004-6361:200810308"
+        },
+        {
+          "bibcode": "2007ApJ...663.1149H",
+          "title": "The Spitzer c2d survey of large, nearby, interstellar clouds. IX. The Serpens YSO population as observed with IRAC and MIPS.",
+          "doi": "10.1086/518646"
+        },
+        {
+          "bibcode": "2007ApJ...669..493W",
+          "title": "A combined Spitzer and Chandra survey of young stellar objects in the Serpens cloud core.",
+          "doi": "10.1086/521384"
+        },
+        {
+          "bibcode": "2009ApJS..181..321E",
+          "title": "The Spitzer c2d legacy results: star-formation rates and efficiencies:  evolution and lifetimes.",
+          "doi": "10.1088/0067-0049/181/2/321"
+        },
+        {
+          "bibcode": "2010ApJ...716..299S",
+          "title": "Near-infrared imaging polarimetry of the Serpens cloud core: magnetic  field structure, outflows, and inflows in a cluster forming clump.",
+          "doi": "10.1088/0004-637X/716/1/299"
+        },
+        {
+          "bibcode": "2010ApJ...716..634G",
+          "title": "FLAMINGOS near infrared survey of the Serpens cloud main core.",
+          "doi": "10.1088/0004-637X/716/1/634"
+        },
+        {
+          "bibcode": "2010A&A...523A..29D",
+          "title": "Wide field CO J = 3 -> 2 mapping of the Serpens cloud core.",
+          "doi": "10.1051/0004-6361/200913839"
+        },
+        {
+          "bibcode": "2009ApJ...692..973E",
+          "title": "Properties of the youngest protostars in Perseus, Serpens, and Ophiuchus.",
+          "doi": "10.1088/0004-637X/692/2/973"
+        },
+        {
+          "bibcode": "2009ApJS..184...18G",
+          "title": "A Spitzer survey of young stellar clusters within one kiloparsec of the  Sun: cluster core extraction and basic structural analysis.",
+          "doi": "10.1088/0067-0049/184/1/18"
+        },
+        {
+          "bibcode": "2014A&A...572A..62A",
+          "title": "POISSON project. III. Investigating the evolution of the mass accretion rate.",
+          "doi": "10.1051/0004-6361/201423929"
+        },
+        {
+          "bibcode": "2013ApJS..205....5H",
+          "title": "Populations of young stellar objects in nearby molecular clouds.",
+          "doi": "10.1088/0067-0049/205/1/5"
+        },
+        {
+          "bibcode": "2015A&A...573A.100F",
+          "title": "The WFCAM multiwavelength Variable Star Catalog.",
+          "doi": "10.1051/0004-6361/201423793"
+        },
+        {
+          "bibcode": "2015ApJS..220...11D",
+          "title": "Young stellar objects in the Gould belt.",
+          "doi": "10.1088/0067-0049/220/1/11"
+        },
+        {
+          "bibcode": "2021ApJ...920..132P",
+          "title": "Quantifying variability of young stellar objects in the mid-infrared over 6 years with the Near-Earth Object Wide-field Infrared Survey Explorer.",
+          "doi": "10.3847/1538-4357/ac1745"
+        },
+        {
+          "bibcode": "2022ApJ...938...55A",
+          "title": "Protostellar and Protoplanetary Disk Masses in the Serpens Region.",
+          "doi": "10.3847/1538-4357/ac8ff0"
+        }
+      ]
+    },
+    "allwise_p3as_psd": {
+      "catalog": "allwise_p3as_psd",
+      "ra": 277.5114458,
+      "dec": 1.2077944,
+      "radius_arcsec": 15,
+      "url": "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query?catalog=allwise_p3as_psd&spatial=cone&objstr=277.5114458+1.2077944&radius=15&radunits=arcsec&outfmt=3",
+      "rows": [
+        {
+          "designation": "J183002.74+011227.9",
+          "ra": 277.511453,
+          "dec": 1.2077514,
+          "clon": "18h30m02.75s",
+          "clat": "01d12m27.91s",
+          "sigra": 0.0279,
+          "sigdec": 0.0265,
+          "sigradec": -0.007,
+          "w1mpro": 8.06,
+          "w1sigmpro": 0.023,
+          "w1snr": 47.1,
+          "w1rchi2": 5.102,
+          "w2mpro": 6.602,
+          "w2sigmpro": 0.022,
+          "w2snr": 50.2,
+          "w2rchi2": 6.664,
+          "w3mpro": 4.412,
+          "w3sigmpro": 0.014,
+          "w3snr": 79.3,
+          "w3rchi2": 2.941,
+          "w4mpro": 1.617,
+          "w4sigmpro": 0.008,
+          "w4snr": 130.9,
+          "w4rchi2": 1.918,
+          "nb": 1,
+          "na": 0,
+          "w1sat": 0.002,
+          "w2sat": 0.014,
+          "w3sat": 0.0,
+          "w4sat": 0.0,
+          "pmra": -197,
+          "sigpmra": 39,
+          "pmdec": -100,
+          "sigpmdec": 38,
+          "cc_flags": "0hdd",
+          "ext_flg": 3,
+          "var_flg": "9921",
+          "ph_qual": "AAAA",
+          "moon_lev": "0011",
+          "w1nm": 24,
+          "w1m": 24,
+          "w2nm": 24,
+          "w2m": 24,
+          "w3nm": 12,
+          "w3m": 12,
+          "w4nm": 12,
+          "w4m": 12,
+          "dist": 0.139366,
+          "angle": 175.556877
+        }
+      ]
+    },
+    "fp_psc": {
+      "catalog": "fp_psc",
+      "ra": 277.5114458,
+      "dec": 1.2077944,
+      "radius_arcsec": 30.0,
+      "url": "https://irsa.ipac.caltech.edu/cgi-bin/Gator/nph-query?catalog=fp_psc&spatial=cone&objstr=277.5114458+1.2077944&radius=30.0&radunits=arcsec&outfmt=3",
+      "rows": [
+        {
+          "ra": 277.511447,
+          "dec": 1.207794,
+          "clon": "18h30m02.75s",
+          "clat": "01d12m28.06s",
+          "err_maj": 0.07,
+          "err_min": 0.06,
+          "err_ang": 0,
+          "designation": "18300274+0112280",
+          "j_m": 15.204,
+          "j_cmsig": 0.06,
+          "j_msigcom": 0.061,
+          "j_snr": 21.9,
+          "h_m": 11.92,
+          "h_cmsig": 0.032,
+          "h_msigcom": 0.033,
+          "h_snr": 199.9,
+          "k_m": 9.917,
+          "k_cmsig": 0.022,
+          "k_msigcom": 0.023,
+          "k_snr": 850.4,
+          "ph_qual": "AAA",
+          "rd_flg": "222",
+          "bl_flg": "111",
+          "cc_flg": "000",
+          "ndet": "466666",
+          "gal_contam": 0,
+          "mp_flg": 0,
+          "hemis": "n",
+          "xdate": "2000-09-24",
+          "scan": 9,
+          "glon": 31.566,
+          "glat": 5.31,
+          "a": "0",
+          "dist_opt": null,
+          "phi_opt": null,
+          "b_m_opt": null,
+          "vr_m_opt": null,
+          "nopt_mchs": 0,
+          "ext_key": null,
+          "dist": 0.017922,
+          "angle": 323.136213,
+          "j_h": 3.284,
+          "h_k": 2.003,
+          "j_k": 5.287
+        },
+        {
+          "ra": 277.516338,
+          "dec": 1.208914,
+          "clon": "18h30m03.92s",
+          "clat": "01d12m32.09s",
+          "err_maj": 0.11,
+          "err_min": 0.11,
+          "err_ang": 173,
+          "designation": "18300392+0112320",
+          "j_m": 17.035,
+          "j_cmsig": null,
+          "j_msigcom": null,
+          "j_snr": null,
+          "h_m": 15.517,
+          "h_cmsig": 0.156,
+          "h_msigcom": 0.156,
+          "h_snr": 7.3,
+          "k_m": 13.924,
+          "k_cmsig": 0.058,
+          "k_msigcom": 0.058,
+          "k_snr": 21.2,
+          "ph_qual": "UCA",
+          "rd_flg": "022",
+          "bl_flg": "011",
+          "cc_flg": "000",
+          "ndet": "000636",
+          "gal_contam": 0,
+          "mp_flg": 0,
+          "hemis": "n",
+          "xdate": "2000-09-24",
+          "scan": 9,
+          "glon": 31.569,
+          "glat": 5.306,
+          "a": "0",
+          "dist_opt": null,
+          "phi_opt": null,
+          "b_m_opt": null,
+          "vr_m_opt": null,
+          "nopt_mchs": 0,
+          "ext_key": null,
+          "dist": 18.05223,
+          "angle": 77.047073,
+          "j_h": null,
+          "h_k": 1.593,
+          "j_k": null
+        },
+        {
+          "ra": 277.515641,
+          "dec": 1.211139,
+          "clon": "18h30m03.75s",
+          "clat": "01d12m40.10s",
+          "err_maj": 0.09,
+          "err_min": 0.08,
+          "err_ang": 0,
+          "designation": "18300375+0112401",
+          "j_m": 16.658,
+          "j_cmsig": 0.191,
+          "j_msigcom": 0.191,
+          "j_snr": 5.7,
+          "h_m": 13.591,
+          "h_cmsig": 0.042,
+          "h_msigcom": 0.043,
+          "h_snr": 42.9,
+          "k_m": 12.26,
+          "k_cmsig": 0.018,
+          "k_msigcom": 0.02,
+          "k_snr": 98.3,
+          "ph_qual": "CAA",
+          "rd_flg": "222",
+          "bl_flg": "111",
+          "cc_flg": "000",
+          "ndet": "066666",
+          "gal_contam": 0,
+          "mp_flg": 0,
+          "hemis": "n",
+          "xdate": "2000-09-24",
+          "scan": 9,
+          "glon": 31.571,
+          "glat": 5.308,
+          "a": "0",
+          "dist_opt": null,
+          "phi_opt": null,
+          "b_m_opt": null,
+          "vr_m_opt": null,
+          "nopt_mchs": 0,
+          "ext_key": null,
+          "dist": 19.310387,
+          "angle": 51.365613,
+          "j_h": 3.067,
+          "h_k": 1.331,
+          "j_k": 4.398
+        },
+        {
+          "ra": 277.517863,
+          "dec": 1.20778,
+          "clon": "18h30m04.29s",
+          "clat": "01d12m28.01s",
+          "err_maj": 0.18,
+          "err_min": 0.17,
+          "err_ang": 82,
+          "designation": "18300428+0112280",
+          "j_m": 18.207,
+          "j_cmsig": null,
+          "j_msigcom": null,
+          "j_snr": null,
+          "h_m": 15.491,
+          "h_cmsig": null,
+          "h_msigcom": null,
+          "h_snr": null,
+          "k_m": 15.103,
+          "k_cmsig": 0.144,
+          "k_msigcom": 0.145,
+          "k_snr": 7.2,
+          "ph_qual": "UUB",
+          "rd_flg": "002",
+          "bl_flg": "001",
+          "cc_flg": "000",
+          "ndet": "000016",
+          "gal_contam": 0,
+          "mp_flg": 0,
+          "hemis": "n",
+          "xdate": "2000-09-24",
+          "scan": 9,
+          "glon": 31.569,
+          "glat": 5.304,
+          "a": "0",
+          "dist_opt": null,
+          "phi_opt": null,
+          "b_m_opt": null,
+          "vr_m_opt": null,
+          "nopt_mchs": 0,
+          "ext_key": null,
+          "dist": 23.081699,
+          "angle": 90.089295,
+          "j_h": null,
+          "h_k": null,
+          "j_k": null
+        },
+        {
+          "ra": 277.519672,
+          "dec": 1.208924,
+          "clon": "18h30m04.72s",
+          "clat": "01d12m32.13s",
+          "err_maj": 0.09,
+          "err_min": 0.08,
+          "err_ang": 7,
+          "designation": "18300472+0112321",
+          "j_m": 16.314,
+          "j_cmsig": 0.147,
+          "j_msigcom": 0.148,
+          "j_snr": 7.9,
+          "h_m": 14.973,
+          "h_cmsig": 0.117,
+          "h_msigcom": 0.118,
+          "h_snr": 12.0,
+          "k_m": 14.006,
+          "k_cmsig": 0.063,
+          "k_msigcom": 0.064,
+          "k_snr": 19.7,
+          "ph_qual": "BBA",
+          "rd_flg": "222",
+          "bl_flg": "211",
+          "cc_flg": "c00",
+          "ndet": "060526",
+          "gal_contam": 0,
+          "mp_flg": 0,
+          "hemis": "n",
+          "xdate": "2000-09-24",
+          "scan": 9,
+          "glon": 31.571,
+          "glat": 5.303,
+          "a": "0",
+          "dist_opt": null,
+          "phi_opt": null,
+          "b_m_opt": null,
+          "vr_m_opt": null,
+          "nopt_mchs": 0,
+          "ext_key": null,
+          "dist": 29.872881,
+          "angle": 82.145347,
+          "j_h": 1.341,
+          "h_k": 0.967,
+          "j_k": 2.308
+        }
+      ]
+    },
+    "J_AA_573_A100": {
+      "catalog": "J/A+A/573/A100",
+      "ra": 277.5114458,
+      "dec": 1.2077944,
+      "radius_arcsec": 10,
+      "url": "https://vizier.cfa.harvard.edu/viz-bin/votable?-source=J%2FA%2BA%2F573%2FA100&-c=277.5114458+1.2077944&-c.rs=10&-out.all=1",
+      "tables": [
+        {
+          "id": "J_A_A_573_A100_WVSC",
+          "rows": [
+            {
+              "_r": 0.013,
+              "WSA": 858994205305,
+              "C": 2,
+              "WVSC": 298,
+              "RAJ2000": 277.511449,
+              "DEJ2000": 1.207796,
+              "Type": "YSO?",
+              "Per": null,
+              "__Zmag_": 20.152999877929688,
+              "o__Zmag_": 7,
+              "__Ymag_": 17.979000091552734,
+              "o__Ymag_": 79,
+              "__Jmag_": 15.211000442504883,
+              "o__Jmag_": 92,
+              "__Hmag_": 12.08899974822998,
+              "o__Hmag_": 90,
+              "__Kmag_": 9.930999755859375,
+              "o__Kmag_": 3,
+              "Name": "",
+              "Simbad": "Simbad"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "oriona": {
+    "aliases": {
+      "main_id": "2MASS J05363028-0601173",
+      "host": "https://simbad.harvard.edu/simbad/sim-tap/sync",
+      "identifiers": [
+        {
+          "id": "TIC 388935522"
+        },
+        {
+          "id": "WISE J053630.28-060117.2"
+        },
+        {
+          "id": "VISION J05363027-0601173"
+        },
+        {
+          "id": "WISEA J053630.28-060117.2"
+        },
+        {
+          "id": "[MGM2012] 1078"
+        },
+        {
+          "id": "2MASS J05363028-0601173"
+        },
+        {
+          "id": "[FKV2013] 524"
+        },
+        {
+          "id": "HOPS 193"
+        }
+      ],
+      "references": [
+        {
+          "bibcode": "2019A&A...622A.149G",
+          "title": "VISION - Vienna survey in Orion. III. Young stellar objects in Orion A.",
+          "doi": "10.1051/0004-6361/201832577"
+        },
+        {
+          "bibcode": "2019ApJ...884....6M",
+          "title": "Runaway young stars near the Orion Nebula.",
+          "doi": "10.3847/1538-4357/ab3df9"
+        },
+        {
+          "bibcode": "2020ApJ...905..119F",
+          "title": "The Herschel Orion Protostar Survey: far-infrared photometry and colors of protostars and their variations across Orion A and B.",
+          "doi": "10.3847/1538-4357/abc7cb"
+        },
+        {
+          "bibcode": "2021ApJ...911..153H",
+          "title": "An HST Survey of protostellar outflow cavities: does feedback clear envelopes?",
+          "doi": "10.3847/1538-4357/abded8"
+        },
+        {
+          "bibcode": "2022ApJ...925...39T",
+          "title": "The VLA/ALMA Nascent Disk And Multiplicity (VANDAM) Survey of Orion Protostars. V. A Characterization of Protostellar Multiplicity.",
+          "doi": "10.3847/1538-4357/ac36d2"
+        },
+        {
+          "bibcode": "2020ApJ...890..130T",
+          "title": "The VLA/ALMA Nascent Disk And Multiplicity (VANDAM) survey of Orion protostars. II. A statistical characterization of Class 0 and class I protostellar disks.",
+          "doi": "10.3847/1538-4357/ab6f64"
+        },
+        {
+          "bibcode": "2023ApJ...944...49F",
+          "title": "300: An ACA 870 \u03bcm Continuum Survey of Orion Protostars and Their Evolution.",
+          "doi": "10.3847/1538-4357/ac9f4b"
+        },
+        {
+          "bibcode": "2012AJ....144..192M",
+          "title": "The Spitzer Space Telescope survey of the Orion A and B molecular clouds. I. A census of dusty young stellar objects and a study of their mid-infrared variability.",
+          "doi": "10.1088/0004-6256/144/6/192"
+        },
+        {
+          "bibcode": "2013ApJS..207....5F",
+          "title": "Young stellar objects in Lynds 1641: disks, accretion, and star formation  history.",
+          "doi": "10.1088/0067-0049/207/1/5"
+        },
+        {
+          "bibcode": "2016ApJS..224....5F",
+          "title": "The Herschel Orion protostar survey: spectral energy distributions and fits using a grid of protostellar models.",
+          "doi": "10.3847/0067-0049/224/1/5"
+        },
+        {
+          "bibcode": "2016ApJ...821...52K",
+          "title": "An HST survey for 100-1000 au companions around young stellar objects in the Orion molecular clouds: evidence for environmentally dependent multiplicity.",
+          "doi": "10.3847/0004-637X/821/1/52"
+        },
+        {
+          "bibcode": "2021ApJ...920..132P",
+          "title": "Quantifying variability of young stellar objects in the mid-infrared over 6 years with the Near-Earth Object Wide-field Infrared Survey Explorer.",
+          "doi": "10.3847/1538-4357/ac1745"
+        },
+        {
+          "bibcode": "2026ApJ..1001..134S",
+          "title": "Protostellar Outflows Shed Light on the Dominant Close Companion Star Formation Pathways.",
+          "doi": "10.3847/1538-4357/ae4a29"
+        }
+      ]
+    },
+    "J_ApJ_920_132": {
+      "catalog": "J/ApJ/920/132",
+      "ra": 84.126171,
+      "dec": -6.021473,
+      "radius_arcsec": 10,
+      "url": "https://vizier.cfa.harvard.edu/viz-bin/votable?-source=J%2FApJ%2F920%2F132&-c=84.126171+-6.021473&-c.rs=10&-out.all=1",
+      "tables": [
+        {
+          "id": "J_ApJ_920_132_table7",
+          "rows": [
+            {
+              "_r": 0.18,
+              "recno": 942,
+              "ID": "M1078",
+              "RAJ2000": 84.12613,
+              "DEJ2000": -6.0215,
+              "NW1": 14,
+              "NW2": 14,
+              "Np": 28,
+              "Class": "P",
+              "SD_sig": 7.079999923706055,
+              "DeltaW2": 0.4699999988079071,
+              "LSP": 0.7684999704360962,
+              "Lin": 0.9715999960899353,
+              "secVar": "",
+              "stochVar": "irregular",
+              "SlopeW2": null,
+              "Per": null,
+              "fAmp": null,
+              "Cloud": "Orion",
+              "LC": "LC",
+              "SimbadName": null
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
