@@ -1,0 +1,183 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #03040a;
+  --bg-2: #070a16;
+  --panel: rgba(9, 13, 28, 0.66);
+  --panel-strong: rgba(9, 13, 28, 0.86);
+  --line: rgba(150, 175, 255, 0.14);
+  --line-strong: rgba(150, 175, 255, 0.28);
+  --text: #e9edff;
+  --muted: #8d96bd;
+  --dim: #5d668c;
+  --accent: #7fd8ff;
+  --accent-2: #b59bff;
+  --good: #6ef0b0;
+  --warn: #ffc857;
+  --bad: #ff6b6b;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-dim: var(--dim);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-good: var(--good);
+  --color-warn: var(--warn);
+  --color-bad: var(--bad);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-grotesk);
+  --font-mono: var(--font-mono);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-grotesk), var(--font-inter), sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.glass {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.glass-strong {
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+.label {
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.data {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  padding: 0.45rem 0.95rem;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+.btn:hover {
+  background: rgba(127, 216, 255, 0.1);
+  border-color: rgba(127, 216, 255, 0.5);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: linear-gradient(135deg, rgba(127, 216, 255, 0.22), rgba(181, 155, 255, 0.22));
+  border-color: rgba(127, 216, 255, 0.55);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(150, 175, 255, 0.2);
+  border-radius: 3px;
+}
+
+/* Aladin canvas fills its parent; hide its own logo bar area chrome where possible */
+.aladin-container {
+  background: var(--bg) !important;
+}
+.aladin-logo-container,
+.aladin-logo {
+  opacity: 0.35;
+}
+
+input[type="range"].spectrum {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  width: 100%;
+  height: 34px;
+  cursor: pointer;
+}
+input[type="range"].spectrum::-webkit-slider-runnable-track {
+  height: 34px;
+  background: transparent;
+}
+input[type="range"].spectrum::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 4px;
+  height: 34px;
+  background: transparent;
+  border: none;
+}
+input[type="range"].spectrum::-moz-range-thumb {
+  width: 4px;
+  height: 34px;
+  background: transparent;
+  border: none;
+}
+input[type="range"].spectrum:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.fade-up {
+  animation: fadeUp 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(127, 216, 255, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(127, 216, 255, 0);
+  }
+}
+.pulse {
+  animation: pulseRing 1.8s ease-out infinite;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
