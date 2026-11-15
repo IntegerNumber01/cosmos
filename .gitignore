@@ -1,0 +1,16 @@
+# Python
+pipeline/.venv/
+__pycache__/
+*.pyc
+# Raw archive data stays out of git and out of the deploy bundle (traceable via manifests)
+data/raw/**/*.fits
+data/raw/gaia/*.ecsv
+data/work/
+# Node / Next
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+.env*.local
