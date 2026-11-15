@@ -1,0 +1,2309 @@
+{
+ "object": {
+  "name": "C/2025 R2 (SWAN)",
+  "naif_id": 1004092,
+  "type": "Long-period comet"
+ },
+ "data_release": "SPHEREx DR1 (IRSA, doi:10.26131/IRSA678)",
+ "most": {
+  "service": "IRSA MOST (Moving Object Search Tool)",
+  "catalog": "spherex",
+  "query_window": "2025-09-01 to 2026-03-01",
+  "n_matched_frames": 205,
+  "n_distinct_times": 103,
+  "note": "MOST lists exposure START times; comparisons use the ephemeris evaluated at mid-exposure."
+ },
+ "sequences": [
+  {
+   "id": "2025W44_1A_0045_D1",
+   "obs_block": "2025W44_1A_0045",
+   "detector": 1,
+   "n": 4,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 314.24527313786945,
+    "center_dec": -5.688364425498177,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    0.7437,
+    0.7976
+   ],
+   "date_first": "2025-10-27T04:53:00.716",
+   "date_last": "2025-10-27T04:59:29.044",
+   "diff_png": "/data/swan/2025W44_1A_0045_D1/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 9.92,
+   "predicted_rate_arcsec_per_min": 10.04,
+   "measured_pa_deg": 62.9,
+   "predicted_pa_deg": 63.6,
+   "measured_total_motion_arcsec": 64.2,
+   "span_minutes": 6.47,
+   "median_offset_mid_arcsec": 2.29,
+   "star_control": {
+    "n_stars": 12,
+    "median_shift_arcsec": 0.49,
+    "max_shift_arcsec": 3.87
+   },
+   "vacancy_ratio": 0.21,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0045_1D1",
+     "obsid": "2025W44_1A_0045_1",
+     "detector": 1,
+     "date_avg": "2025-10-27T04:53:00.716",
+     "date_beg": "2025-10-27T04:52:03.157",
+     "date_end": "2025-10-27T04:53:58.275",
+     "mjd_avg": 60975.203480506,
+     "exposure_s": 113.5826,
+     "wavelength_um": 0.7437,
+     "bandwidth_um": 0.0175,
+     "png": "/data/swan/2025W44_1A_0045_D1/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D1/f0_flags.png",
+     "measured": {
+      "ra": 314.2372776271829,
+      "dec": -5.692409743659404,
+      "x": 60.15721910880951,
+      "y": 53.131976645903976,
+      "err_arcsec": 0.4781845220015751,
+      "snr": 293.0
+     },
+     "predicted_mid": {
+      "ra": 314.23653871188566,
+      "dec": -5.692509610455166,
+      "x": 60.58762106370962,
+      "y": 53.073511800092845,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.234115,
+      "dec": -5.693692,
+      "x": 61.99936938538035,
+      "y": 52.381357008268004,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.67,
+     "offset_along_cross_arcsec": [
+      2.53,
+      -0.86
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_1D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_1D1_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0045_2D1",
+     "obsid": "2025W44_1A_0045_2",
+     "detector": 1,
+     "date_avg": "2025-10-27T04:55:09.648",
+     "date_beg": "2025-10-27T04:54:12.089",
+     "date_end": "2025-10-27T04:56:07.207",
+     "mjd_avg": 60975.204972775,
+     "exposure_s": 113.5826,
+     "wavelength_um": 0.7611,
+     "bandwidth_um": 0.0182,
+     "png": "/data/swan/2025W44_1A_0045_D1/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D1/f1_flags.png",
+     "measured": {
+      "ra": 314.24262415042966,
+      "dec": -5.689779836784471,
+      "x": 57.04298727656217,
+      "y": 54.67146302765324,
+      "err_arcsec": 0.47997511160470946,
+      "snr": 264.9
+     },
+     "predicted_mid": {
+      "ra": 314.24193177768444,
+      "dec": -5.68984437355331,
+      "x": 57.44628166148366,
+      "y": 54.63368331661884,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.23954,
+      "dec": -5.691044,
+      "x": 58.839441794171925,
+      "y": 53.93145201521026,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.49,
+     "offset_along_cross_arcsec": [
+      2.32,
+      -0.9
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_2D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_2D1_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 2,
+     "productid": "2025W44_1A_0045_3D1",
+     "obsid": "2025W44_1A_0045_3",
+     "detector": 1,
+     "date_avg": "2025-10-27T04:57:20.113",
+     "date_beg": "2025-10-27T04:56:22.554",
+     "date_end": "2025-10-27T04:58:17.672",
+     "mjd_avg": 60975.206482786,
+     "exposure_s": 113.5826,
+     "wavelength_um": 0.7789,
+     "bandwidth_um": 0.019,
+     "png": "/data/swan/2025W44_1A_0045_D1/f2.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D1/f2_flags.png",
+     "measured": {
+      "ra": 314.247948063995,
+      "dec": -5.6869761544987005,
+      "x": 53.94189631360879,
+      "y": 56.312642834738504,
+      "err_arcsec": 0.47811651421388696,
+      "snr": 310.6
+     },
+     "predicted_mid": {
+      "ra": 314.2473889631582,
+      "dec": -5.6871474489008715,
+      "x": 54.26756439438394,
+      "y": 56.212374289850885,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.244998,
+      "dec": -5.68834,
+      "x": 55.660263234114154,
+      "y": 55.51429781445501,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.1,
+     "offset_along_cross_arcsec": [
+      2.07,
+      -0.34
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_3D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_3D1_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 3,
+     "productid": "2025W44_1A_0045_4D1",
+     "obsid": "2025W44_1A_0045_4",
+     "detector": 1,
+     "date_avg": "2025-10-27T04:59:29.044",
+     "date_beg": "2025-10-27T04:58:31.485",
+     "date_end": "2025-10-27T05:00:26.603",
+     "mjd_avg": 60975.207975043,
+     "exposure_s": 113.5826,
+     "wavelength_um": 0.7976,
+     "bandwidth_um": 0.0197,
+     "png": "/data/swan/2025W44_1A_0045_D1/f3.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D1/f3_flags.png",
+     "measured": {
+      "ra": 314.2532427098701,
+      "dec": -5.684291967050133,
+      "x": 50.85782412474871,
+      "y": 57.883846142401,
+      "err_arcsec": 0.5239713991641574,
+      "snr": 327.8
+     },
+     "predicted_mid": {
+      "ra": 314.2527819855755,
+      "dec": -5.684482233438005,
+      "x": 51.12619170587348,
+      "y": 57.77247428476509,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.250358,
+      "dec": -5.685667,
+      "x": 52.5381385858576,
+      "y": 57.0789677598023,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 1.79,
+     "offset_along_cross_arcsec": [
+      1.78,
+      -0.12
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_4D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0045_4D1_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    }
+   ]
+  },
+  {
+   "id": "2025W44_1A_0045_D4",
+   "obs_block": "2025W44_1A_0045",
+   "detector": 4,
+   "n": 4,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 314.2453248879112,
+    "center_dec": -5.688432969311817,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    2.426,
+    2.6111
+   ],
+   "date_first": "2025-10-27T04:53:00.717",
+   "date_last": "2025-10-27T04:59:29.043",
+   "diff_png": "/data/swan/2025W44_1A_0045_D4/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 9.77,
+   "predicted_rate_arcsec_per_min": 10.04,
+   "measured_pa_deg": 62.1,
+   "predicted_pa_deg": 63.6,
+   "measured_total_motion_arcsec": 63.0,
+   "span_minutes": 6.47,
+   "median_offset_mid_arcsec": 2.86,
+   "star_control": {
+    "n_stars": 8,
+    "median_shift_arcsec": 0.72,
+    "max_shift_arcsec": 2.76
+   },
+   "vacancy_ratio": 0.39,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0045_1D4",
+     "obsid": "2025W44_1A_0045_1",
+     "detector": 4,
+     "date_avg": "2025-10-27T04:53:00.717",
+     "date_beg": "2025-10-27T04:52:03.158",
+     "date_end": "2025-10-27T04:53:58.276",
+     "mjd_avg": 60975.203480518,
+     "exposure_s": 113.5826,
+     "wavelength_um": 2.426,
+     "bandwidth_um": 0.0449,
+     "png": "/data/swan/2025W44_1A_0045_D4/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D4/f0_flags.png",
+     "measured": {
+      "ra": 314.2374429692345,
+      "dec": -5.692606294997426,
+      "x": 60.091052549495195,
+      "y": 53.05704631998195,
+      "err_arcsec": 0.427917379754739,
+      "snr": 194.7
+     },
+     "predicted_mid": {
+      "ra": 314.2365387337936,
+      "dec": -5.692509599650932,
+      "x": 60.61775162346199,
+      "y": 53.11364087576639,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.234115,
+      "dec": -5.693692,
+      "x": 62.0295126441703,
+      "y": 52.42147963285123,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 3.26,
+     "offset_along_cross_arcsec": [
+      2.75,
+      -1.75
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "DICHROIC",
+       "description": "Low efficiency due to dichroic",
+       "treatment": "reported"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_1D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_1D4_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0045_2D4",
+     "obsid": "2025W44_1A_0045_2",
+     "detector": 4,
+     "date_avg": "2025-10-27T04:55:09.648",
+     "date_beg": "2025-10-27T04:54:12.089",
+     "date_end": "2025-10-27T04:56:07.207",
+     "mjd_avg": 60975.204972775,
+     "exposure_s": 113.5826,
+     "wavelength_um": 2.4748,
+     "bandwidth_um": 0.0715,
+     "png": "/data/swan/2025W44_1A_0045_D4/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D4/f1_flags.png",
+     "measured": {
+      "ra": 314.24270660652377,
+      "dec": -5.689730670394943,
+      "x": 57.02510168666266,
+      "y": 54.74036664279651,
+      "err_arcsec": 0.6017082001958983,
+      "snr": 306.3
+     },
+     "predicted_mid": {
+      "ra": 314.24193178501343,
+      "dec": -5.689844369932619,
+      "x": 57.47642085253428,
+      "y": 54.67380846845424,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.23954,
+      "dec": -5.691044,
+      "x": 58.86958519142653,
+      "y": 53.97157492283233,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.81,
+     "offset_along_cross_arcsec": [
+      2.67,
+      -0.87
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_2D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_2D4_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 2,
+     "productid": "2025W44_1A_0045_3D4",
+     "obsid": "2025W44_1A_0045_3",
+     "detector": 4,
+     "date_avg": "2025-10-27T04:57:20.112",
+     "date_beg": "2025-10-27T04:56:22.553",
+     "date_end": "2025-10-27T04:58:17.671",
+     "mjd_avg": 60975.206482775,
+     "exposure_s": 113.5826,
+     "wavelength_um": 2.5422,
+     "bandwidth_um": 0.0737,
+     "png": "/data/swan/2025W44_1A_0045_D4/f2.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D4/f2_flags.png",
+     "measured": {
+      "ra": 314.24819014442346,
+      "dec": -5.687000463223664,
+      "x": 53.83103183540606,
+      "y": 56.33853601405003,
+      "err_arcsec": 0.4664360392552565,
+      "snr": 291.9
+     },
+     "predicted_mid": {
+      "ra": 314.2473889598405,
+      "dec": -5.687147450520182,
+      "x": 54.29770992821556,
+      "y": 56.25249665893779,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.244998,
+      "dec": -5.68834,
+      "x": 55.69040677295039,
+      "y": 55.55442100673794,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.92,
+     "offset_along_cross_arcsec": [
+      2.81,
+      -0.8
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_3D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_3D4_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    },
+    {
+     "index": 3,
+     "productid": "2025W44_1A_0045_4D4",
+     "obsid": "2025W44_1A_0045_4",
+     "detector": 4,
+     "date_avg": "2025-10-27T04:59:29.043",
+     "date_beg": "2025-10-27T04:58:31.484",
+     "date_end": "2025-10-27T05:00:26.602",
+     "mjd_avg": 60975.207975032,
+     "exposure_s": 113.5826,
+     "wavelength_um": 2.6111,
+     "bandwidth_um": 0.075,
+     "png": "/data/swan/2025W44_1A_0045_D4/f3.png",
+     "flags_png": "/data/swan/2025W44_1A_0045_D4/f3_flags.png",
+     "measured": {
+      "ra": 314.25295983146293,
+      "dec": -5.684394448631235,
+      "x": 51.05274179946247,
+      "y": 57.8639827605459,
+      "err_arcsec": 0.3739580784619269,
+      "snr": 647.0
+     },
+     "predicted_mid": {
+      "ra": 314.252782011023,
+      "dec": -5.684482220820349,
+      "x": 51.15632062408493,
+      "y": 57.81260526864394,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 314.250358,
+      "dec": -5.685667,
+      "x": 52.56828226483474,
+      "y": 57.11909123156601,
+      "vmag": 11.3,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 0.71,
+     "offset_along_cross_arcsec": [
+      0.71,
+      -0.0
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_4D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0045_4D4_spx_l2b-v27-2026-245.fits?center=314.242253,-5.689686d&size=0.25"
+    }
+   ]
+  },
+  {
+   "id": "2025W44_1A_0101_D2",
+   "obs_block": "2025W44_1A_0101",
+   "detector": 2,
+   "n": 2,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 315.18621083424847,
+    "center_dec": -5.426070644547857,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    1.2833,
+    1.3143
+   ],
+   "date_first": "2025-10-27T11:25:45.895",
+   "date_last": "2025-10-27T11:27:54.826",
+   "diff_png": "/data/swan/2025W44_1A_0101_D2/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 9.81,
+   "predicted_rate_arcsec_per_min": 9.89,
+   "measured_pa_deg": 63.2,
+   "predicted_pa_deg": 63.4,
+   "measured_total_motion_arcsec": 21.1,
+   "span_minutes": 2.15,
+   "median_offset_mid_arcsec": 2.78,
+   "star_control": {
+    "n_stars": 12,
+    "median_shift_arcsec": 0.78,
+    "max_shift_arcsec": 12.62
+   },
+   "vacancy_ratio": 0.51,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0101_1D2",
+     "obsid": "2025W44_1A_0101_1",
+     "detector": 2,
+     "date_avg": "2025-10-27T11:25:45.895",
+     "date_beg": "2025-10-27T11:24:48.336",
+     "date_end": "2025-10-27T11:26:43.454",
+     "mjd_avg": 60975.476225634,
+     "exposure_s": 113.5826,
+     "wavelength_um": 1.2833,
+     "bandwidth_um": 0.0308,
+     "png": "/data/swan/2025W44_1A_0101_D2/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0101_D2/f0_flags.png",
+     "measured": {
+      "ra": 315.1835866255774,
+      "dec": -5.427392640423454,
+      "x": 57.02923549730657,
+      "y": 54.72614544324126,
+      "err_arcsec": 0.49455003246139834,
+      "snr": 318.5
+     },
+     "predicted_mid": {
+      "ra": 315.18280242433696,
+      "dec": -5.427553868220794,
+      "x": 57.4862216342698,
+      "y": 54.63176592030416,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 315.180435,
+      "dec": -5.428732,
+      "x": 58.86581128924286,
+      "y": 53.94211734265454,
+      "vmag": 11.32,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.87,
+     "offset_along_cross_arcsec": [
+      2.77,
+      -0.74
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/2/level2_2025W44_1A_0101_1D2_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/2/level2_2025W44_1A_0101_1D2_spx_l2b-v27-2026-245.fits?center=315.183087,-5.427412d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0101_2D2",
+     "obsid": "2025W44_1A_0101_2",
+     "detector": 2,
+     "date_avg": "2025-10-27T11:27:54.826",
+     "date_beg": "2025-10-27T11:26:57.267",
+     "date_end": "2025-10-27T11:28:52.385",
+     "mjd_avg": 60975.477717891,
+     "exposure_s": 113.5826,
+     "wavelength_um": 1.3143,
+     "bandwidth_um": 0.0316,
+     "png": "/data/swan/2025W44_1A_0101_D2/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0101_D2/f1_flags.png",
+     "measured": {
+      "ra": 315.18883504291955,
+      "dec": -5.42474864867226,
+      "x": 53.970757799579026,
+      "y": 56.27384793361767,
+      "err_arcsec": 0.49813817205189415,
+      "snr": 315.9
+     },
+     "predicted_mid": {
+      "ra": 315.1881054244106,
+      "dec": -5.424914868184194,
+      "x": 54.395939007824424,
+      "y": 56.17655029210236,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 315.185738,
+      "dec": -5.426093,
+      "x": 55.77554076872644,
+      "y": 55.486913774170176,
+      "vmag": 11.32,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.68,
+     "offset_along_cross_arcsec": [
+      2.61,
+      -0.63
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/2/level2_2025W44_1A_0101_2D2_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/2/level2_2025W44_1A_0101_2D2_spx_l2b-v27-2026-245.fits?center=315.183087,-5.427412d&size=0.25"
+    }
+   ]
+  },
+  {
+   "id": "2025W44_1A_0101_D5",
+   "obs_block": "2025W44_1A_0101",
+   "detector": 5,
+   "n": 2,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 315.18776517938744,
+    "center_dec": -5.425734169736309,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    4.0432,
+    4.0787
+   ],
+   "date_first": "2025-10-27T11:25:45.896",
+   "date_last": "2025-10-27T11:27:54.826",
+   "diff_png": "/data/swan/2025W44_1A_0101_D5/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 10.11,
+   "predicted_rate_arcsec_per_min": 9.89,
+   "measured_pa_deg": 65.3,
+   "predicted_pa_deg": 63.4,
+   "measured_total_motion_arcsec": 21.7,
+   "span_minutes": 2.15,
+   "median_offset_mid_arcsec": 8.48,
+   "star_control": {
+    "n_stars": 4,
+    "median_shift_arcsec": 0.25,
+    "max_shift_arcsec": 0.83
+   },
+   "vacancy_ratio": 0.42,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0101_1D5",
+     "obsid": "2025W44_1A_0101_1",
+     "detector": 5,
+     "date_avg": "2025-10-27T11:25:45.896",
+     "date_beg": "2025-10-27T11:24:48.337",
+     "date_end": "2025-10-27T11:26:43.455",
+     "mjd_avg": 60975.476225645,
+     "exposure_s": 113.5826,
+     "wavelength_um": 4.0432,
+     "bandwidth_um": 0.0366,
+     "png": "/data/swan/2025W44_1A_0101_D5/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0101_D5/f0_flags.png",
+     "measured": {
+      "ra": 315.1850128900444,
+      "dec": -5.426995992434548,
+      "x": 57.10387448492458,
+      "y": 54.761368435621534,
+      "err_arcsec": 0.6088368036765641,
+      "snr": 291.6
+     },
+     "predicted_mid": {
+      "ra": 315.1828024398707,
+      "dec": -5.427553860490521,
+      "x": 58.39199388098535,
+      "y": 54.43480332118336,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 315.180435,
+      "dec": -5.428732,
+      "x": 59.771590826633734,
+      "y": 53.7451466759595,
+      "vmag": 11.32,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 8.17,
+     "offset_along_cross_arcsec": [
+      7.98,
+      -1.75
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/5/level2_2025W44_1A_0101_1D5_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/5/level2_2025W44_1A_0101_1D5_spx_l2b-v27-2026-245.fits?center=315.183087,-5.427412d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0101_2D5",
+     "obsid": "2025W44_1A_0101_2",
+     "detector": 5,
+     "date_avg": "2025-10-27T11:27:54.826",
+     "date_beg": "2025-10-27T11:26:57.267",
+     "date_end": "2025-10-27T11:28:52.385",
+     "mjd_avg": 60975.477717891,
+     "exposure_s": 113.5826,
+     "wavelength_um": 4.0787,
+     "bandwidth_um": 0.0367,
+     "png": "/data/swan/2025W44_1A_0101_D5/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0101_D5/f1_flags.png",
+     "measured": {
+      "ra": 315.1905174687305,
+      "dec": -5.424472347038071,
+      "x": 53.896118805204516,
+      "y": 56.23862427936965,
+      "err_arcsec": 0.6525951287823767,
+      "snr": 285.0
+     },
+     "predicted_mid": {
+      "ra": 315.1881054434379,
+      "dec": -5.424914858715399,
+      "x": 55.30171317654935,
+      "y": 55.97959663951917,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 315.185738,
+      "dec": -5.426093,
+      "x": 56.68132425646317,
+      "y": 55.28995104020403,
+      "vmag": 11.32,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 8.79,
+     "offset_along_cross_arcsec": [
+      8.44,
+      -2.44
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "NONFUNC",
+       "description": "Permanently unusable",
+       "treatment": "rejected"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      },
+      {
+       "name": "SUR_ERROR",
+       "description": "Error in onboard processing",
+       "treatment": "rejected"
+      },
+      {
+       "name": "TRANSIENT",
+       "description": "Transient detected during SUR",
+       "treatment": "rejected"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/5/level2_2025W44_1A_0101_2D5_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/5/level2_2025W44_1A_0101_2D5_spx_l2b-v27-2026-245.fits?center=315.183087,-5.427412d&size=0.25"
+    }
+   ]
+  },
+  {
+   "id": "2025W44_1A_0313_D1",
+   "obs_block": "2025W44_1A_0313",
+   "detector": 1,
+   "n": 4,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 318.34786901454174,
+    "center_dec": -4.5304739307871245,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    0.9777,
+    1.0495
+   ],
+   "date_first": "2025-10-28T10:15:20.882",
+   "date_last": "2025-10-28T10:21:47.675",
+   "diff_png": "/data/swan/2025W44_1A_0313_D1/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 9.1,
+   "predicted_rate_arcsec_per_min": 9.21,
+   "measured_pa_deg": 62.9,
+   "predicted_pa_deg": 62.7,
+   "measured_total_motion_arcsec": 58.6,
+   "span_minutes": 6.45,
+   "median_offset_mid_arcsec": 2.31,
+   "star_control": {
+    "n_stars": 12,
+    "median_shift_arcsec": 0.42,
+    "max_shift_arcsec": 0.7
+   },
+   "vacancy_ratio": 0.14,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0313_1D1",
+     "obsid": "2025W44_1A_0313_1",
+     "detector": 1,
+     "date_avg": "2025-10-28T10:15:20.882",
+     "date_beg": "2025-10-28T10:14:23.323",
+     "date_end": "2025-10-28T10:16:18.441",
+     "mjd_avg": 60976.42732502,
+     "exposure_s": 113.5826,
+     "wavelength_um": 0.9777,
+     "bandwidth_um": 0.0255,
+     "png": "/data/swan/2025W44_1A_0313_D1/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D1/f0_flags.png",
+     "measured": {
+      "ra": 318.3405795695202,
+      "dec": -4.534234708055,
+      "x": 59.753637730917895,
+      "y": 53.298548010040335,
+      "err_arcsec": 0.5001531873946163,
+      "snr": 272.4
+     },
+     "predicted_mid": {
+      "ra": 318.3399298501441,
+      "dec": -4.534404136202749,
+      "x": 60.13276988231858,
+      "y": 53.19936657315498,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.337722,
+      "dec": -4.535535,
+      "x": 61.421115583477125,
+      "y": 52.537381430910536,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.41,
+     "offset_along_cross_arcsec": [
+      2.35,
+      -0.53
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_1D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_1D1_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0313_2D1",
+     "obsid": "2025W44_1A_0313_2",
+     "detector": 1,
+     "date_avg": "2025-10-28T10:17:29.812",
+     "date_beg": "2025-10-28T10:16:32.253",
+     "date_end": "2025-10-28T10:18:27.371",
+     "mjd_avg": 60976.428817266,
+     "exposure_s": 113.5826,
+     "wavelength_um": 1.0008,
+     "bandwidth_um": 0.0267,
+     "png": "/data/swan/2025W44_1A_0313_D1/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D1/f1_flags.png",
+     "measured": {
+      "ra": 318.345420403336,
+      "dec": -4.531639099685143,
+      "x": 56.92885258349461,
+      "y": 54.817947500930735,
+      "err_arcsec": 0.4945400024720454,
+      "snr": 283.4
+     },
+     "predicted_mid": {
+      "ra": 318.34483211004317,
+      "dec": -4.531880456834024,
+      "x": 57.272142258208135,
+      "y": 54.676663968778726,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.342663,
+      "dec": -4.533005,
+      "x": 58.53789073357643,
+      "y": 54.01838760081125,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.28,
+     "offset_along_cross_arcsec": [
+      2.27,
+      -0.2
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_2D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_2D1_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 2,
+     "productid": "2025W44_1A_0313_3D1",
+     "obsid": "2025W44_1A_0313_3",
+     "detector": 1,
+     "date_avg": "2025-10-28T10:19:38.744",
+     "date_beg": "2025-10-28T10:18:41.185",
+     "date_end": "2025-10-28T10:20:36.303",
+     "mjd_avg": 60976.430309534,
+     "exposure_s": 113.5826,
+     "wavelength_um": 1.025,
+     "bandwidth_um": 0.0275,
+     "png": "/data/swan/2025W44_1A_0313_D1/f2.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D1/f2_flags.png",
+     "measured": {
+      "ra": 318.35037629559326,
+      "dec": -4.5292552921632305,
+      "x": 54.03690663093259,
+      "y": 56.21334691048995,
+      "err_arcsec": 0.49929187934278224,
+      "snr": 297.8
+     },
+     "predicted_mid": {
+      "ra": 318.34973444221527,
+      "dec": -4.529356740259158,
+      "x": 54.41145251774685,
+      "y": 56.15396378779983,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.347565,
+      "dec": -4.530475,
+      "x": 55.67740368968069,
+      "y": 55.499374082110144,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.33,
+     "offset_along_cross_arcsec": [
+      2.21,
+      -0.73
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_3D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_3D1_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 3,
+     "productid": "2025W44_1A_0313_4D1",
+     "obsid": "2025W44_1A_0313_4",
+     "detector": 1,
+     "date_avg": "2025-10-28T10:21:47.675",
+     "date_beg": "2025-10-28T10:20:50.116",
+     "date_end": "2025-10-28T10:22:45.234",
+     "mjd_avg": 60976.431801791,
+     "exposure_s": 113.5826,
+     "wavelength_um": 1.0495,
+     "bandwidth_um": 0.0282,
+     "png": "/data/swan/2025W44_1A_0313_D1/f3.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D1/f3_flags.png",
+     "measured": {
+      "ra": 318.3550997897176,
+      "dec": -4.526766623245123,
+      "x": 51.28055453089558,
+      "y": 57.670110233482035,
+      "err_arcsec": 0.5189355011316872,
+      "snr": 294.7
+     },
+     "predicted_mid": {
+      "ra": 318.35463673821687,
+      "dec": -4.526833042304863,
+      "x": 51.55076389999367,
+      "y": 57.631233388654564,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.352429,
+      "dec": -4.527966,
+      "x": 52.83907118692797,
+      "y": 56.96804868770121,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 1.68,
+     "offset_along_cross_arcsec": [
+      1.59,
+      -0.55
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_4D1_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/1/level2_2025W44_1A_0313_4D1_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    }
+   ]
+  },
+  {
+   "id": "2025W44_1A_0313_D4",
+   "obs_block": "2025W44_1A_0313",
+   "detector": 4,
+   "n": 4,
+   "grid": {
+    "n": 112,
+    "pixel_arcsec": 6.15,
+    "center_ra": 318.3481330114226,
+    "center_dec": -4.530415588178528,
+    "orientation": "north up, east left"
+   },
+   "wavelength_range_um": [
+    3.2997,
+    3.5761
+   ],
+   "date_first": "2025-10-28T10:15:20.882",
+   "date_last": "2025-10-28T10:21:47.676",
+   "diff_png": "/data/swan/2025W44_1A_0313_D4/diff_last_first.png",
+   "measured_rate_arcsec_per_min": 9.71,
+   "predicted_rate_arcsec_per_min": 9.21,
+   "measured_pa_deg": 63.2,
+   "predicted_pa_deg": 62.7,
+   "measured_total_motion_arcsec": 62.3,
+   "span_minutes": 6.45,
+   "median_offset_mid_arcsec": 2.88,
+   "star_control": {
+    "n_stars": 7,
+    "median_shift_arcsec": 0.28,
+    "max_shift_arcsec": 0.79
+   },
+   "vacancy_ratio": 0.08,
+   "frames": [
+    {
+     "index": 0,
+     "productid": "2025W44_1A_0313_1D4",
+     "obsid": "2025W44_1A_0313_1",
+     "detector": 4,
+     "date_avg": "2025-10-28T10:15:20.882",
+     "date_beg": "2025-10-28T10:14:23.323",
+     "date_end": "2025-10-28T10:16:18.441",
+     "mjd_avg": 60976.42732502,
+     "exposure_s": 113.5826,
+     "wavelength_um": 3.2997,
+     "bandwidth_um": 0.0934,
+     "png": "/data/swan/2025W44_1A_0313_D4/f0.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D4/f0_flags.png",
+     "measured": {
+      "ra": 318.34054773710216,
+      "dec": -4.534270185693146,
+      "x": 59.926263918135355,
+      "y": 53.243627069337364,
+      "err_arcsec": 0.4341117067176503,
+      "snr": 372.2
+     },
+     "predicted_mid": {
+      "ra": 318.3399298385153,
+      "dec": -4.534404142181387,
+      "x": 60.286827744019945,
+      "y": 53.165209586719804,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.337722,
+      "dec": -4.535535,
+      "x": 61.57516642059694,
+      "y": 52.50322747428828,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 2.27,
+     "offset_along_cross_arcsec": [
+      2.19,
+      -0.59
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_1D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_1D4_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 1,
+     "productid": "2025W44_1A_0313_2D4",
+     "obsid": "2025W44_1A_0313_2",
+     "detector": 4,
+     "date_avg": "2025-10-28T10:17:29.813",
+     "date_beg": "2025-10-28T10:16:32.254",
+     "date_end": "2025-10-28T10:18:27.372",
+     "mjd_avg": 60976.428817277,
+     "exposure_s": 113.5826,
+     "wavelength_um": 3.3902,
+     "bandwidth_um": 0.0955,
+     "png": "/data/swan/2025W44_1A_0313_D4/f1.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D4/f1_flags.png",
+     "measured": {
+      "ra": 318.34526975157024,
+      "dec": -4.531816387265658,
+      "x": 57.17081455216567,
+      "y": 54.680016747763396,
+      "err_arcsec": 0.3885645756828947,
+      "snr": 429.5
+     },
+     "predicted_mid": {
+      "ra": 318.3448321276563,
+      "dec": -4.531880447766337,
+      "x": 57.42618359110531,
+      "y": 54.64251683262391,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.342663,
+      "dec": -4.533005,
+      "x": 58.69194210570923,
+      "y": 53.984234695547435,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 1.59,
+     "offset_along_cross_arcsec": [
+      1.5,
+      -0.52
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_2D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_2D4_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 2,
+     "productid": "2025W44_1A_0313_3D4",
+     "obsid": "2025W44_1A_0313_3",
+     "detector": 4,
+     "date_avg": "2025-10-28T10:19:38.744",
+     "date_beg": "2025-10-28T10:18:41.185",
+     "date_end": "2025-10-28T10:20:36.303",
+     "mjd_avg": 60976.430309534,
+     "exposure_s": 113.5826,
+     "wavelength_um": 3.4823,
+     "bandwidth_um": 0.0971,
+     "png": "/data/swan/2025W44_1A_0313_D4/f2.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D4/f2_flags.png",
+     "measured": {
+      "ra": 318.35067730786164,
+      "dec": -4.529126516346318,
+      "x": 54.01530648724035,
+      "y": 56.254576030507906,
+      "err_arcsec": 0.5829064532015708,
+      "snr": 380.4
+     },
+     "predicted_mid": {
+      "ra": 318.3497344167973,
+      "dec": -4.529356753351288,
+      "x": 54.5655194981854,
+      "y": 56.11980472130748,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.347565,
+      "dec": -4.530475,
+      "x": 55.83145559935618,
+      "y": 55.46522221862892,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 3.48,
+     "offset_along_cross_arcsec": [
+      3.39,
+      -0.82
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "NONFUNC",
+       "description": "Permanently unusable",
+       "treatment": "rejected"
+      },
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      },
+      {
+       "name": "SOURCE",
+       "description": "Pixel mapped to a known source",
+       "treatment": "informational"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_3D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_3D4_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    },
+    {
+     "index": 3,
+     "productid": "2025W44_1A_0313_4D4",
+     "obsid": "2025W44_1A_0313_4",
+     "detector": 4,
+     "date_avg": "2025-10-28T10:21:47.676",
+     "date_beg": "2025-10-28T10:20:50.117",
+     "date_end": "2025-10-28T10:22:45.235",
+     "mjd_avg": 60976.431801803,
+     "exposure_s": 113.5826,
+     "wavelength_um": 3.5761,
+     "bandwidth_um": 0.0975,
+     "png": "/data/swan/2025W44_1A_0313_D4/f3.png",
+     "flags_png": "/data/swan/2025W44_1A_0313_D4/f3_flags.png",
+     "measured": {
+      "ra": 318.3560372491563,
+      "dec": -4.526449263408987,
+      "x": 50.88756026144421,
+      "y": 57.82172597978314,
+      "err_arcsec": 0.6390039138018332,
+      "snr": 374.9
+     },
+     "predicted_mid": {
+      "ra": 318.3546367453723,
+      "dec": -4.526833038635645,
+      "x": 51.70481241233121,
+      "y": 57.59708517361125,
+      "note": "MOST ephemeris evaluated at mid-exposure (DATE-AVG)"
+     },
+     "predicted_most_row": {
+      "ra": 318.352429,
+      "dec": -4.527966,
+      "x": 52.99312363213742,
+      "y": 56.933897856659485,
+      "vmag": 11.4,
+      "note": "MOST table row (exposure START time)"
+     },
+     "offset_mid_arcsec": 5.21,
+     "offset_along_cross_arcsec": [
+      5.1,
+      -1.08
+     ],
+     "flags_in_aperture": [
+      {
+       "name": "OUTLIER",
+       "description": "Pixel flagged by Detect Outliers",
+       "treatment": "kept for comet (moving objects trigger it)"
+      }
+     ],
+     "l2dqa": "Pass",
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_4D4_spx_l2b-v27-2026-245.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W44_1A/l2b-v27-2026-245/4/level2_2025W44_1A_0313_4D4_spx_l2b-v27-2026-245.fits?center=318.345095,-4.531745d&size=0.25"
+    }
+   ]
+  }
+ ],
+ "predicted_track": [
+  {
+   "mjd": 60975.202814317,
+   "date": "2025-10-27 04:52:03.156",
+   "ra": 314.234115,
+   "dec": -5.693692,
+   "vmag": 11.3,
+   "r_au": 1.0932,
+   "delta_au": 0.302
+  },
+  {
+   "mjd": 60975.204306586,
+   "date": "2025-10-27 04:54:12.089",
+   "ra": 314.23954,
+   "dec": -5.691044,
+   "vmag": 11.3,
+   "r_au": 1.0932,
+   "delta_au": 0.302
+  },
+  {
+   "mjd": 60975.205816586,
+   "date": "2025-10-27 04:56:22.553",
+   "ra": 314.244998,
+   "dec": -5.68834,
+   "vmag": 11.3,
+   "r_au": 1.0932,
+   "delta_au": 0.302
+  },
+  {
+   "mjd": 60975.207308843,
+   "date": "2025-10-27 04:58:31.484",
+   "ra": 314.250358,
+   "dec": -5.685667,
+   "vmag": 11.3,
+   "r_au": 1.0933,
+   "delta_au": 0.3021
+  },
+  {
+   "mjd": 60975.475559444,
+   "date": "2025-10-27 11:24:48.335",
+   "ra": 315.180435,
+   "dec": -5.428732,
+   "vmag": 11.32,
+   "r_au": 1.0978,
+   "delta_au": 0.305
+  },
+  {
+   "mjd": 60975.477051701,
+   "date": "2025-10-27 11:26:57.266",
+   "ra": 315.185738,
+   "dec": -5.426093,
+   "vmag": 11.32,
+   "r_au": 1.0978,
+   "delta_au": 0.305
+  },
+  {
+   "mjd": 60976.426658831,
+   "date": "2025-10-28 10:14:23.322",
+   "ra": 318.337722,
+   "dec": -4.535535,
+   "vmag": 11.4,
+   "r_au": 1.114,
+   "delta_au": 0.316
+  },
+  {
+   "mjd": 60976.428151076,
+   "date": "2025-10-28 10:16:32.252",
+   "ra": 318.342663,
+   "dec": -4.533005,
+   "vmag": 11.4,
+   "r_au": 1.114,
+   "delta_au": 0.316
+  },
+  {
+   "mjd": 60976.429643345,
+   "date": "2025-10-28 10:18:41.185",
+   "ra": 318.347565,
+   "dec": -4.530475,
+   "vmag": 11.4,
+   "r_au": 1.114,
+   "delta_au": 0.316
+  },
+  {
+   "mjd": 60976.431135602,
+   "date": "2025-10-28 10:20:50.116",
+   "ra": 318.352429,
+   "dec": -4.527966,
+   "vmag": 11.4,
+   "r_au": 1.114,
+   "delta_au": 0.316
+  },
+  {
+   "mjd": 61024.775414329,
+   "date": "2025-12-15 18:36:35.798",
+   "ra": 8.717362,
+   "dec": 10.081658,
+   "vmag": 14.53,
+   "r_au": 1.8898,
+   "delta_au": 1.3348
+  },
+  {
+   "mjd": 61024.776906586,
+   "date": "2025-12-15 18:38:44.729",
+   "ra": 8.718041,
+   "dec": 10.082114,
+   "vmag": 14.53,
+   "r_au": 1.8898,
+   "delta_au": 1.3348
+  },
+  {
+   "mjd": 61024.778398843,
+   "date": "2025-12-15 18:40:53.660",
+   "ra": 8.71871,
+   "dec": 10.082568,
+   "vmag": 14.53,
+   "r_au": 1.8898,
+   "delta_au": 1.3348
+  },
+  {
+   "mjd": 61027.970011921,
+   "date": "2025-12-18 23:16:49.029",
+   "ra": 10.030603,
+   "dec": 10.465823,
+   "vmag": 14.65,
+   "r_au": 1.9377,
+   "delta_au": 1.4155
+  },
+  {
+   "mjd": 61028.101916574,
+   "date": "2025-12-19 02:26:45.591",
+   "ra": 10.083678,
+   "dec": 10.480764,
+   "vmag": 14.66,
+   "r_au": 1.9396,
+   "delta_au": 1.4189
+  },
+  {
+   "mjd": 61028.103408831,
+   "date": "2025-12-19 02:28:54.522",
+   "ra": 10.084332,
+   "dec": 10.481197,
+   "vmag": 14.66,
+   "r_au": 1.9396,
+   "delta_au": 1.4189
+  },
+  {
+   "mjd": 61028.104901076,
+   "date": "2025-12-19 02:31:03.452",
+   "ra": 10.084978,
+   "dec": 10.481631,
+   "vmag": 14.66,
+   "r_au": 1.9397,
+   "delta_au": 1.419
+  },
+  {
+   "mjd": 61028.106393333,
+   "date": "2025-12-19 02:33:12.383",
+   "ra": 10.085616,
+   "dec": 10.482061,
+   "vmag": 14.66,
+   "r_au": 1.9397,
+   "delta_au": 1.419
+  },
+  {
+   "mjd": 61029.459530845,
+   "date": "2025-12-20 11:01:43.465",
+   "ra": 10.62688,
+   "dec": 10.64046,
+   "vmag": 14.71,
+   "r_au": 1.9598,
+   "delta_au": 1.4535
+  },
+  {
+   "mjd": 61029.461040868,
+   "date": "2025-12-20 11:03:53.930",
+   "ra": 10.627533,
+   "dec": 10.640889,
+   "vmag": 14.71,
+   "r_au": 1.9599,
+   "delta_au": 1.4536
+  },
+  {
+   "mjd": 61029.462533125,
+   "date": "2025-12-20 11:06:02.862",
+   "ra": 10.628172,
+   "dec": 10.641315,
+   "vmag": 14.71,
+   "r_au": 1.9599,
+   "delta_au": 1.4536
+  },
+  {
+   "mjd": 61029.464025382,
+   "date": "2025-12-20 11:08:11.793",
+   "ra": 10.628803,
+   "dec": 10.641739,
+   "vmag": 14.71,
+   "r_au": 1.9599,
+   "delta_au": 1.4536
+  },
+  {
+   "mjd": 61031.700702025,
+   "date": "2025-12-22 16:49:00.654",
+   "ra": 11.507693,
+   "dec": 10.900866,
+   "vmag": 14.8,
+   "r_au": 1.9931,
+   "delta_au": 1.511
+  },
+  {
+   "mjd": 61031.702194282,
+   "date": "2025-12-22 16:51:09.585",
+   "ra": 11.508321,
+   "dec": 10.901279,
+   "vmag": 14.8,
+   "r_au": 1.9931,
+   "delta_au": 1.5111
+  },
+  {
+   "mjd": 61031.703686539,
+   "date": "2025-12-22 16:53:18.516",
+   "ra": 11.508944,
+   "dec": 10.901693,
+   "vmag": 14.8,
+   "r_au": 1.9931,
+   "delta_au": 1.5111
+  },
+  {
+   "mjd": 61031.705178796,
+   "date": "2025-12-22 16:55:27.447",
+   "ra": 11.509559,
+   "dec": 10.902104,
+   "vmag": 14.8,
+   "r_au": 1.9931,
+   "delta_au": 1.5111
+  },
+  {
+   "mjd": 61032.786832558,
+   "date": "2025-12-23 18:53:02.333",
+   "ra": 11.928,
+   "dec": 11.025615,
+   "vmag": 14.84,
+   "r_au": 2.0091,
+   "delta_au": 1.5391
+  },
+  {
+   "mjd": 61032.788324815,
+   "date": "2025-12-23 18:55:11.264",
+   "ra": 11.928622,
+   "dec": 11.026021,
+   "vmag": 14.84,
+   "r_au": 2.0091,
+   "delta_au": 1.5391
+  },
+  {
+   "mjd": 61032.789817072,
+   "date": "2025-12-23 18:57:20.195",
+   "ra": 11.929238,
+   "dec": 11.02643,
+   "vmag": 14.84,
+   "r_au": 2.0092,
+   "delta_au": 1.5391
+  },
+  {
+   "mjd": 61032.791309317,
+   "date": "2025-12-23 18:59:29.124",
+   "ra": 11.929849,
+   "dec": 11.026836,
+   "vmag": 14.84,
+   "r_au": 2.0092,
+   "delta_au": 1.5392
+  },
+  {
+   "mjd": 61034.823991215,
+   "date": "2025-12-25 19:46:32.840",
+   "ra": 12.705918,
+   "dec": 11.257544,
+   "vmag": 14.91,
+   "r_au": 2.0391,
+   "delta_au": 1.5919
+  },
+  {
+   "mjd": 61034.825483472,
+   "date": "2025-12-25 19:48:41.771",
+   "ra": 12.706527,
+   "dec": 11.257941,
+   "vmag": 14.91,
+   "r_au": 2.0391,
+   "delta_au": 1.5919
+  },
+  {
+   "mjd": 61034.826975718,
+   "date": "2025-12-25 19:50:50.702",
+   "ra": 12.707132,
+   "dec": 11.25834,
+   "vmag": 14.91,
+   "r_au": 2.0391,
+   "delta_au": 1.5919
+  },
+  {
+   "mjd": 61040.731810185,
+   "date": "2025-12-31 17:33:48.399",
+   "ra": 14.895828,
+   "dec": 11.916641,
+   "vmag": 15.11,
+   "r_au": 2.1251,
+   "delta_au": 1.7467
+  },
+  {
+   "mjd": 61040.733302442,
+   "date": "2025-12-31 17:35:57.330",
+   "ra": 14.896406,
+   "dec": 11.917014,
+   "vmag": 15.11,
+   "r_au": 2.1252,
+   "delta_au": 1.7467
+  },
+  {
+   "mjd": 61040.734812465,
+   "date": "2025-12-31 17:38:07.796",
+   "ra": 14.896989,
+   "dec": 11.917392,
+   "vmag": 15.11,
+   "r_au": 2.1252,
+   "delta_au": 1.7467
+  },
+  {
+   "mjd": 61040.736304711,
+   "date": "2025-12-31 17:40:16.727",
+   "ra": 14.897562,
+   "dec": 11.917763,
+   "vmag": 15.11,
+   "r_au": 2.1252,
+   "delta_au": 1.7468
+  },
+  {
+   "mjd": 61040.801839572,
+   "date": "2025-12-31 19:14:38.939",
+   "ra": 14.921321,
+   "dec": 11.924645,
+   "vmag": 15.11,
+   "r_au": 2.1262,
+   "delta_au": 1.7485
+  },
+  {
+   "mjd": 61040.803331829,
+   "date": "2025-12-31 19:16:47.870",
+   "ra": 14.921895,
+   "dec": 11.925018,
+   "vmag": 15.11,
+   "r_au": 2.1262,
+   "delta_au": 1.7485
+  },
+  {
+   "mjd": 61041.138893704,
+   "date": "2026-01-01 03:20:00.416",
+   "ra": 15.043566,
+   "dec": 11.961361,
+   "vmag": 15.12,
+   "r_au": 2.131,
+   "delta_au": 1.7574
+  },
+  {
+   "mjd": 61041.140385972,
+   "date": "2026-01-01 03:22:09.347",
+   "ra": 15.044142,
+   "dec": 11.961732,
+   "vmag": 15.12,
+   "r_au": 2.131,
+   "delta_au": 1.7574
+  },
+  {
+   "mjd": 61041.141878218,
+   "date": "2026-01-01 03:24:18.278",
+   "ra": 15.044716,
+   "dec": 11.962104,
+   "vmag": 15.12,
+   "r_au": 2.1311,
+   "delta_au": 1.7575
+  },
+  {
+   "mjd": 61041.143370463,
+   "date": "2026-01-01 03:26:27.208",
+   "ra": 15.045288,
+   "dec": 11.962474,
+   "vmag": 15.12,
+   "r_au": 2.1311,
+   "delta_au": 1.7575
+  },
+  {
+   "mjd": 61042.429356516,
+   "date": "2026-01-02 10:18:16.402",
+   "ra": 15.509554,
+   "dec": 12.10282,
+   "vmag": 15.17,
+   "r_au": 2.1496,
+   "delta_au": 1.7915
+  },
+  {
+   "mjd": 61042.430866562,
+   "date": "2026-01-02 10:20:26.870",
+   "ra": 15.510131,
+   "dec": 12.103191,
+   "vmag": 15.17,
+   "r_au": 2.1497,
+   "delta_au": 1.7916
+  },
+  {
+   "mjd": 61042.432358808,
+   "date": "2026-01-02 10:22:35.801",
+   "ra": 15.5107,
+   "dec": 12.103559,
+   "vmag": 15.17,
+   "r_au": 2.1497,
+   "delta_au": 1.7916
+  },
+  {
+   "mjd": 61042.433851053,
+   "date": "2026-01-02 10:24:44.730",
+   "ra": 15.511266,
+   "dec": 12.103923,
+   "vmag": 15.17,
+   "r_au": 2.1497,
+   "delta_au": 1.7916
+  },
+  {
+   "mjd": 61042.566892674,
+   "date": "2026-01-02 13:36:19.527",
+   "ra": 15.55905,
+   "dec": 12.118085,
+   "vmag": 15.17,
+   "r_au": 2.1516,
+   "delta_au": 1.7952
+  },
+  {
+   "mjd": 61042.568384942,
+   "date": "2026-01-02 13:38:28.458",
+   "ra": 15.559618,
+   "dec": 12.118451,
+   "vmag": 15.17,
+   "r_au": 2.1516,
+   "delta_au": 1.7952
+  },
+  {
+   "mjd": 61042.904000162,
+   "date": "2026-01-02 21:41:45.613",
+   "ra": 15.680053,
+   "dec": 12.15456,
+   "vmag": 15.18,
+   "r_au": 2.1565,
+   "delta_au": 1.8041
+  },
+  {
+   "mjd": 61042.905492419,
+   "date": "2026-01-02 21:43:54.545",
+   "ra": 15.680622,
+   "dec": 12.154924,
+   "vmag": 15.18,
+   "r_au": 2.1565,
+   "delta_au": 1.8041
+  },
+  {
+   "mjd": 61042.906984676,
+   "date": "2026-01-02 21:46:03.476",
+   "ra": 15.68119,
+   "dec": 12.15529,
+   "vmag": 15.18,
+   "r_au": 2.1565,
+   "delta_au": 1.8042
+  },
+  {
+   "mjd": 61042.908476933,
+   "date": "2026-01-02 21:48:12.407",
+   "ra": 15.681756,
+   "dec": 12.155655,
+   "vmag": 15.18,
+   "r_au": 2.1565,
+   "delta_au": 1.8042
+  },
+  {
+   "mjd": 61043.108065995,
+   "date": "2026-01-03 02:35:36.901",
+   "ra": 15.753232,
+   "dec": 12.176862,
+   "vmag": 15.19,
+   "r_au": 2.1594,
+   "delta_au": 1.8095
+  },
+  {
+   "mjd": 61043.311563356,
+   "date": "2026-01-03 07:28:39.073",
+   "ra": 15.82611,
+   "dec": 12.199009,
+   "vmag": 15.19,
+   "r_au": 2.1623,
+   "delta_au": 1.8149
+  },
+  {
+   "mjd": 61043.313055625,
+   "date": "2026-01-03 07:30:48.006",
+   "ra": 15.826678,
+   "dec": 12.199373,
+   "vmag": 15.19,
+   "r_au": 2.1624,
+   "delta_au": 1.815
+  },
+  {
+   "mjd": 61043.314547882,
+   "date": "2026-01-03 07:32:56.937",
+   "ra": 15.827244,
+   "dec": 12.199737,
+   "vmag": 15.19,
+   "r_au": 2.1624,
+   "delta_au": 1.815
+  },
+  {
+   "mjd": 61043.316040127,
+   "date": "2026-01-03 07:35:05.866",
+   "ra": 15.827808,
+   "dec": 12.2001,
+   "vmag": 15.19,
+   "r_au": 2.1624,
+   "delta_au": 1.815
+  },
+  {
+   "mjd": 61043.990237234,
+   "date": "2026-01-03 23:45:56.497",
+   "ra": 16.068585,
+   "dec": 12.272796,
+   "vmag": 15.22,
+   "r_au": 2.1721,
+   "delta_au": 1.8329
+  },
+  {
+   "mjd": 61043.991747245,
+   "date": "2026-01-03 23:48:06.961",
+   "ra": 16.069157,
+   "dec": 12.27316,
+   "vmag": 15.22,
+   "r_au": 2.1721,
+   "delta_au": 1.833
+  },
+  {
+   "mjd": 61043.993239491,
+   "date": "2026-01-03 23:50:15.892",
+   "ra": 16.06972,
+   "dec": 12.273522,
+   "vmag": 15.22,
+   "r_au": 2.1721,
+   "delta_au": 1.833
+  },
+  {
+   "mjd": 61043.994731759,
+   "date": "2026-01-03 23:52:24.823",
+   "ra": 16.070283,
+   "dec": 12.273883,
+   "vmag": 15.22,
+   "r_au": 2.1722,
+   "delta_au": 1.833
+  },
+  {
+   "mjd": 61044.940910104,
+   "date": "2026-01-04 22:34:54.632",
+   "ra": 16.406779,
+   "dec": 12.375912,
+   "vmag": 15.25,
+   "r_au": 2.1857,
+   "delta_au": 1.8582
+  },
+  {
+   "mjd": 61044.94240235,
+   "date": "2026-01-04 22:37:03.563",
+   "ra": 16.40734,
+   "dec": 12.376269,
+   "vmag": 15.25,
+   "r_au": 2.1857,
+   "delta_au": 1.8582
+  },
+  {
+   "mjd": 61044.943894606,
+   "date": "2026-01-04 22:39:12.493",
+   "ra": 16.4079,
+   "dec": 12.376629,
+   "vmag": 15.25,
+   "r_au": 2.1858,
+   "delta_au": 1.8583
+  },
+  {
+   "mjd": 61044.945386863,
+   "date": "2026-01-04 22:41:21.424",
+   "ra": 16.408459,
+   "dec": 12.376986,
+   "vmag": 15.25,
+   "r_au": 2.1858,
+   "delta_au": 1.8583
+  },
+  {
+   "mjd": 61045.487572743,
+   "date": "2026-01-05 11:42:06.284",
+   "ra": 16.600569,
+   "dec": 12.435497,
+   "vmag": 15.26,
+   "r_au": 2.1935,
+   "delta_au": 1.8728
+  },
+  {
+   "mjd": 61045.620347905,
+   "date": "2026-01-05 14:53:18.058",
+   "ra": 16.647479,
+   "dec": 12.449445,
+   "vmag": 15.27,
+   "r_au": 2.1954,
+   "delta_au": 1.8763
+  },
+  {
+   "mjd": 61045.621840139,
+   "date": "2026-01-05 14:55:26.988",
+   "ra": 16.648037,
+   "dec": 12.449801,
+   "vmag": 15.27,
+   "r_au": 2.1955,
+   "delta_au": 1.8763
+  },
+  {
+   "mjd": 61045.623332396,
+   "date": "2026-01-05 14:57:35.919",
+   "ra": 16.648594,
+   "dec": 12.450158,
+   "vmag": 15.27,
+   "r_au": 2.1955,
+   "delta_au": 1.8764
+  },
+  {
+   "mjd": 61045.624824641,
+   "date": "2026-01-05 14:59:44.848",
+   "ra": 16.649151,
+   "dec": 12.450512,
+   "vmag": 15.27,
+   "r_au": 2.1955,
+   "delta_au": 1.8764
+  },
+  {
+   "mjd": 61046.436291447,
+   "date": "2026-01-06 10:28:15.581",
+   "ra": 16.935482,
+   "dec": 12.537605,
+   "vmag": 15.29,
+   "r_au": 2.2071,
+   "delta_au": 1.8981
+  },
+  {
+   "mjd": 61046.638900567,
+   "date": "2026-01-06 15:20:01.008",
+   "ra": 17.006795,
+   "dec": 12.559282,
+   "vmag": 15.3,
+   "r_au": 2.21,
+   "delta_au": 1.9035
+  },
+  {
+   "mjd": 61046.640392824,
+   "date": "2026-01-06 15:22:09.939",
+   "ra": 17.007349,
+   "dec": 12.559634,
+   "vmag": 15.3,
+   "r_au": 2.21,
+   "delta_au": 1.9035
+  },
+  {
+   "mjd": 61046.641885069,
+   "date": "2026-01-06 15:24:18.869",
+   "ra": 17.007903,
+   "dec": 12.559988,
+   "vmag": 15.3,
+   "r_au": 2.21,
+   "delta_au": 1.9035
+  },
+  {
+   "mjd": 61046.643377326,
+   "date": "2026-01-06 15:26:27.800",
+   "ra": 17.008456,
+   "dec": 12.560339,
+   "vmag": 15.3,
+   "r_au": 2.2101,
+   "delta_au": 1.9036
+  },
+  {
+   "mjd": 61047.249445938,
+   "date": "2026-01-07 05:59:12.129",
+   "ra": 17.221334,
+   "dec": 12.62487,
+   "vmag": 15.32,
+   "r_au": 2.2187,
+   "delta_au": 1.9198
+  },
+  {
+   "mjd": 61047.250938194,
+   "date": "2026-01-07 06:01:21.059",
+   "ra": 17.221886,
+   "dec": 12.62522,
+   "vmag": 15.32,
+   "r_au": 2.2187,
+   "delta_au": 1.9198
+  },
+  {
+   "mjd": 61047.25243044,
+   "date": "2026-01-07 06:03:29.990",
+   "ra": 17.222438,
+   "dec": 12.625571,
+   "vmag": 15.32,
+   "r_au": 2.2187,
+   "delta_au": 1.9199
+  },
+  {
+   "mjd": 61047.253922708,
+   "date": "2026-01-07 06:05:38.921",
+   "ra": 17.22299,
+   "dec": 12.625922,
+   "vmag": 15.32,
+   "r_au": 2.2188,
+   "delta_au": 1.9199
+  },
+  {
+   "mjd": 61047.317094838,
+   "date": "2026-01-07 07:36:36.994",
+   "ra": 17.245064,
+   "dec": 12.632106,
+   "vmag": 15.32,
+   "r_au": 2.2197,
+   "delta_au": 1.9216
+  },
+  {
+   "mjd": 61047.318587095,
+   "date": "2026-01-07 07:38:45.925",
+   "ra": 17.245616,
+   "dec": 12.632455,
+   "vmag": 15.32,
+   "r_au": 2.2197,
+   "delta_au": 1.9216
+  },
+  {
+   "mjd": 61047.32007934,
+   "date": "2026-01-07 07:40:54.854",
+   "ra": 17.246168,
+   "dec": 12.632806,
+   "vmag": 15.32,
+   "r_au": 2.2197,
+   "delta_au": 1.9217
+  },
+  {
+   "mjd": 61047.321571597,
+   "date": "2026-01-07 07:43:03.785",
+   "ra": 17.246719,
+   "dec": 12.633157,
+   "vmag": 15.32,
+   "r_au": 2.2197,
+   "delta_au": 1.9217
+  },
+  {
+   "mjd": 61048.133216042,
+   "date": "2026-01-08 03:11:49.866",
+   "ra": 17.53086,
+   "dec": 12.71982,
+   "vmag": 15.34,
+   "r_au": 2.2313,
+   "delta_au": 1.9434
+  },
+  {
+   "mjd": 61048.408341609,
+   "date": "2026-01-08 09:48:00.715",
+   "ra": 17.62703,
+   "dec": 12.749728,
+   "vmag": 15.35,
+   "r_au": 2.2352,
+   "delta_au": 1.9508
+  },
+  {
+   "mjd": 61048.675703924,
+   "date": "2026-01-08 16:13:00.819",
+   "ra": 17.720237,
+   "dec": 12.777806,
+   "vmag": 15.36,
+   "r_au": 2.239,
+   "delta_au": 1.9579
+  },
+  {
+   "mjd": 61049.897753981,
+   "date": "2026-01-09 21:32:45.943",
+   "ra": 18.145283,
+   "dec": 12.908271,
+   "vmag": 15.4,
+   "r_au": 2.2563,
+   "delta_au": 1.9907
+  },
+  {
+   "mjd": 61049.899246227,
+   "date": "2026-01-09 21:34:54.874",
+   "ra": 18.145826,
+   "dec": 12.908613,
+   "vmag": 15.4,
+   "r_au": 2.2563,
+   "delta_au": 1.9907
+  },
+  {
+   "mjd": 61049.900738507,
+   "date": "2026-01-09 21:37:03.807",
+   "ra": 18.14637,
+   "dec": 12.908957,
+   "vmag": 15.4,
+   "r_au": 2.2563,
+   "delta_au": 1.9908
+  },
+  {
+   "mjd": 61049.902230752,
+   "date": "2026-01-09 21:39:12.736",
+   "ra": 18.146914,
+   "dec": 12.909299,
+   "vmag": 15.4,
+   "r_au": 2.2564,
+   "delta_au": 1.9908
+  },
+  {
+   "mjd": 61050.372379861,
+   "date": "2026-01-10 08:56:13.619",
+   "ra": 18.309786,
+   "dec": 12.958746,
+   "vmag": 15.41,
+   "r_au": 2.263,
+   "delta_au": 2.0034
+  },
+  {
+   "mjd": 61050.373889884,
+   "date": "2026-01-10 08:58:24.085",
+   "ra": 18.310334,
+   "dec": 12.959089,
+   "vmag": 15.41,
+   "r_au": 2.263,
+   "delta_au": 2.0035
+  },
+  {
+   "mjd": 61050.37538213,
+   "date": "2026-01-10 09:00:33.016",
+   "ra": 18.310876,
+   "dec": 12.959431,
+   "vmag": 15.41,
+   "r_au": 2.2631,
+   "delta_au": 2.0035
+  },
+  {
+   "mjd": 61050.376874398,
+   "date": "2026-01-10 09:02:41.947",
+   "ra": 18.311419,
+   "dec": 12.959773,
+   "vmag": 15.41,
+   "r_au": 2.2631,
+   "delta_au": 2.0036
+  },
+  {
+   "mjd": 61050.64414787,
+   "date": "2026-01-10 15:27:34.375",
+   "ra": 18.403851,
+   "dec": 12.987684,
+   "vmag": 15.42,
+   "r_au": 2.2669,
+   "delta_au": 2.0107
+  },
+  {
+   "mjd": 61050.645640139,
+   "date": "2026-01-10 15:29:43.308",
+   "ra": 18.404391,
+   "dec": 12.988023,
+   "vmag": 15.42,
+   "r_au": 2.2669,
+   "delta_au": 2.0108
+  },
+  {
+   "mjd": 61050.847734086,
+   "date": "2026-01-10 20:20:44.225",
+   "ra": 18.474247,
+   "dec": 13.00932,
+   "vmag": 15.42,
+   "r_au": 2.2697,
+   "delta_au": 2.0162
+  },
+  {
+   "mjd": 61053.496735174,
+   "date": "2026-01-13 11:55:17.919",
+   "ra": 19.385475,
+   "dec": 13.290063,
+   "vmag": 15.5,
+   "r_au": 2.307,
+   "delta_au": 2.0875
+  },
+  {
+   "mjd": 61053.498227431,
+   "date": "2026-01-13 11:57:26.850",
+   "ra": 19.386008,
+   "dec": 13.290396,
+   "vmag": 15.5,
+   "r_au": 2.3071,
+   "delta_au": 2.0875
+  },
+  {
+   "mjd": 61053.499719676,
+   "date": "2026-01-13 11:59:35.780",
+   "ra": 19.386543,
+   "dec": 13.29073,
+   "vmag": 15.5,
+   "r_au": 2.3071,
+   "delta_au": 2.0876
+  },
+  {
+   "mjd": 61053.501211933,
+   "date": "2026-01-13 12:01:44.711",
+   "ra": 19.387078,
+   "dec": 13.291062,
+   "vmag": 15.5,
+   "r_au": 2.3071,
+   "delta_au": 2.0876
+  },
+  {
+   "mjd": 61055.261894942,
+   "date": "2026-01-15 06:17:07.722",
+   "ra": 19.988098,
+   "dec": 13.476014,
+   "vmag": 15.55,
+   "r_au": 2.3318,
+   "delta_au": 2.1351
+  }
+ ],
+ "method": {
+  "detection": "Peak search within 8 px of the prediction, then 2D Gaussian + planar background fit to the coma photocentre; position converted with each frame's own WCS.",
+  "alignment": "Each sequence reprojected (bilinear) onto one north-up TAN grid at 6.15\"/px; field stars confirm alignment.",
+  "flags": "Flag names/bits/descriptions read from each FITS FLAGS header (MSKN/MSKM/MSKD). Hardware/processing flags rejected; OUTLIER kept for the comet because the pipeline's multi-frame outlier detection fires on moving objects.",
+  "wavelength": "Per-frame wavelength at the comet from the WCS-WAVE lookup table. SPHEREx's linear variable filter means every exposure is a different wavelength; frames are not combined into a spectrum."
+ },
+ "verdict": "Confirmed known-object match: the measured positions and times agree with the MOST prediction, the measured motion matches the predicted rate and direction, field stars are stationary, and the earlier position is vacated. This recovers a comet that was already known. It is not a discovery."
+}

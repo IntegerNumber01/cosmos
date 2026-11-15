@@ -4,7 +4,8 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "re
 import { loadAladin } from "@/lib/aladin";
 import { HIPS_URL, frameToFrequencyHz } from "@/lib/spherex";
 
-export type SkyMarker = { id: string; name: string; ra: number; dec: number; color?: string };
+export type SkyMarker = { id: string; name: string; ra: number; dec: number; color?: string; size?: number; label?: boolean };
+export type SkyLine = { id: string; points: [number, number][]; color: string; width?: number; dashed?: boolean };
 
 export type SkyViewerHandle = {
   flyTo: (ra: number, dec: number, fov: number, seconds?: number) => void;
@@ -19,6 +20,8 @@ type Props = {
   colormap: string;
   showGrid?: boolean;
   markers?: SkyMarker[];
+  lines?: SkyLine[];
+  interactive?: boolean;
   onView?: (v: { ra: number; dec: number; fov: number }) => void;
   onMarkerClick?: (id: string) => void;
   onStatus?: (s: "loading" | "ready" | "error", msg?: string) => void;
@@ -32,14 +35,15 @@ type Props = {
  * of flashing to black.
  */
 const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
-  { ra, dec, fov, frame, colormap, showGrid = false, markers = [], onView, onMarkerClick, onStatus, onPointer },
+  { ra, dec, fov, frame, colormap, showGrid = false, markers = [], lines = [], onView, onMarkerClick, onStatus, onPointer },
   ref,
 ) {
   const divRef = useRef<HTMLDivElement>(null);
   const aladinRef = useRef<any>(null);
   const baseRef = useRef<any>(null);
   const topRef = useRef<any>(null);
-  const markerCatRef = useRef<any>(null);
+  const catsRef = useRef<Map<string, any>>(new Map());
+  const lineOverlayRef = useRef<any>(null);
   const followTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [ready, setReady] = useState(false);
   const cbRef = useRef({ onView, onMarkerClick, onStatus, onPointer });
@@ -117,20 +121,6 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
         baseRef.current = base;
         topRef.current = top;
 
-        const markerCat = A.catalog({
-          name: "targets",
-          sourceSize: 14,
-          color: "#9be7ff",
-          shape: "circle",
-          displayLabel: true,
-          labelColumn: "name",
-          labelColor: "#cfefff",
-          labelFont: "12px Inter, sans-serif",
-          onClick: null,
-        });
-        al.addCatalog(markerCat);
-        markerCatRef.current = markerCat;
-
         const emit = () => {
           const [r, d] = al.getRaDec();
           cbRef.current.onView?.({ ra: r, dec: d, fov: al.getFov()[0] });
@@ -184,12 +174,56 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
   }, [showGrid, ready]);
 
   useEffect(() => {
-    if (!ready || !markerCatRef.current) return;
+    if (!ready || !aladinRef.current) return;
     const A = window.__AladinA;
-    const cat = markerCatRef.current;
-    cat.removeAll();
-    cat.addSources(markers.map((m) => A.source(m.ra, m.dec, { id: m.id, name: m.name })));
+    const al = aladinRef.current;
+    // one catalogue per (colour, size, label) style
+    for (const c of catsRef.current.values()) c.removeAll();
+    const groups = new Map<string, SkyMarker[]>();
+    for (const m of markers) {
+      const key = `${m.color ?? "#9be7ff"}|${m.size ?? 14}|${m.label === false ? 0 : 1}`;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(m);
+    }
+    for (const [key, ms] of groups) {
+      let cat = catsRef.current.get(key);
+      if (!cat) {
+        const [color, size, lab] = key.split("|");
+        cat = A.catalog({
+          name: `m-${key}`,
+          sourceSize: parseFloat(size),
+          color,
+          shape: "circle",
+          displayLabel: lab === "1",
+          labelColumn: "name",
+          labelColor: color,
+          labelFont: "12px Inter, sans-serif",
+        });
+        al.addCatalog(cat);
+        catsRef.current.set(key, cat);
+      }
+      cat.addSources(ms.map((m) => A.source(m.ra, m.dec, { id: m.id, name: m.name })));
+    }
   }, [markers, ready]);
+
+  useEffect(() => {
+    if (!ready || !aladinRef.current) return;
+    const A = window.__AladinA;
+    const al = aladinRef.current;
+    if (lineOverlayRef.current) {
+      try {
+        lineOverlayRef.current.removeAll();
+      } catch {}
+    } else {
+      lineOverlayRef.current = A.graphicOverlay({ name: "lines", color: "#7fd8ff", lineWidth: 2 });
+      al.addOverlay(lineOverlayRef.current);
+    }
+    for (const l of lines) {
+      lineOverlayRef.current.add(
+        A.polyline(l.points, { color: l.color, lineWidth: l.width ?? 2, lineDash: l.dashed ? [6, 6] : undefined }),
+      );
+    }
+  }, [lines, ready]);
 
   return <div ref={divRef} className="absolute inset-0 h-full w-full" aria-label="SPHEREx all-sky infrared map" />;
 });

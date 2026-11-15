@@ -1,0 +1,558 @@
+"use client";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import NavBar from "@/components/NavBar";
+import SkyViewer, { SkyLine, SkyMarker } from "@/components/SkyViewer";
+import EvidencePanel from "@/components/investigate/EvidencePanel";
+import FrameStage from "@/components/investigate/FrameStage";
+import TimeTravelStage from "@/components/investigate/TimeTravelStage";
+import { CaseFile, Sequence, TTFile, fmtUTC } from "@/lib/caseTypes";
+import { wavelengthColor } from "@/lib/spherex";
+
+const STEPS = [
+  { id: "prediction", n: 1, title: "The prediction", short: "Prediction" },
+  { id: "observation", n: 2, title: "The observation", short: "Observation" },
+  { id: "timetravel", n: 3, title: "Time Travel", short: "Time Travel" },
+  { id: "measurement", n: 4, title: "The measurement", short: "Measurement" },
+  { id: "verdict", n: 5, title: "The verdict", short: "Verdict" },
+] as const;
+type StepId = (typeof STEPS)[number]["id"];
+
+function seqLabel(s: Sequence) {
+  const t = new Date(s.date_first + "Z");
+  const d = t.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const h = t.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "UTC", hour12: false });
+  return { when: `${d} ${h}`, what: `D${s.detector} · ${s.wavelength_range_um[0].toFixed(2)}–${s.wavelength_range_um[1].toFixed(2)} µm` };
+}
+
+function Check({ ok, title, detail }: { ok: boolean; title: string; detail: React.ReactNode }) {
+  return (
+    <li className="flex gap-3">
+      <span
+        className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[11px] font-bold ${
+          ok ? "bg-good/20 text-good" : "bg-warn/20 text-warn"
+        }`}
+      >
+        {ok ? "✓" : "!"}
+      </span>
+      <div>
+        <div className="text-[13.5px] font-medium">{title}</div>
+        <div className="text-[12.5px] leading-relaxed text-muted">{detail}</div>
+      </div>
+    </li>
+  );
+}
+
+export default function InvestigateClient() {
+  const [cf, setCf] = useState<CaseFile | null>(null);
+  const [tt, setTt] = useState<TTFile | null>(null);
+  const [step, setStep] = useState<StepId>("prediction");
+  const [seqId, setSeqId] = useState("2025W44_1A_0045_D1");
+  const [fi, setFi] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [mode, setMode] = useState<"frames" | "difference">("frames");
+  const [ov, setOv] = useState({ pred: false, meas: false, flags: false, trail: false });
+  const [pairId, setPairId] = useState<string | null>(null);
+  const [ttView, setTtView] = useState<"wipe" | "blink" | "change">("wipe");
+
+  useEffect(() => {
+    fetch("/data/swan/case.json").then((r) => r.json()).then(setCf);
+    fetch("/data/timetravel/pairs.json")
+      .then((r) => r.json())
+      .then((d: TTFile) => {
+        setTt(d);
+        setPairId(d.pairs[0]?.id ?? null);
+      });
+  }, []);
+
+  // overlay defaults per step
+  useEffect(() => {
+    if (step === "observation") {
+      setOv({ pred: false, meas: false, flags: false, trail: false });
+      setMode("frames");
+      setPlaying(true);
+    } else if (step === "measurement") {
+      setOv({ pred: true, meas: true, flags: false, trail: true });
+      setMode("frames");
+      setPlaying(false);
+    } else setPlaying(false);
+  }, [step]);
+
+  const seq = cf?.sequences.find((s) => s.id === seqId);
+  useEffect(() => setFi(0), [seqId]);
+  useEffect(() => {
+    if (!playing || !seq || mode !== "frames") return;
+    const id = setInterval(() => setFi((i) => (i + 1) % seq.n), 750);
+    return () => clearInterval(id);
+  }, [playing, seq, mode]);
+
+  const pair = tt?.pairs.find((p) => p.id === pairId) ?? null;
+
+  const trackLines: SkyLine[] = useMemo(() => {
+    if (!cf) return [];
+    const pts = cf.predicted_track.map((p) => [p.ra, p.dec] as [number, number]);
+    return [{ id: "pred", points: pts, color: "rgba(127,216,255,0.85)", width: 2, dashed: true }];
+  }, [cf]);
+  const trackMarkers: SkyMarker[] = useMemo(() => {
+    if (!cf) return [];
+    const seen = new Set<string>();
+    const ms: SkyMarker[] = [];
+    for (const s of cf.sequences) {
+      if (seen.has(s.obs_block)) continue;
+      seen.add(s.obs_block);
+      const f = s.frames[0];
+      ms.push({
+        id: s.id,
+        name: ms.length === 0 ? "Measured in SPHEREx, 27–28 Oct 2025" : seqLabel(s).when,
+        ra: f.measured.ra,
+        dec: f.measured.dec,
+        color: "#6ef0b0",
+        size: 12,
+        label: ms.length === 0,
+      });
+    }
+    return ms;
+  }, [cf]);
+
+  if (!cf || !seq) {
+    return (
+      <main className="grid min-h-screen place-items-center">
+        <NavBar />
+        <div className="text-muted">Opening case file…</div>
+      </main>
+    );
+  }
+
+  const frame = seq.frames[fi];
+  const lead = cf.sequences.filter((s) => s.n >= 4);
+  const stepIdx = STEPS.findIndex((s) => s.id === step);
+
+  return (
+    <main className="relative min-h-screen bg-bg pb-16">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
+      <NavBar />
+      <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
+        {/* header */}
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <div className="label text-accent">Case file 001 · Moving object</div>
+            <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">
+              Is comet SWAN really moving in SPHEREx&apos;s images?
+            </h1>
+            <p className="mt-1 max-w-2xl text-[14px] text-muted">
+              Long-period comet C/2025 R2 (SWAN), NAIF ID {cf.object.naif_id}. Every frame below is a real, dated SPHEREx DR1
+              exposure. A prediction counts as evidence only when the measurement agrees with it.
+            </p>
+          </div>
+        </div>
+
+        {/* steps */}
+        <nav className="mt-5 flex flex-wrap gap-2" aria-label="Investigation steps">
+          {STEPS.map((s, i) => (
+            <button
+              key={s.id}
+              onClick={() => setStep(s.id)}
+              className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] transition ${
+                step === s.id ? "border-accent/60 bg-accent/10 text-white" : i < stepIdx ? "border-line text-text/80" : "border-line text-muted hover:text-white"
+              }`}
+            >
+              <span
+                className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-semibold ${
+                  step === s.id ? "bg-accent text-black" : i < stepIdx ? "bg-good/25 text-good" : "bg-white/10"
+                }`}
+              >
+                {i < stepIdx ? "✓" : s.n}
+              </span>
+              {s.short}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+          {/* ================= STAGE ================= */}
+          <section className="min-w-0">
+            {step === "prediction" && (
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line">
+                <SkyViewer
+                  ra={345}
+                  dec={4}
+                  fov={80}
+                  frame={3}
+                  colormap="magma"
+                  markers={trackMarkers}
+                  lines={trackLines}
+                />
+                <div className="pointer-events-none absolute bottom-3 left-3 rounded-lg bg-black/70 px-3 py-2 text-[11.5px] leading-relaxed">
+                  <div>
+                    <span className="text-accent">━━</span> MOST predicted path (ephemeris, not a detection)
+                  </div>
+                  <div>
+                    <span className="text-good">○</span> where we measured the comet in SPHEREx frames
+                  </div>
+                  <div className="text-dim">Background: SPHEREx all-sky map at 0.81 µm (time-averaged)</div>
+                </div>
+              </div>
+            )}
+
+            {(step === "observation" || step === "measurement") && (
+              <>
+                <FrameStage seq={seq} frameIndex={fi} mode={mode} showPred={ov.pred} showMeas={ov.meas} showFlags={ov.flags} showTrail={ov.trail} />
+                {/* timeline */}
+                <div className="glass mt-3 rounded-2xl p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button className={`btn ${playing ? "btn-primary" : ""}`} onClick={() => setPlaying((p) => !p)} disabled={mode !== "frames"}>
+                      {playing ? "❚❚ Pause" : "▶ Blink"}
+                    </button>
+                    <div className="flex flex-1 gap-1.5">
+                      {seq.frames.map((f, i) => (
+                        <button
+                          key={f.productid}
+                          onClick={() => {
+                            setFi(i);
+                            setPlaying(false);
+                            setMode("frames");
+                          }}
+                          className={`flex-1 rounded-lg border px-2 py-1.5 text-left transition ${
+                            i === fi && mode === "frames" ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"
+                          }`}
+                        >
+                          <div className="data text-[12px]">
+                            {new Date(f.date_avg + "Z").toLocaleTimeString("en-GB", { timeZone: "UTC", hour12: false })}
+                          </div>
+                          <div className="data text-[10.5px]" style={{ color: wavelengthColor(f.wavelength_um) }}>
+                            {f.wavelength_um.toFixed(3)} µm
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      className={`btn ${mode === "difference" ? "btn-primary" : ""}`}
+                      onClick={() => {
+                        setMode((m) => (m === "frames" ? "difference" : "frames"));
+                        setPlaying(false);
+                      }}
+                    >
+                      {mode === "difference" ? "Show frames" : "Difference"}
+                    </button>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px]">
+                    {(
+                      [
+                        ["pred", "MOST prediction", "text-accent"],
+                        ["meas", "Our measurement", "text-good"],
+                        ["trail", "Measured track", "text-good"],
+                        ["flags", "Flagged pixels", "text-warn"],
+                      ] as const
+                    ).map(([k, label, cls]) => (
+                      <label key={k} className="flex cursor-pointer items-center gap-1.5">
+                        <input type="checkbox" checked={ov[k]} onChange={(e) => setOv((o) => ({ ...o, [k]: e.target.checked }))} className="accent-cyan-300" />
+                        <span className={cls}>{label}</span>
+                      </label>
+                    ))}
+                    <span className="ml-auto text-dim">{fmtUTC(frame.date_avg, true)}</span>
+                  </div>
+                </div>
+                {/* sequence chooser */}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {cf.sequences.map((s) => {
+                    const l = seqLabel(s);
+                    return (
+                      <button
+                        key={s.id}
+                        onClick={() => setSeqId(s.id)}
+                        className={`rounded-xl border px-3 py-1.5 text-left transition ${s.id === seqId ? "border-accent/60 bg-accent/10" : "border-line hover:bg-white/5"}`}
+                      >
+                        <div className="data text-[12px]">{l.when} UTC</div>
+                        <div className="text-[11px] text-muted">
+                          {l.what} · {s.n} exp.
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {step === "timetravel" && pair && (
+              <>
+                <TimeTravelStage pair={pair} view={ttView} />
+                <div className="glass mt-3 flex flex-wrap items-center gap-2 rounded-2xl p-3">
+                  {(
+                    [
+                      ["wipe", "Swipe"],
+                      ["blink", "Blink"],
+                      ["change", "What changed"],
+                    ] as const
+                  ).map(([v, l]) => (
+                    <button key={v} className={`btn ${ttView === v ? "btn-primary" : ""}`} onClick={() => setTtView(v)}>
+                      {l}
+                    </button>
+                  ))}
+                  <span className="mx-1 h-5 w-px bg-line" />
+                  {tt!.pairs.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setPairId(p.id)}
+                      className={`rounded-lg border px-2.5 py-1 text-[11.5px] transition ${p.id === pairId ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"}`}
+                    >
+                      <span className="data" style={{ color: wavelengthColor(p.before.wavelength_um) }}>
+                        D{p.detector} {p.before.wavelength_um.toFixed(3)}
+                      </span>
+                      <span className="text-dim"> ↔ </span>
+                      <span className="data" style={{ color: wavelengthColor(p.after.wavelength_um) }}>
+                        {p.after.wavelength_um.toFixed(3)} µm
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {step === "verdict" && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {lead.slice(0, 4).map((s) => (
+                  <div key={s.id} className="overflow-hidden rounded-2xl border border-line">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={s.diff_png} alt={`Difference image ${s.id}`} className="pixelated aspect-square w-full" />
+                    <div className="px-3 py-2 text-[11.5px]">
+                      <div className="data">{seqLabel(s).when} UTC</div>
+                      <div className="text-muted">{seqLabel(s).what} · last − first</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* ================= NARRATIVE + EVIDENCE ================= */}
+          <section className="min-w-0 space-y-4">
+            {step === "prediction" && (
+              <div className="glass fade-up rounded-2xl p-5">
+                <div className="label">Step 1</div>
+                <h2 className="font-display mt-1 text-[22px] font-semibold">Where should the comet be?</h2>
+                <p className="mt-2 text-[14px] leading-relaxed text-text/85">
+                  Comet SWAN was found in September 2025. Its orbit is known, so we can work out where it was at any moment. We
+                  asked NASA/IPAC&apos;s <b>Moving Object Search Tool (MOST)</b> which SPHEREx exposures should contain it.
+                </p>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <div className="data text-[24px] font-semibold text-accent">{cf.most.n_matched_frames}</div>
+                    <div className="text-[11.5px] text-muted">SPHEREx frames predicted to contain SWAN</div>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <div className="data text-[24px] font-semibold text-accent">20</div>
+                    <div className="text-[11.5px] text-muted">brightest frames, 27–28 Oct 2025 (V ≈ 11.3)</div>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <div className="data text-[24px] font-semibold text-accent">≈10″</div>
+                    <div className="text-[11.5px] text-muted">predicted motion per minute (≈1.6 pixels)</div>
+                  </div>
+                </div>
+                <p className="mt-4 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2 text-[12.5px] leading-relaxed text-text/80">
+                  <b className="text-accent">A prediction is not a detection.</b> The dashed line is calculated from the orbit.
+                  To claim SPHEREx saw the comet, we have to find it in the pixels, at the right place and at the right time.
+                </p>
+                <button className="btn btn-primary mt-4" onClick={() => setStep("observation")}>
+                  Look at the real frames →
+                </button>
+              </div>
+            )}
+
+            {step === "observation" && (
+              <div className="glass fade-up rounded-2xl p-5">
+                <div className="label">Step 2</div>
+                <h2 className="font-display mt-1 text-[22px] font-semibold">Something is moving against the stars</h2>
+                <p className="mt-2 text-[14px] leading-relaxed text-text/85">
+                  These are {seq.n} real SPHEREx exposures taken about two minutes apart on {fmtUTC(seq.date_first).split(" · ")[0]}.
+                  They&apos;re aligned on the sky, so the stars stay put. Watch the fuzzy object: it slides about{" "}
+                  <b>{Math.round(seq.measured_total_motion_arcsec)}″</b> in {seq.span_minutes.toFixed(1)} minutes.
+                </p>
+                <p className="mt-3 text-[13px] leading-relaxed text-muted">
+                  Press <b className="text-text">Difference</b>. Subtracting the first exposure from the last cancels every star.
+                  Only the moving comet is left, as a blue/red pair.
+                </p>
+                <p className="mt-3 rounded-lg border border-warn/25 bg-warn/5 px-3 py-2 text-[12.5px] leading-relaxed text-warn/90">
+                  Each exposure is also a slightly different <b>wavelength</b> ({seq.wavelength_range_um[0].toFixed(3)} →{" "}
+                  {seq.wavelength_range_um[1].toFixed(3)} µm). SPHEREx&apos;s filter changes colour across the detector, so
+                  brightness differences between frames can come from the comet&apos;s spectrum, not from time. We use these frames
+                  for position only.
+                </p>
+                <div className="mt-4 flex gap-2">
+                  <button className="btn btn-primary" onClick={() => setStep("timetravel")}>
+                    Travel to another date →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === "timetravel" && pair && (
+              <div className="glass fade-up rounded-2xl p-5">
+                <div className="label">Step 3 · Time Travel</div>
+                <h2 className="font-display mt-1 text-[22px] font-semibold">Same patch of sky, {Math.round(pair.days_apart)} days later</h2>
+                <p className="mt-2 text-[14px] leading-relaxed text-text/85">
+                  SPHEREx came back to exactly this spot on <b>{fmtUTC(pair.after.date_avg).split(" · ")[0]}</b>. The stars
+                  are all still there. The comet is gone.
+                </p>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <div className="label">Before</div>
+                    <div className="data mt-1 text-[13px]">{fmtUTC(pair.before.date_avg)}</div>
+                    <div className="data text-[12px] text-muted">
+                      {pair.before.obsid} · D{pair.detector} · {pair.before.wavelength_um.toFixed(4)} µm
+                    </div>
+                    <div className="mt-1 text-[12px]">
+                      Comet aperture: <span className="data">{pair.comet_aperture.flux_before.toFixed(0)}</span>
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-white/5 p-3">
+                    <div className="label">After</div>
+                    <div className="data mt-1 text-[13px]">{fmtUTC(pair.after.date_avg)}</div>
+                    <div className="data text-[12px] text-muted">
+                      {pair.after.obsid} · D{pair.detector} · {pair.after.wavelength_um.toFixed(4)} µm
+                    </div>
+                    <div className="mt-1 text-[12px]">
+                      Comet aperture: <span className="data">{pair.comet_aperture.flux_after.toFixed(1)}</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+                  <b className="text-text">Why this comparison is fair:</b> same detector, and wavelengths that differ by only{" "}
+                  {Math.abs(pair.delta_wavelength_um).toFixed(4)} µm ({Math.round(pair.delta_over_bandwidth * 100)}% of one channel&apos;s
+                  bandwidth). We picked the later frame from every SPHEREx visit to this spot because its wavelength here matches.
+                  The change at the comet&apos;s position is <b className="text-text">{Math.abs(pair.comet_aperture.z).toFixed(0)}σ</b>{" "}
+                  (aperture sums in MJy/sr, r = 3 px).
+                </p>
+                <p className="mt-2 text-[12px] leading-relaxed text-dim">
+                  Honest caveat: star residuals remain. {(pair.field_frac_absz_gt5 * 100).toFixed(0)}% of field pixels away from the
+                  comet change by more than 5σ, from resampling and point-spread differences between the dates. Treat the &quot;What
+                  changed&quot; map as a guide. The comet&apos;s coma is the only large, coherent change.
+                </p>
+                <button className="btn btn-primary mt-4" onClick={() => setStep("measurement")}>
+                  Check the measurements →
+                </button>
+              </div>
+            )}
+
+            {step === "measurement" && (
+              <div className="glass fade-up rounded-2xl p-5">
+                <div className="label">Step 4</div>
+                <h2 className="font-display mt-1 text-[22px] font-semibold">Does it match the prediction?</h2>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-text/85">
+                  We found the comet&apos;s centre in every frame on its own, then compared it to the prediction. Here&apos;s this
+                  sequence:
+                </p>
+                <div className="mt-3 overflow-hidden rounded-xl border border-line">
+                  <table className="w-full text-[12.5px]">
+                    <thead className="bg-white/5 text-muted">
+                      <tr>
+                        <th className="px-3 py-1.5 text-left font-medium">Test</th>
+                        <th className="px-3 py-1.5 text-right font-medium text-good">Measured</th>
+                        <th className="px-3 py-1.5 text-right font-medium text-accent">Predicted</th>
+                      </tr>
+                    </thead>
+                    <tbody className="data">
+                      <tr className="border-t border-line/60">
+                        <td className="px-3 py-1.5 font-sans">Speed</td>
+                        <td className="px-3 py-1.5 text-right">{seq.measured_rate_arcsec_per_min.toFixed(2)}″/min</td>
+                        <td className="px-3 py-1.5 text-right">{seq.predicted_rate_arcsec_per_min.toFixed(2)}″/min</td>
+                      </tr>
+                      <tr className="border-t border-line/60">
+                        <td className="px-3 py-1.5 font-sans">Direction (PA)</td>
+                        <td className="px-3 py-1.5 text-right">{seq.measured_pa_deg.toFixed(1)}°</td>
+                        <td className="px-3 py-1.5 text-right">{seq.predicted_pa_deg.toFixed(1)}°</td>
+                      </tr>
+                      <tr className="border-t border-line/60">
+                        <td className="px-3 py-1.5 font-sans">Median position offset</td>
+                        <td className="px-3 py-1.5 text-right" colSpan={2}>
+                          {seq.median_offset_mid_arcsec.toFixed(1)}″ = {(seq.median_offset_mid_arcsec / 6.15).toFixed(2)} pixel
+                        </td>
+                      </tr>
+                      <tr className="border-t border-line/60">
+                        <td className="px-3 py-1.5 font-sans">Field stars moved (control)</td>
+                        <td className="px-3 py-1.5 text-right" colSpan={2}>
+                          {seq.star_control.median_shift_arcsec.toFixed(2)}″ median ({seq.star_control.n_stars} stars)
+                        </td>
+                      </tr>
+                      <tr className="border-t border-line/60">
+                        <td className="px-3 py-1.5 font-sans">Signal left at first position</td>
+                        <td className="px-3 py-1.5 text-right" colSpan={2}>
+                          {Math.round(seq.vacancy_ratio * 100)}% by the last exposure
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-3 text-[12px] leading-relaxed text-muted">
+                  MOST lists each exposure&apos;s <i>start</i> time. At ≈10″/min, that alone shifts the prediction by ≈10″, so we
+                  evaluate the prediction at mid-exposure. One more thing we had to handle: the SPHEREx pipeline flags the
+                  comet&apos;s core as <span className="data">OUTLIER</span> in most frames, because a moving object <i>is</i> an
+                  outlier against the static sky. We keep those pixels for the comet and still reject hardware flags.
+                </p>
+                <button className="btn btn-primary mt-4" onClick={() => setStep("verdict")}>
+                  See the verdict →
+                </button>
+              </div>
+            )}
+
+            {step === "verdict" && (
+              <div className="glass fade-up rounded-2xl p-5">
+                <div className="label">Step 5</div>
+                <h2 className="font-display mt-1 text-[22px] font-semibold">Verdict: confirmed known-object match</h2>
+                <ul className="mt-4 space-y-3">
+                  <Check ok title="Detected where predicted, when predicted" detail="Found in all 20 frames from 27–28 Oct 2025 at S/N 195–647. The median offset from the prediction is 2.3–2.9″ (under half a pixel) in detectors 1, 2 and 4, and 8.5″ (1.4 px) in detector 5. No single frame is more than 0.85 px off in detectors 1–4." />
+                  <Check ok title="Moves at the predicted speed and direction" detail="Measured 9.1–10.1″/min against 9.2–10.0″/min predicted, and direction within about 2°, in 6 independent sequences across 4 detectors." />
+                  <Check ok title="Background stars stay still" detail="Field stars shift < 0.8″ (median) across the same frames, so the motion isn't an alignment error." />
+                  <Check ok title="The comet leaves its old position" detail="The flux at its first position drops by 49–92% within a few minutes, and by more than 99% on 1 May 2026 at a matched wavelength." />
+                  <Check ok={false} title="What this is NOT" detail="It isn't a discovery. SWAN was already known, and we recovered it. It isn't a spectrum: frames at different wavelengths aren't combined. The small along-track offset (≈2″, about 8″ at 4 µm) is reported, not explained." />
+                </ul>
+                <p className="mt-4 rounded-lg border border-good/25 bg-good/5 px-3 py-2 text-[12.5px] leading-relaxed text-text/85">{cf.verdict}</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link href="/explore?target=swan" className="btn">
+                    See SWAN&apos;s spot on the all-sky map
+                  </Link>
+                  <Link href="/about" className="btn">
+                    Full method & data sources
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {(step === "observation" || step === "measurement") && <EvidencePanel seq={seq} frame={frame} />}
+
+            {step === "timetravel" && pair && (
+              <div className="glass rounded-2xl p-4 text-[12px]">
+                <div className="label mb-2">Provenance</div>
+                <div className="space-y-1.5">
+                  <div>
+                    Before:{" "}
+                    <a className="text-accent hover:underline" href={pair.before.source_fits} target="_blank" rel="noreferrer">
+                      {pair.before.productid} ↗
+                    </a>
+                  </div>
+                  <div>
+                    After:{" "}
+                    <a className="text-accent hover:underline" href={pair.after.source_fits} target="_blank" rel="noreferrer">
+                      {pair.after.productid} ↗
+                    </a>{" "}
+                    <span className="text-dim">(QA: {pair.after.l2dqa})</span>
+                  </div>
+                  <p className="text-dim">{tt!.method}</p>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
+
+        <div className="mt-8 flex items-center justify-between">
+          <button className="btn" disabled={stepIdx === 0} onClick={() => setStep(STEPS[Math.max(0, stepIdx - 1)].id)}>
+            ← Back
+          </button>
+          <div className="text-[11px] text-dim">Data: {cf.data_release} · MOST (IRSA)</div>
+          <button className="btn" disabled={stepIdx === STEPS.length - 1} onClick={() => setStep(STEPS[Math.min(STEPS.length - 1, stepIdx + 1)].id)}>
+            Next →
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -31,7 +31,7 @@ We fit each frame's coma photocentre on its own: a peak search within 8 px of th
 - The comet moves 65–86″ (11–14 SPHEREx pixels) within each 6.5-minute, 4-exposure sequence. Over Oct 27 04:53 → Oct 28 10:21 UTC it moves about 4°.
 - Field stars stay put to < 1″ (0.1 px) across the same frames, so the motion is not a registration artifact.
 - The difference images (`docs/figures/proof_*.png`) show the classic dipole: stars cancel, the comet leaves a negative imprint at its old position and a positive one at its new position.
-- Measured position and time agree with the predicted location in every frame: offsets < 0.6 px in detectors 1, 2 and 4, and 1.4 px in detector 5. **This meets the brief's "confirmed known-object match" bar. It is a recovery of a known comet, not a discovery.**
+- Measured position and time agree with the predicted location in every frame. Median offsets are 2.3–2.9″ (< 0.5 px) in detectors 1, 2 and 4; every frame there is within 0.85 px. Detector 5 sits at 8.5″ (1.4 px). **This meets the brief's "confirmed known-object match" bar. It is a recovery of a known comet, not a discovery.**
 
 ## 3. Scientific caveats we found (and how the app handles them)
 
