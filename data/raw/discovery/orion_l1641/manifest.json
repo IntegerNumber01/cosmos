@@ -1,0 +1,73 @@
+{
+  "field": "orion_l1641",
+  "ra": 84.0,
+  "dec": -6.0,
+  "size_deg": 0.3,
+  "release": "dr1",
+  "query": "https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+84.0+-6.0+0.005&RESPONSEFORMAT=csv",
+  "detectors": [
+    2,
+    5
+  ],
+  "frames": [
+    {
+      "file": "data/raw/discovery/orion_l1641/2026W11_2A_0253_1D2.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_2A/l2b-v27-2026-234/2/level2_2026W11_2A_0253_1D2_spx_l2b-v27-2026-234.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_2A/l2b-v27-2026-234/2/level2_2026W11_2A_0253_1D2_spx_l2b-v27-2026-234.fits",
+      "obsid": "2026W11_2A_0253_1",
+      "detector": 2,
+      "bytes": 4449600
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2025W37_2A_0010_4D2.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_2A/l2b-v27-2026-236/2/level2_2025W37_2A_0010_4D2_spx_l2b-v27-2026-236.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_2A/l2b-v27-2026-236/2/level2_2025W37_2A_0010_4D2_spx_l2b-v27-2026-236.fits",
+      "obsid": "2025W37_2A_0010_4",
+      "detector": 2,
+      "bytes": 4449600
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2025W37_1A_0700_4D2.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_1A/l2b-v27-2026-235/2/level2_2025W37_1A_0700_4D2_spx_l2b-v27-2026-235.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_1A/l2b-v27-2026-235/2/level2_2025W37_1A_0700_4D2_spx_l2b-v27-2026-235.fits",
+      "obsid": "2025W37_1A_0700_4",
+      "detector": 2,
+      "bytes": 4449600
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2026W11_1A_0682_1D2.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_1A/l2b-v27-2026-232/2/level2_2026W11_1A_0682_1D2_spx_l2b-v27-2026-232.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_1A/l2b-v27-2026-232/2/level2_2026W11_1A_0682_1D2_spx_l2b-v27-2026-232.fits",
+      "obsid": "2026W11_1A_0682_1",
+      "detector": 2,
+      "bytes": 4449600
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2026W11_2A_0253_1D5.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_2A/l2b-v27-2026-234/5/level2_2026W11_2A_0253_1D5_spx_l2b-v27-2026-234.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_2A/l2b-v27-2026-234/5/level2_2026W11_2A_0253_1D5_spx_l2b-v27-2026-234.fits",
+      "obsid": "2026W11_2A_0253_1",
+      "detector": 5,
+      "bytes": 4446720
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2025W37_1A_0700_4D5.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_1A/l2b-v27-2026-235/5/level2_2025W37_1A_0700_4D5_spx_l2b-v27-2026-235.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W37_1A/l2b-v27-2026-235/5/level2_2025W37_1A_0700_4D5_spx_l2b-v27-2026-235.fits",
+      "obsid": "2025W37_1A_0700_4",
+      "detector": 5,
+      "bytes": 4446720
+    },
+    {
+      "file": "data/raw/discovery/orion_l1641/2026W11_1A_0682_1D5.fits",
+      "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_1A/l2b-v27-2026-232/5/level2_2026W11_1A_0682_1D5_spx_l2b-v27-2026-232.fits?center=84.0,-6.0d&size=0.3",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W11_1A/l2b-v27-2026-232/5/level2_2026W11_1A_0682_1D5_spx_l2b-v27-2026-232.fits",
+      "obsid": "2026W11_1A_0682_1",
+      "detector": 5,
+      "bytes": 4446720
+    }
+  ],
+  "selection": "two separated wavelength sets per detector; up to two frames per visit; up to six per set",
+  "requested": 8,
+  "complete": false
+}
