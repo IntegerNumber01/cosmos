@@ -17,7 +17,7 @@ export function Logo({ className = "" }: { className?: string }) {
         <span className="absolute inset-[5px] rounded-full bg-[#03040a]" />
         <span className="absolute inset-[9px] rounded-full bg-white/90" />
       </span>
-      <span className="font-display text-[17px] font-semibold tracking-[0.18em]">COSMOS</span>
+      <span className="font-display hidden text-[17px] font-semibold tracking-[0.18em] sm:inline">COSMOS</span>
     </Link>
   );
 }
@@ -26,7 +26,7 @@ export default function NavBar() {
   const path = usePathname();
   return (
     <header className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-4 py-3 sm:px-5">
-      <div className="pointer-events-auto glass flex items-center rounded-full px-4 py-2">
+      <div className="pointer-events-auto glass flex items-center rounded-full px-3 py-2 sm:px-4">
         <Logo />
       </div>
       <nav className="pointer-events-auto glass flex items-center gap-1 rounded-full p-1">
@@ -37,11 +37,17 @@ export default function NavBar() {
               key={l.href}
               href={l.href}
               title={l.hint}
-              className={`rounded-full px-3 py-1.5 text-[13px] font-medium transition sm:px-4 ${
+              className={`rounded-full px-2.5 py-1.5 text-[12.5px] font-medium transition sm:px-4 sm:text-[13px] ${
                 active ? "bg-white/10 text-white" : "text-muted hover:text-white"
               }`}
             >
-              {l.label}
+              {l.href === "/about" ? (
+                <>
+                  <span className="hidden sm:inline">Data &amp; </span>Method
+                </>
+              ) : (
+                l.label
+              )}
             </Link>
           );
         })}

@@ -85,6 +85,11 @@ export default function ExploreClient() {
     return () => clearTimeout(id);
   }, [view, frame, clean]);
 
+  // phones: start with the destinations panel tucked away so the sky is visible
+  useEffect(() => {
+    if (window.innerWidth < 768) setPanelOpen(false);
+  }, []);
+
   const onFrame = useCallback((f: number) => setFrame(f), []);
 
   const goTarget = (t: Target) => {
@@ -241,7 +246,7 @@ export default function ExploreClient() {
       {/* bottom: wavelength + readouts */}
       <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-3 pb-3 sm:px-5 sm:pb-4">
         <div className="flex w-full max-w-[980px] flex-wrap items-center justify-between gap-2">
-          <div className="glass data flex items-center gap-4 rounded-full px-4 py-1.5 text-[11.5px] text-muted">
+          <div className="glass data hidden items-center gap-4 rounded-full px-4 py-1.5 text-[11.5px] text-muted sm:flex">
             <span>
               <span className="text-dim">centre </span>
               <span className="text-text">{fmtRA(view.ra)}</span> <span className="text-text">{fmtDec(view.dec)}</span>
@@ -258,6 +263,7 @@ export default function ExploreClient() {
             )}
           </div>
           <div className="glass flex items-center gap-1 rounded-full p-1 text-[12px]">
+            <span className="hidden items-center gap-1 md:flex">
             {COLORMAPS.map((c) => (
               <button
                 key={c.id}
@@ -273,6 +279,14 @@ export default function ExploreClient() {
               className={`rounded-full px-3 py-1 transition ${grid ? "bg-white/12 text-white" : "text-muted hover:text-white"}`}
             >
               Grid
+            </button>
+            </span>
+            <button
+              onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}
+              className="rounded-full px-3 py-1 text-accent transition hover:text-white"
+              title="Leave the 2D sky and fly into 3D, facing this direction"
+            >
+              Fly from here
             </button>
             <button onClick={share} className="rounded-full px-3 py-1 text-muted transition hover:text-white">
               {copied ? "Link copied ✓" : "Share view"}

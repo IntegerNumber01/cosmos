@@ -119,13 +119,13 @@ export const TARGETS: Target[] = [
     id: "barnard",
     name: "Barnard's Star",
     kind: "Nearby red dwarf",
-    ra: 269.452075,
-    dec: 4.69339,
+    ra: 269.44636, // 2025.6 position: Gaia DR3 4472832130942575872 propagated with its proper motion
+    dec: 4.76705,
     fov: 0.6,
     frame: 20,
     blurb: "At 1.8 pc, the closest single star to the Sun, and the star with the fastest proper motion in our sky (about 10.4″/yr).",
     caution:
-      "J2000 reference coordinates. By 2025 the star has moved about 4.4 arcminutes from this marker, so the bright star you see is offset from it.",
+      "This marker is the star's position in mid-2025, worked out from Gaia DR3's measured proper motion (source 4472832130942575872). That's 4.4′ from its J2000 catalogue position. It moves about 1.7 SPHEREx pixels per year, so in the time-averaged map it may look slightly smeared.",
   },
 ];
 

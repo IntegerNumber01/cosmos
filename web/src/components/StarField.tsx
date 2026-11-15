@@ -19,6 +19,7 @@ type Props = {
   onCamera?: (c: { distPc: number; speed: number }) => void;
   onReady?: (g: GaiaData) => void;
   showLabels?: boolean;
+  skyStrength?: number;
 };
 
 const VERT = /* glsl */ `
@@ -94,6 +95,61 @@ function Stars({ g }: { g: GaiaData }) {
     [gl],
   );
   return <points geometry={geom} material={mat} frustumCulled={false} />;
+}
+
+const SKY_VERT = /* glsl */ `
+  varying vec3 vDir;
+  void main() {
+    vDir = normalize(position);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+const SKY_FRAG = /* glsl */ `
+  uniform sampler2D uTex;
+  uniform float uStrength;
+  varying vec3 vDir;
+  void main() {
+    // scene (X,Y,Z) = ICRS (x, z, -y)  ->  RA/Dec
+    vec3 d = normalize(vDir);
+    float xe = d.x, ye = -d.z, ze = d.y;
+    float ra = atan(ye, xe);
+    if (ra < 0.0) ra += 6.28318530718;
+    float dec = asin(clamp(ze, -1.0, 1.0));
+    vec2 uv = vec2(ra / 6.28318530718, 0.5 + dec / 3.14159265359);
+    float t = texture2D(uTex, uv).r;
+    t = smoothstep(0.08, 0.95, t);
+    vec3 c = mix(vec3(0.05, 0.02, 0.12), vec3(0.62, 0.18, 0.55), smoothstep(0.0, 0.5, t));
+    c = mix(c, vec3(1.0, 0.62, 0.35), smoothstep(0.45, 1.0, t));
+    gl_FragColor = vec4(c * t * uStrength, 1.0);
+  }
+`;
+
+/** SPHEREx all-sky (2.24 µm) projected at infinity: orientation context only, carries no depth. */
+function SkyBackdrop({ strength }: { strength: number }) {
+  const ref = useRef<THREE.Mesh>(null);
+  const mat = useMemo(() => {
+    const tex = new THREE.TextureLoader().load("/img/sky-equirect-47.webp");
+    tex.minFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+    tex.wrapS = THREE.RepeatWrapping;
+    return new THREE.ShaderMaterial({
+      vertexShader: SKY_VERT,
+      fragmentShader: SKY_FRAG,
+      uniforms: { uTex: { value: tex }, uStrength: { value: strength } },
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    mat.uniforms.uStrength.value = strength;
+  }, [strength, mat]);
+  useFrame(({ camera }) => ref.current?.position.copy(camera.position));
+  return (
+    <mesh ref={ref} material={mat} renderOrder={-1} frustumCulled={false}>
+      <sphereGeometry args={[20000, 64, 32]} />
+    </mesh>
+  );
 }
 
 function Sun() {
@@ -265,11 +321,7 @@ function Labels({ g, selected, camPos }: { g: GaiaData; selected: number | null;
   const items = useMemo(() => g.meta.labels.map((l) => ({ ...l, info: starInfo(g, l.i) })), [g]);
   return (
     <>
-      <Html position={[0, 0, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-        <div className="whitespace-nowrap text-[11px] font-medium text-[#ffe9a8]" style={{ transform: "translate(14px,-10px)" }}>
-          ☉ Sun
-        </div>
-      </Html>
+      <SunLabel />
       {items.map((l) => (
         <Html key={l.i} position={l.info.pos} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
           <div
@@ -280,12 +332,7 @@ function Labels({ g, selected, camPos }: { g: GaiaData; selected: number | null;
           </div>
         </Html>
       ))}
-      {selected !== null && !items.find((l) => l.i === selected) && (
-        <Html position={starInfo(g, selected).pos} center style={{ pointerEvents: "none" }}>
-          <div className="h-7 w-7 rounded-full border border-white/80" />
-        </Html>
-      )}
-      {selected !== null && items.find((l) => l.i === selected) && (
+      {selected !== null && (
         <Html position={starInfo(g, selected).pos} center style={{ pointerEvents: "none" }}>
           <div className="h-7 w-7 rounded-full border border-white/80" />
         </Html>
@@ -295,13 +342,27 @@ function Labels({ g, selected, camPos }: { g: GaiaData; selected: number | null;
   );
 }
 
+function SunLabel() {
+  const el = useRef<HTMLDivElement>(null);
+  useFrame(({ camera }) => {
+    if (el.current) el.current.style.opacity = camera.position.length() > 0.05 ? "1" : "0";
+  });
+  return (
+    <Html position={[0, 0, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+      <div ref={el} className="whitespace-nowrap text-[11px] font-medium text-[#ffe9a8]" style={{ transform: "translate(14px,-10px)", opacity: 0 }}>
+        ☉ Sun
+      </div>
+    </Html>
+  );
+}
+
 function CamTracker({ camPos }: { camPos: React.MutableRefObject<THREE.Vector3> }) {
   useFrame(({ camera }) => camPos.current.copy(camera.position));
   return null;
 }
 
 const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
-  { mode, lookRa, lookDec, selected = null, onSelect, onCamera, onReady, showLabels = true },
+  { mode, lookRa, lookDec, selected = null, onSelect, onCamera, onReady, showLabels = true, skyStrength = 0.55 },
   ref,
 ) {
   const [g, setG] = useState<GaiaData | null>(null);
@@ -363,6 +424,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
       style={{ background: "#020308" }}
       dpr={[1, 2]}
     >
+      {skyStrength > 0 && <SkyBackdrop strength={skyStrength} />}
       {g && (
         <>
           <Stars g={g} />

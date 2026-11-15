@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import NavBar from "@/components/NavBar";
 import StarField, { StarFieldHandle } from "@/components/StarField";
 import { GaiaData, PC_TO_LY, StarInfo, starInfo } from "@/lib/gaia";
@@ -20,6 +20,14 @@ export default function FlyClient() {
   const [sel, setSel] = useState<StarInfo | null>(null);
   const [cam, setCam] = useState({ distPc: 0, speed: 2 });
   const [help, setHelp] = useState(true);
+  const [sky, setSky] = useState(true);
+  const [tourOpen, setTourOpen] = useState(true);
+  useEffect(() => {
+    if (window.innerWidth < 768) {
+      setTourOpen(false);
+      setHelp(false);
+    }
+  }, []);
 
   const tour = g ? [...g.meta.labels].map((l) => starInfo(g, l.i)).sort((a, b) => a.distPc - b.distPc) : [];
 
@@ -35,14 +43,27 @@ export default function FlyClient() {
           onSelect={(s) => setSel(s)}
           onCamera={setCam}
           onReady={setG}
+          skyStrength={sky ? 0.55 : 0}
         />
       </div>
       <NavBar />
 
       {/* left: tour */}
-      <aside className="absolute left-4 top-20 z-30 w-[270px] sm:left-5">
+      <button
+        className="btn absolute left-4 top-20 z-30 md:hidden"
+        onClick={() => setTourOpen((o) => !o)}
+        style={{ display: tourOpen ? "none" : undefined }}
+      >
+        ☆ Neighbours
+      </button>
+      <aside className={`absolute left-4 top-20 z-30 w-[270px] sm:left-5 ${tourOpen ? "" : "hidden"}`}>
         <div className="glass scrollbar-thin max-h-[calc(100vh-200px)] overflow-y-auto rounded-2xl p-3">
-          <div className="label px-1">Fly to a neighbour</div>
+          <div className="flex items-center justify-between px-1">
+            <div className="label">Fly to a neighbour</div>
+            <button className="text-[12px] text-muted hover:text-white md:hidden" onClick={() => setTourOpen(false)}>
+              Hide
+            </button>
+          </div>
           <p className="px-1 pb-2 pt-1 text-[11.5px] leading-snug text-muted">
             Named only when a Gaia source matches the star&apos;s position, distance and brightness.
           </p>
@@ -53,6 +74,7 @@ export default function FlyClient() {
                   onClick={() => {
                     setSel(s);
                     field.current?.flyToStar(s.i);
+                    if (window.innerWidth < 768) setTourOpen(false);
                   }}
                   className={`flex w-full items-baseline justify-between rounded-lg px-2.5 py-1.5 text-left transition ${
                     sel?.i === s.i ? "bg-white/10" : "hover:bg-white/5"
@@ -72,7 +94,7 @@ export default function FlyClient() {
 
       {/* right: selected star */}
       {sel && (
-        <div key={sel.i} className="fade-up absolute right-4 top-20 z-30 w-[330px] sm:right-5">
+        <div key={sel.i} className="fade-up absolute inset-x-4 bottom-28 z-30 sm:inset-x-auto sm:bottom-auto sm:right-5 sm:top-20 sm:w-[330px]">
           <div className="glass rounded-2xl p-4">
             <div className="flex items-start justify-between">
               <div>
@@ -160,10 +182,17 @@ export default function FlyClient() {
             {cam.speed.toFixed(2)} pc/s
           </span>
           <span className="text-muted">{g ? `${g.meta.n.toLocaleString()} stars, every one placed by a Gaia DR3 parallax` : "loading Gaia DR3…"}</span>
+          <button
+            className={`font-sans rounded-full border px-2.5 py-0.5 text-[11px] transition ${sky ? "border-accent/50 text-accent" : "border-line text-muted"}`}
+            onClick={() => setSky((v) => !v)}
+            title="SPHEREx all-sky map at 2.24 µm, drawn infinitely far away for orientation. It carries no depth."
+          >
+            Infrared sky backdrop {sky ? "on" : "off"}
+          </button>
         </div>
         <div className="text-center text-[10.5px] text-dim">
           ESA Gaia DR3 · all stars within 50 pc with parallax/error &gt; 10, plus naked-eye stars (G &lt; 6.5, parallax/error &gt; 5) ·
-          3D comes from Gaia only. SPHEREx images carry no depth.
+          3D comes from Gaia only. The infrared backdrop (SPHEREx 2.24 µm) is drawn at infinity and carries no depth.
         </div>
       </div>
     </main>
