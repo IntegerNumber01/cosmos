@@ -4,6 +4,8 @@ Start at `/timetravel?target=epsindib` (also linked as **See a real change** on 
 
 **Check for newer observations** explicitly requests the live discovery service. It retains the previous investigation if the request fails. A failed new-coordinate search keeps the coordinates and offers a retry, the infrared sky map, or a separately labelled prepared example. A service failure is never interpreted as zero observations or a scientific non-detection. HiPS is a time-averaged map, not a replacement for dated Level-2 images.
 
+If HiPS metadata itself is unavailable, Explore reports the map failure and links to saved dated photos. Metadata queries are awaited before adding Aladin layers, so its internal rejected layer promise does not escape as an unhandled browser error.
+
 ## AWS image fallback
 
 The official [IRSA cloud documentation](https://irsa.ipac.caltech.edu/cloud_access/) lists DR1 in the anonymous `nasa-irsa-spherex` bucket. The [older registry entry](https://registry.opendata.aws/spherex-qr/) describes QR2; COSMOS retains its DR1 processing baseline and DOI rather than mixing releases.
@@ -25,6 +27,6 @@ npm run build
 node scripts/check-cloud.cjs  # optional: actual anonymous public AWS reads
 ```
 
-The offline suite checks every exposure in every prepared menu against its shipped cutout. Three original compressed DR1 flag rows are checked against independent Astropy/CFITSIO SHA-256 results. The live cloud check compares native IMAGE, FLAGS and VARIANCE pixels, WCS positions and target wavelengths with saved IRSA cutouts in Epsilon Indi B, Comet SWAN and WISE 0855 fields. Browser regressions in `pipeline/tools/challenge_ui.py` and `pipeline/tools/discovery_ui.py` exercise real prepared cutouts, sharing, refresh failure, science controls and mobile layouts.
+The offline suite checks every exposure in every prepared menu against its shipped cutout. Three original compressed DR1 flag rows are checked against independent Astropy/CFITSIO SHA-256 results. The live cloud check compares native IMAGE, FLAGS and VARIANCE pixels, WCS positions and target wavelengths with saved IRSA cutouts in Epsilon Indi B, Comet SWAN and WISE 0855 fields, and injects an IRSA outage to check automatic fallback. Browser regressions in `pipeline/tools/challenge_ui.py`, `pipeline/tools/discovery_ui.py` and `pipeline/tools/outage_ui.py` exercise real prepared cutouts, sharing, refresh failure, science controls, mobile layouts, all eight fields with archive routes unavailable, the reported failing coordinates, repeated Fly navigation and keyboard access. Fly's projected labels stay in the page's React tree to avoid a reproduced double-removal error during WebGL teardown.
 
 Keep the judge-facing walkthrough centred on reproducible evidence: Epsilon Indi B's measured motion, RW Aur's brightening, the known comet identification, and the search follow-ups with their caveats. An archive outage does not establish an award exemption; the prepared walkthrough makes the core evidence directly usable regardless of the live service.

@@ -38,8 +38,9 @@ export default function WavelengthDial({ frame, onChange }: Props) {
   // keyboard: ← → step one channel, Shift jumps a band
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
+      const target = e.target instanceof Element ? e.target : null;
+      if (target?.closest("input, textarea, select, button, a, [contenteditable='true'], [role='slider']")) return;
       if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
         const dir = e.key === "ArrowRight" ? 1 : -1;
         const step = e.shiftKey ? 17 : 1;

@@ -1,6 +1,5 @@
 "use client";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -320,49 +319,24 @@ function Picker({ g, onPick, enabled }: { g: GaiaData; onPick: (i: number | null
   return null;
 }
 
-function Labels({ g, selected, camPos }: { g: GaiaData; selected: number | null; camPos: React.MutableRefObject<THREE.Vector3> }) {
-  const items = useMemo(() => g.meta.labels.map((l) => ({ ...l, info: starInfo(g, l.i) })), [g]);
-  return (
-    <>
-      <SunLabel />
-      {items.map((l) => (
-        <Html key={l.i} position={l.info.pos} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-          <div
-            className={`whitespace-nowrap text-[11px] ${selected === l.i ? "text-white" : "text-[#bcd3ff]/80"}`}
-            style={{ transform: "translate(12px,-9px)" }}
-          >
-            {l.name}
-          </div>
-        </Html>
-      ))}
-      {selected !== null && (
-        <Html position={starInfo(g, selected).pos} center style={{ pointerEvents: "none" }}>
-          <div className="h-7 w-7 rounded-full border border-white/80" />
-        </Html>
-      )}
-      <CamTracker camPos={camPos} />
-    </>
-  );
-}
+type SkyLabel = { key: string; pos: [number, number, number]; kind: "sun" | "star" | "selection"; text?: string; selected?: boolean };
 
-function SunLabel() {
-  const el = useRef<HTMLDivElement>(null);
-  useFrame(({ camera }) => {
-    if (el.current) el.current.style.opacity = camera.position.length() > 0.05 ? "1" : "0";
+/** Keep labels in the page's React tree. Independent Drei HTML roots can race with Canvas
+ * teardown during navigation. The scene only updates positions of these existing DOM nodes. */
+function ProjectLabels({ items, nodes }: { items: SkyLabel[]; nodes: React.MutableRefObject<Map<string, HTMLDivElement>> }) {
+  const projected = useMemo(() => new THREE.Vector3(), []);
+  useFrame(({ camera, size }) => {
+    for (const item of items) {
+      const node = nodes.current.get(item.key);
+      if (!node) continue;
+      projected.set(...item.pos).project(camera);
+      const visible = projected.z >= -1 && projected.z <= 1 && Math.abs(projected.x) <= 1.2 && Math.abs(projected.y) <= 1.2 &&
+        (item.kind !== "sun" || camera.position.length() > 0.05);
+      node.style.display = visible ? "block" : "none";
+      if (visible) node.style.transform = `translate3d(${(projected.x + 1) * size.width / 2}px,${(1 - projected.y) * size.height / 2}px,0)`;
+    }
   });
-  return (
-    <Html position={[0, 0, 0]} center zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
-      <div ref={el} className="relative" style={{ opacity: 0 }}>
-        {/* a ring marks home: from light-years away the Sun itself is far too small to see */}
-        <div className="h-5 w-5 rounded-full border border-[#ffe9a8]/80 shadow-[0_0_12px_rgba(255,233,168,0.45)]" />
-        <div
-          className="absolute left-6 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-black/55 px-2 py-0.5 text-[12px] font-semibold text-[#ffe9a8]"
-        >
-          ☉ Home: Sun &amp; Earth
-        </div>
-      </div>
-    </Html>
-  );
+  return null;
 }
 
 /** When the Sun is off-screen (or behind you), pin a small "Sun this way" chip to the screen edge. */
@@ -402,11 +376,6 @@ function SunPointer({ chip, arrow }: { chip: React.RefObject<HTMLButtonElement |
   return null;
 }
 
-function CamTracker({ camPos }: { camPos: React.MutableRefObject<THREE.Vector3> }) {
-  useFrame(({ camera }) => camPos.current.copy(camera.position));
-  return null;
-}
-
 const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
   { mode, lookRa, lookDec, selected = null, onSelect, onCamera, onReady, showLabels = true, skyStrength = 0.55 },
   ref,
@@ -414,20 +383,30 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
   const [g, setG] = useState<GaiaData | null>(null);
   const [loadErr, setLoadErr] = useState(false);
   const reduced = useReducedMotion();
-  const camPos = useRef(new THREE.Vector3());
   const rig = useRef<Rig>({ pos: new THREE.Vector3(0, 0, 0.0001), yaw: 0, pitch: 0, speed: 2, tween: null });
   const clock = useRef<THREE.Clock | null>(null);
   const cameraRef = useRef<THREE.Camera | null>(null);
   const sunChip = useRef<HTMLButtonElement>(null);
   const sunArrow = useRef<HTMLSpanElement>(null);
+  const labelNodes = useRef(new Map<string, HTMLDivElement>());
+  const labels = useMemo<SkyLabel[]>(() => {
+    if (!g || !showLabels) return [];
+    const items: SkyLabel[] = [{ key: "sun", pos: [0, 0, 0], kind: "sun" }];
+    for (const label of g.meta.labels) items.push({ key: `star-${label.i}`, pos: starInfo(g, label.i).pos, kind: "star", text: label.name, selected: selected === label.i });
+    if (selected !== null) items.push({ key: "selection", pos: starInfo(g, selected).pos, kind: "selection" });
+    return items;
+  }, [g, showLabels, selected]);
 
   useEffect(() => {
+    let cancelled = false;
     loadGaia()
       .then((d) => {
+        if (cancelled) return;
         setG(d);
         onReady?.(d);
       })
-      .catch(() => setLoadErr(true));
+      .catch(() => { if (!cancelled) setLoadErr(true); });
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -488,7 +467,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
         <>
           <Stars g={g} />
           <Sun />
-          {showLabels && <Labels g={g} selected={selected} camPos={camPos} />}
+          {showLabels && <ProjectLabels items={labels} nodes={labelNodes} />}
           <Picker g={g} enabled={mode === "fly"} onPick={(i) => onSelect?.(i === null ? null : starInfo(g, i))} />
           {mode === "fly" && showLabels && <SunPointer chip={sunChip} arrow={sunArrow} />}
         </>
@@ -496,11 +475,22 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
       <CameraRig rig={rig} mode={mode} onCamera={onCamera} reducedMotion={reduced} />
     </Canvas>
   );
-  if (mode !== "fly") return canvas;
   return (
     <div className="relative h-full w-full">
       {canvas}
-      <button
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        {labels.map((label) => <div key={label.key} ref={(node) => {
+          if (node) labelNodes.current.set(label.key, node); else labelNodes.current.delete(label.key);
+        }} className="absolute left-0 top-0" style={{ display: "none" }}>
+          {label.kind === "star" && <div className={`translate-x-3 -translate-y-2 whitespace-nowrap text-[11px] ${label.selected ? "text-white" : "text-[#bcd3ff]/80"}`}>{label.text}</div>}
+          {label.kind === "selection" && <div className="h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/80" />}
+          {label.kind === "sun" && <div className="relative -translate-x-1/2 -translate-y-1/2">
+            <div className="h-5 w-5 rounded-full border border-[#ffe9a8]/80 shadow-[0_0_12px_rgba(255,233,168,0.45)]" />
+            <div className="absolute left-6 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-black/55 px-2 py-0.5 text-[12px] font-semibold text-[#ffe9a8]">☉ Home: Sun &amp; Earth</div>
+          </div>}
+        </div>)}
+      </div>
+      {mode === "fly" && <button
         ref={sunChip}
         type="button"
         onClick={goHome}
@@ -512,7 +502,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
           →
         </span>
         ☉ Sun &amp; Earth
-      </button>
+      </button>}
     </div>
   );
 });

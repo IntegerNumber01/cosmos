@@ -18,7 +18,7 @@ with sync_playwright() as p:
     # Catalogue services are intentionally offline here; no fabricated identity is supplied to the UI.
     ctx.route('**/api/known?**',lambda route:route.fulfill(json={'query':{},'gaia':{'ok':False,'error':'Offline UI verification'},'simbad':{'ok':False,'error':'Offline UI verification'},'small_bodies':{'ok':False,'error':'Offline UI verification'}}))
     page=ctx.new_page();page.goto(BASE+'/investigate/search',wait_until="domcontentloaded")
-    expect(page.get_by_role('heading',name='What the search actually found')).to_be_visible()
+    expect(page.get_by_role('heading',name='What a blind search found')).to_be_visible()
     page.wait_for_function('Array.from(document.images).every(im=>im.complete && im.naturalWidth>0)')
     for href in ['/data/discovery/gy152.json','/data/discovery/gpmon.json','/data/discovery/asr7-spectrum.json','/data/discovery/prior-catalogues.json']:
         r=ctx.request.get(BASE+href);assert r.ok,(href,r.status);assert r.json()
@@ -33,6 +33,9 @@ with sync_playwright() as p:
         expect(page.get_by_role('button',name=re.compile(r'^Measure .+ on every date$'))).to_be_visible(timeout=30000)
         expect(page.get_by_text('not a complete observation history',exact=False)).to_be_visible()
         page.get_by_role('button',name=re.compile(r'^Measure .+ on every date$')).click()
+        measurement=page.get_by_text(re.compile(r'^Take a closer look')).locator('..')
+        while measurement.get_by_role('button',name='Show the science',exact=True).count():
+            measurement.get_by_role('button',name='Show the science',exact=True).first.click()
         expect(page.get_by_text('These wavelengths span',exact=False)).to_be_visible(timeout=15000)
         assert page.locator('canvas').count()>0
         page.get_by_role('button',name='Swipe',exact=True).click()

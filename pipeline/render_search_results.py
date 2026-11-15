@@ -136,7 +136,7 @@ if __name__=='__main__':
         for row in a['measurements']:
             row['sourceFits']=urls.get((row['obsid'],row['det']))
         (OUT/f'{name}-pairs.csv').write_text('method,date_a,date_b,det,wave_a,wave_b,dlambda_bw,ratio,ratio_error,dmag,ensemble_n,ensemble_scatter\n'+
-             '\n'.join(','.join(str(p[k]) for k in ('method','date_a','date_b','det','wave_a','wave_b','dlambda_bw','ratio','ratio_error','dmag','ensemble_n','ensemble_scatter')) for p in a['pairs'])+'\n')
+             ''.join(','.join(str(p[k]) for k in ('method','date_a','date_b','det','wave_a','wave_b','dlambda_bw','ratio','ratio_error','dmag','ensemble_n','ensemble_scatter'))+'\n' for p in a['pairs']))
         (OUT/f'{name}.json').write_text(json.dumps(a,indent=2))
     prior={}
     for name in ('gy152','serpensa','oriona'):

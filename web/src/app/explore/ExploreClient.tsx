@@ -199,6 +199,7 @@ export default function ExploreClient() {
         <div className="absolute inset-x-0 top-20 z-30 mx-auto w-fit max-w-lg">
           <div className="glass rounded-xl px-5 py-3 text-[13px] text-warn">
             The sky map couldn&apos;t load. It streams live from NASA&apos;s archive, so check your connection and reload.
+            <Link className="mt-2 block text-accent underline" href="/timetravel?target=epsindib">Open saved dated photos instead →</Link>
           </div>
         </div>
       )}

@@ -93,7 +93,7 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
     let cancelled = false;
     cbRef.current.onStatus?.("loading");
     loadAladin()
-      .then((A) => {
+      .then(async (A) => {
         if (cancelled || !divRef.current) return;
         const opts = { name: "SPHEREx DR1", imgFormat: "png", colormap, stretch: "linear" };
         const base = A.imageHiPS(HIPS_URL, {
@@ -101,6 +101,10 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
           successCallback: (h: any) => h.setFrequency({ value: frameToFrequencyHz(frame), unit: "Hz" }),
           errorCallback: () => cbRef.current.onStatus?.("error", "Could not reach the SPHEREx HiPS service."),
         });
+        // Aladin 3.8.2 rethrows failed layer queries from an internal promise it doesn't return.
+        // Resolve metadata before handing it a layer, so our outer catch owns service failures.
+        await base.query;
+        if (cancelled || !divRef.current) return;
         const al = A.aladin(divRef.current, {
           survey: base, // never load Aladin's default (DSS from CDS)
           hipsList: [],
@@ -139,6 +143,8 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
             cbRef.current.onStatus?.("ready");
           },
         });
+        await top.query;
+        if (cancelled) return;
         al.setOverlayImageLayer(top, "fade");
         baseRef.current = base;
         topRef.current = top;
@@ -157,7 +163,7 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
         });
         emit();
       })
-      .catch((e) => cbRef.current.onStatus?.("error", String(e)));
+      .catch((e) => { if (!cancelled) cbRef.current.onStatus?.("error", String(e)); });
     return () => {
       cancelled = true;
     };

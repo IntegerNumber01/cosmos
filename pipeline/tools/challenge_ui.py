@@ -118,7 +118,7 @@ with sync_playwright() as p:
     assert not overflow, "Time Travel overflows the mobile viewport"
     mobile.screenshot(path=str(ARTIFACTS / "timetravel-mobile.png"), full_page=True)
     embed = context.new_page()
-    embed.goto(shared + "&embed=1")
+    embed.goto(shared + "&embed=1", wait_until="domcontentloaded")
     expect(embed.get_by_label("Later date", exact=True)).to_be_visible(timeout=30000)
     expect(embed.locator("nav")).to_have_count(0)
     print("PASS: mobile layout and embedded investigation")
