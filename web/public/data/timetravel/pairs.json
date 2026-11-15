@@ -32,16 +32,26 @@
    "delta_over_bandwidth": 0.21,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_2D1__2026W18_2A_0132_1D1/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 1.28,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 57.04298727656217,
     "y": 54.67146302765324,
     "r_px": 3,
-    "flux_before": 100.0,
-    "flux_after": 0.5,
-    "z": -244.7
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 95.5,
+    "flux_after": 1.1,
+    "err_before": 0.54,
+    "err_after": 0.52,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 29,
+    "z": -125.1
    },
-   "field_frac_absz_gt5": 0.064,
+   "field_frac_absz_gt5": 0.0315,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,
@@ -78,16 +88,26 @@
    "delta_over_bandwidth": 0.21,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_3D1__2026W18_2A_0132_2D1/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 1.94,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 53.94189631360879,
     "y": 56.312642834738504,
     "r_px": 3,
-    "flux_before": 133.0,
-    "flux_after": 0.0,
-    "z": -297.6
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 115.1,
+    "flux_after": 0.2,
+    "err_before": 0.38,
+    "err_after": 0.62,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 28,
+    "z": -158.8
    },
-   "field_frac_absz_gt5": 0.0603,
+   "field_frac_absz_gt5": 0.008,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,
@@ -124,16 +144,26 @@
    "delta_over_bandwidth": 0.21,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_4D1__2026W18_2A_0132_3D1/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 2.44,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 50.85782412474871,
     "y": 57.883846142401,
     "r_px": 3,
-    "flux_before": 138.7,
-    "flux_after": -0.1,
-    "z": -307.2
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 121.7,
+    "flux_after": -0.0,
+    "err_before": 0.35,
+    "err_after": 0.49,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 29,
+    "z": -202.8
    },
-   "field_frac_absz_gt5": 0.121,
+   "field_frac_absz_gt5": 0.0047,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,
@@ -170,16 +200,26 @@
    "delta_over_bandwidth": 0.17,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_2D4__2026W18_2A_0132_1D4/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 2.14,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 57.02510168666266,
     "y": 54.74036664279651,
     "r_px": 3,
-    "flux_before": 92.9,
-    "flux_after": 0.3,
-    "z": -283.5
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 85.1,
+    "flux_after": 0.5,
+    "err_before": 0.52,
+    "err_after": 0.4,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 30,
+    "z": -129.2
    },
-   "field_frac_absz_gt5": 0.0919,
+   "field_frac_absz_gt5": 0.0065,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,
@@ -216,16 +256,26 @@
    "delta_over_bandwidth": 0.19,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_3D4__2026W18_2A_0132_2D4/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 2.1,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 53.83103183540606,
     "y": 56.33853601405003,
     "r_px": 3,
-    "flux_before": 88.4,
-    "flux_after": -0.3,
-    "z": -279.3
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 77.0,
+    "flux_after": -0.2,
+    "err_before": 0.35,
+    "err_after": 0.46,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 29,
+    "z": -132.2
    },
-   "field_frac_absz_gt5": 0.0805,
+   "field_frac_absz_gt5": 0.0045,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,
@@ -262,16 +312,26 @@
    "delta_over_bandwidth": 0.19,
    "days_apart": 185.87,
    "z_png": "/data/timetravel/2025W44_1A_0045_4D4__2026W18_2A_0132_3D4/z.png",
-   "z_scale": 10.0,
+   "z_scale": 8.0,
+   "z_calibration": {
+    "nominal_field_scatter": 3.33,
+    "note": "Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."
+   },
    "comet_aperture": {
     "x": 51.05274179946247,
     "y": 57.8639827605459,
     "r_px": 3,
-    "flux_before": 390.8,
+    "method": "native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+    "flux_before": 350.4,
     "flux_after": 0.4,
-    "z": -632.1
+    "err_before": 0.4,
+    "err_after": 0.45,
+    "rejected_px_before": 0,
+    "rejected_px_after": 0,
+    "aperture_px": 28,
+    "z": -585.0
    },
-   "field_frac_absz_gt5": 0.2158,
+   "field_frac_absz_gt5": 0.0021,
    "grid": {
     "n": 112,
     "pixel_arcsec": 6.15,

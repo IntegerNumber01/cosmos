@@ -38,6 +38,10 @@ export type Sequence = {
   date_last: string;
   diff_png: string;
   measured_rate_arcsec_per_min: number;
+  measured_rate_err: number;
+  measured_pa_err: number;
+  diff_wavelength_gap_um: number;
+  diff_wavelength_gap_channels: number;
   predicted_rate_arcsec_per_min: number;
   measured_pa_deg: number;
   predicted_pa_deg: number;
@@ -83,7 +87,8 @@ export type TTPair = {
   days_apart: number;
   z_png: string;
   z_scale: number;
-  comet_aperture: { x: number; y: number; r_px: number; flux_before: number; flux_after: number; z: number };
+  comet_aperture: { x: number; y: number; r_px: number; flux_before: number; flux_after: number; err_before: number; err_after: number; z: number };
+  z_calibration: { nominal_field_scatter: number; note: string };
   field_frac_absz_gt5: number;
   grid: Sequence["grid"];
   seq: string;

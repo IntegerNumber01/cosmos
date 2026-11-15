@@ -8,6 +8,7 @@ import FrameStage from "@/components/investigate/FrameStage";
 import TimeTravelStage from "@/components/investigate/TimeTravelStage";
 import { CaseFile, Sequence, TTFile, fmtUTC } from "@/lib/caseTypes";
 import { wavelengthColor } from "@/lib/spherex";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const STEPS = [
   { id: "prediction", n: 1, title: "The prediction", short: "Prediction" },
@@ -45,8 +46,15 @@ function Check({ ok, title, detail }: { ok: boolean; title: string; detail: Reac
 
 export default function InvestigateClient() {
   const [cf, setCf] = useState<CaseFile | null>(null);
+  const [loadErr, setLoadErr] = useState("");
+  const reduced = useReducedMotion();
   const [tt, setTt] = useState<TTFile | null>(null);
   const [step, setStep] = useState<StepId>("prediction");
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("step");
+    const found = STEPS.find((x) => x.id === q);
+    if (found) setStep(found.id);
+  }, []);
   const [seqId, setSeqId] = useState("2025W44_1A_0045_D1");
   const [fi, setFi] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -56,7 +64,13 @@ export default function InvestigateClient() {
   const [ttView, setTtView] = useState<"wipe" | "blink" | "change">("wipe");
 
   useEffect(() => {
-    fetch("/data/swan/case.json").then((r) => r.json()).then(setCf);
+    fetch("/data/swan/case.json")
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then(setCf)
+      .catch((e) => setLoadErr(String(e.message ?? e)));
     fetch("/data/timetravel/pairs.json")
       .then((r) => r.json())
       .then((d: TTFile) => {
@@ -70,13 +84,13 @@ export default function InvestigateClient() {
     if (step === "observation") {
       setOv({ pred: false, meas: false, flags: false, trail: false });
       setMode("frames");
-      setPlaying(true);
+      setPlaying(!reduced);
     } else if (step === "measurement") {
       setOv({ pred: true, meas: true, flags: false, trail: true });
       setMode("frames");
       setPlaying(false);
     } else setPlaying(false);
-  }, [step]);
+  }, [step, reduced]);
 
   const seq = cf?.sequences.find((s) => s.id === seqId);
   useEffect(() => setFi(0), [seqId]);
@@ -118,7 +132,16 @@ export default function InvestigateClient() {
     return (
       <main className="grid min-h-screen place-items-center">
         <NavBar />
-        <div className="text-muted">Opening case file…</div>
+        {loadErr ? (
+          <div className="text-warn">
+            The case file couldn&apos;t be loaded ({loadErr}).{" "}
+            <button className="btn ml-2" onClick={() => window.location.reload()}>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <div className="text-muted">Opening case file…</div>
+        )}
       </main>
     );
   }
@@ -316,7 +339,9 @@ export default function InvestigateClient() {
                     <img src={s.diff_png} alt={`Difference image ${s.id}`} className="pixelated aspect-square w-full" />
                     <div className="px-3 py-2 text-[11.5px]">
                       <div className="data">{seqLabel(s).when} UTC</div>
-                      <div className="text-muted">{seqLabel(s).what} · last − first</div>
+                      <div className="text-muted">
+                        {seqLabel(s).what} · last − first (mixed wavelengths: {s.diff_wavelength_gap_channels} channel widths)
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -368,8 +393,10 @@ export default function InvestigateClient() {
                   <b>{Math.round(seq.measured_total_motion_arcsec)}″</b> in {seq.span_minutes.toFixed(1)} minutes.
                 </p>
                 <p className="mt-3 text-[13px] leading-relaxed text-muted">
-                  Press <b className="text-text">Difference</b>. Subtracting the first exposure from the last cancels every star.
-                  Only the moving comet is left, as a blue/red pair.
+                  Press <b className="text-text">Difference</b> to subtract the first exposure from the last. The comet shows up as a
+                  blue/red pair: where it was, and where it went. Stars mostly cancel, but not perfectly, because these two exposures
+                  are <b className="text-text">{seq.diff_wavelength_gap_channels} channel widths apart in wavelength</b>. Read the difference
+                  for <i>where</i> things moved, not for brightness changes.
                 </p>
                 <p className="mt-3 rounded-lg border border-warn/25 bg-warn/5 px-3 py-2 text-[12.5px] leading-relaxed text-warn/90">
                   Each exposure is also a slightly different <b>wavelength</b> ({seq.wavelength_range_um[0].toFixed(3)} →{" "}
@@ -419,17 +446,26 @@ export default function InvestigateClient() {
                   <b className="text-text">Why this comparison is fair:</b> same detector, and wavelengths that differ by only{" "}
                   {Math.abs(pair.delta_wavelength_um).toFixed(4)} µm ({Math.round(pair.delta_over_bandwidth * 100)}% of one channel&apos;s
                   bandwidth). We picked the later frame from every SPHEREx visit to this spot because its wavelength here matches.
-                  The change at the comet&apos;s position is <b className="text-text">{Math.abs(pair.comet_aperture.z).toFixed(0)}σ</b>{" "}
-                  (aperture sums in MJy/sr, r = 3 px).
+                  Measured on each date&apos;s own pixels (no resampling), the comet&apos;s aperture drops from{" "}
+                  <span className="data">{pair.comet_aperture.flux_before.toFixed(1)} ± {pair.comet_aperture.err_before.toFixed(1)}</span> to{" "}
+                  <span className="data">{pair.comet_aperture.flux_after.toFixed(1)} ± {pair.comet_aperture.err_after.toFixed(1)}</span>. That change is{" "}
+                  <b className="text-text">{Math.abs(pair.comet_aperture.z).toFixed(0)}× the empirical noise</b>, with errors measured from 48 blank-sky
+                  apertures in each frame.
                 </p>
                 <p className="mt-2 text-[12px] leading-relaxed text-dim">
-                  Honest caveat: star residuals remain. {(pair.field_frac_absz_gt5 * 100).toFixed(0)}% of field pixels away from the
-                  comet change by more than 5σ, from resampling and point-spread differences between the dates. Treat the &quot;What
-                  changed&quot; map as a guide. The comet&apos;s coma is the only large, coherent change.
+                  About the &quot;What changed&quot; map: the archive&apos;s nominal noise, carried through resampling, understates the real scatter by{" "}
+                  {pair.z_calibration.nominal_field_scatter}×. We rescale the map by the measured scatter of the comet-free field and use a common
+                  valid-pixel mask. After that, {(pair.field_frac_absz_gt5 * 100).toFixed(1)}% of field pixels still exceed 5, mostly star residuals.
+                  Treat the map as a guide. The comet&apos;s coma is the only large, coherent change.
                 </p>
-                <button className="btn btn-primary mt-4" onClick={() => setStep("measurement")}>
-                  Check the measurements →
-                </button>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button className="btn btn-primary" onClick={() => setStep("measurement")}>
+                    Check the measurements →
+                  </button>
+                  <Link href="/timetravel?target=swan" className="btn">
+                    Explore every date of this field live
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -453,12 +489,16 @@ export default function InvestigateClient() {
                     <tbody className="data">
                       <tr className="border-t border-line/60">
                         <td className="px-3 py-1.5 font-sans">Speed</td>
-                        <td className="px-3 py-1.5 text-right">{seq.measured_rate_arcsec_per_min.toFixed(2)}″/min</td>
+                        <td className="px-3 py-1.5 text-right">
+                          {seq.measured_rate_arcsec_per_min.toFixed(2)} ± {seq.measured_rate_err.toFixed(2)}″/min
+                        </td>
                         <td className="px-3 py-1.5 text-right">{seq.predicted_rate_arcsec_per_min.toFixed(2)}″/min</td>
                       </tr>
                       <tr className="border-t border-line/60">
                         <td className="px-3 py-1.5 font-sans">Direction (PA)</td>
-                        <td className="px-3 py-1.5 text-right">{seq.measured_pa_deg.toFixed(1)}°</td>
+                        <td className="px-3 py-1.5 text-right">
+                          {seq.measured_pa_deg.toFixed(1)} ± {seq.measured_pa_err.toFixed(1)}°
+                        </td>
                         <td className="px-3 py-1.5 text-right">{seq.predicted_pa_deg.toFixed(1)}°</td>
                       </tr>
                       <tr className="border-t border-line/60">
@@ -500,10 +540,10 @@ export default function InvestigateClient() {
                 <h2 className="font-display mt-1 text-[22px] font-semibold">Verdict: confirmed known-object match</h2>
                 <ul className="mt-4 space-y-3">
                   <Check ok title="Detected where predicted, when predicted" detail="Found in all 20 frames from 27–28 Oct 2025 at S/N 195–647. The median offset from the prediction is 2.3–2.9″ (under half a pixel) in detectors 1, 2 and 4, and 8.5″ (1.4 px) in detector 5. No single frame is more than 0.85 px off in detectors 1–4." />
-                  <Check ok title="Moves at the predicted speed and direction" detail="Measured 9.1–10.1″/min against 9.2–10.0″/min predicted, and direction within about 2°, in 6 independent sequences across 4 detectors." />
-                  <Check ok title="Background stars stay still" detail="Field stars shift < 0.8″ (median) across the same frames, so the motion isn't an alignment error." />
-                  <Check ok title="The comet leaves its old position" detail="The flux at its first position drops by 49–92% within a few minutes, and by more than 99% on 1 May 2026 at a matched wavelength." />
-                  <Check ok={false} title="What this is NOT" detail="It isn't a discovery. SWAN was already known, and we recovered it. It isn't a spectrum: frames at different wavelengths aren't combined. The small along-track offset (≈2″, about 8″ at 4 µm) is reported, not explained." />
+                  <Check ok title="Moves at the predicted speed and direction" detail="Six detector sequences from 3 observation blocks (detector pairs share the same exposures). Five of six speeds agree with the prediction within 2σ (uncertainties ±0.15–0.53″/min). The 28 Oct detector-4 sequence (3.30–3.58 µm) measures 9.69 ± 0.20 against 9.21″/min, a 2.4σ difference we report but cannot explain. All directions agree within 2°." />
+                  <Check ok title="Background stars stay still" detail="Median field-star shift per sequence is 0.25–0.78″, against 65–86″ of comet motion, so the motion isn't an alignment error. Individual stars can shift more (up to 12.6″), most likely blended or saturated stars." />
+                  <Check ok title="The comet leaves its old position" detail="Within minutes the flux at its first position drops by 49–92% (at nearby but not identical wavelengths). On 1 May 2026, at a matched wavelength, the spot is empty: a change of 125–585× the empirical noise." />
+                  <Check ok={false} title="What this is NOT" detail="It isn't a discovery. SWAN was already known, and we recovered it. It isn't a spectrum: frames at different wavelengths aren't combined. Difference images within a sequence mix time and wavelength, so we use them only for position. The small along-track offset (≈2″, about 8″ at 4 µm) is reported, not explained." />
                 </ul>
                 <p className="mt-4 rounded-lg border border-good/25 bg-good/5 px-3 py-2 text-[12.5px] leading-relaxed text-text/85">{cf.verdict}</p>
                 <div className="mt-4 flex flex-wrap gap-2">

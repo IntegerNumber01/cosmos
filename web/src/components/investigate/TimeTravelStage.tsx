@@ -75,7 +75,7 @@ export default function TimeTravelStage({ pair, view }: Props) {
       <div className="pointer-events-none absolute left-3 top-3 rounded-lg bg-black/70 px-2.5 py-1.5 text-[11px]">
         {view === "change" ? (
           <span>
-            Change significance Z = (after − before) / σ · <span className="text-[#6aa5e4]">blue</span> = faded,{" "}
+            Change, scaled by the measured field scatter · <span className="text-[#6aa5e4]">blue</span> = faded,{" "}
             <span className="text-[#e46a5a]">red</span> = brightened (scale ±{pair.z_scale}σ)
           </span>
         ) : view === "blink" ? (
@@ -84,6 +84,18 @@ export default function TimeTravelStage({ pair, view }: Props) {
           <span className="data">◀ {fmtUTC(pair.before.date_avg)}</span>
         )}
       </div>
+      {view === "wipe" && (
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(split * 100)}
+          onChange={(e) => setSplit(parseInt(e.target.value, 10) / 100)}
+          onPointerDown={(e) => e.stopPropagation()}
+          className="absolute inset-x-6 bottom-3 accent-cyan-300"
+          aria-label="Swipe between the two dates (arrow keys move it)"
+        />
+      )}
       {view === "wipe" && (
         <div className="pointer-events-none absolute right-3 top-3 rounded-lg bg-black/70 px-2.5 py-1.5 text-[11px] data">
           {fmtUTC(pair.after.date_avg)} ▶

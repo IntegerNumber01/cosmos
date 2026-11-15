@@ -28,24 +28,24 @@ const MODES = [
     stat: "Gaia DR3 · measured distances",
   },
   {
-    href: "/investigate",
+    href: "/timetravel",
     k: "03",
     title: "Time Travel",
-    line: "Same sky, 186 days apart",
-    body: "Swipe between SPHEREx exposures of one patch of sky on 27 Oct 2025 and 1 May 2026, matched in wavelength. The stars stay. The comet doesn't.",
+    line: "Any coordinates, every date",
+    body: "Type a position or pick a star. COSMOS finds every SPHEREx exposure of that spot, keeps only dates at the same wavelength, lines them up and helps you find what changed.",
     img: "/img/timetravel.webp",
     alt: "Swipe comparison: comet SWAN present in October 2025, absent in May 2026",
-    stat: "real dated Level-2 frames",
+    stat: "live IRSA search · matched wavelengths",
   },
   {
     href: "/investigate",
     k: "04",
     title: "Investigate",
-    line: "Is comet SWAN really moving?",
-    body: "Follow the evidence from orbit prediction to pixels: blink the frames, measure the motion, check the flags and controls, then reach a verdict you can verify.",
+    line: "Case files you can check",
+    body: "Comet SWAN from orbit prediction to pixels, plus the challenge's five test targets. Each comes with what SPHEREx can and can't show, and whether the object is already known.",
     img: "/img/investigate.webp",
     alt: "Comet C/2025 R2 (SWAN) in a SPHEREx exposure",
-    stat: "20/20 frames · S/N up to 647",
+    stat: "1 comet · 5 validation targets",
   },
 ];
 
@@ -63,6 +63,7 @@ export default function HomeClient() {
         <nav className="hidden gap-6 text-[13px] text-muted sm:flex">
           <Link href="/explore" className="hover:text-white">Explore</Link>
           <Link href="/fly" className="hover:text-white">Fly</Link>
+          <Link href="/timetravel" className="hover:text-white">Time Travel</Link>
           <Link href="/investigate" className="hover:text-white">Investigate</Link>
           <Link href="/about" className="hover:text-white">Data &amp; Method</Link>
         </nav>
@@ -84,8 +85,8 @@ export default function HomeClient() {
             <Link href="/explore" className="btn btn-primary !px-6 !py-3 !text-[15px]">
               Start exploring the infrared sky →
             </Link>
-            <Link href="/investigate" className="btn !px-6 !py-3 !text-[15px]">
-              Open the comet case file
+            <Link href="/timetravel" className="btn !px-6 !py-3 !text-[15px]">
+              Time Travel any spot in the sky
             </Link>
           </div>
           <p className="mt-6 text-[12px] text-dim">

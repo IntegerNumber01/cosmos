@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { WAVELENGTHS_UM, wavelengthColor } from "@/lib/spherex";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 // Real captures of the COSMOS Explore view (SPHEREx DR1 all-sky cube), one hemisphere centred on
 // the Galactic Centre, at five wavelengths. Same sky; only the wavelength changes.
@@ -15,10 +16,12 @@ const FRAMES = [
 
 export default function HeroGlobe() {
   const [k, setK] = useState(0);
+  const reduced = useReducedMotion();
   useEffect(() => {
+    if (reduced) return;
     const id = setInterval(() => setK((x) => (x + 1) % FRAMES.length), 2600);
     return () => clearInterval(id);
-  }, []);
+  }, [reduced]);
   const cur = FRAMES[k];
   const um = WAVELENGTHS_UM[cur.f];
   return (
@@ -50,9 +53,15 @@ export default function HeroGlobe() {
         </div>
         <div className="mt-2 flex justify-center gap-1.5">
           {FRAMES.map((fr, i) => (
-            <span
+            <button
               key={fr.f}
-              className="h-1 w-6 rounded-full transition"
+              type="button"
+              aria-label={`Show ${WAVELENGTHS_UM[fr.f].toFixed(2)} micrometres`}
+              onClick={(e) => {
+                e.preventDefault();
+                setK(i);
+              }}
+              className="h-1.5 w-6 rounded-full transition"
               style={{ background: i === k ? wavelengthColor(WAVELENGTHS_UM[fr.f]) : "rgba(255,255,255,0.15)" }}
             />
           ))}

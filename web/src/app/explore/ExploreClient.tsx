@@ -228,10 +228,13 @@ export default function ExploreClient() {
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {selected.investigate && (
-                <Link href="/investigate" className="btn btn-primary">
-                  Open the investigation →
+                <Link href="/investigate/swan" className="btn btn-primary">
+                  Open the case file →
                 </Link>
               )}
+              <Link href={`/timetravel?ra=${selected.ra.toFixed(5)}&dec=${selected.dec.toFixed(5)}&name=${encodeURIComponent(selected.name)}`} className="btn">
+                Time Travel here
+              </Link>
               <button
                 className="btn"
                 onClick={() => router.push(`/fly?ra=${selected.ra.toFixed(3)}&dec=${selected.dec.toFixed(3)}`)}
@@ -281,6 +284,13 @@ export default function ExploreClient() {
               Grid
             </button>
             </span>
+            <button
+              onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}
+              className="rounded-full px-3 py-1 text-accent transition hover:text-white"
+              title="Find every dated SPHEREx exposure of the centre of this view"
+            >
+              Time Travel here
+            </button>
             <button
               onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}
               className="rounded-full px-3 py-1 text-accent transition hover:text-white"

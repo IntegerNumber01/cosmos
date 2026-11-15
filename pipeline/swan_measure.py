@@ -197,8 +197,24 @@ for key, rs in sorted(by_seq.items()):
                  min_snr=float(min(z["meas"]["snr"] for z in rs)),
                  wavelengths_um=[round(z["wavelength_um"], 4) for z in rs])
     if len(rs) >= 2:
-        vra_m, _ = np.polyfit(t - t0, ra_m, 1)
-        vde_m, _ = np.polyfit(t - t0, de_m, 1)
+        # weighted linear fits; per-point errors = Gaussian-fit errors (px -> arcsec) plus a 0.5" alignment
+        # allowance (field-star scatter between frames). Rate error from the fit covariance.
+        perr = np.array([np.hypot(np.hypot(z["meas"]["x_err"], z["meas"]["y_err"]) * PIX_ARCSEC, 0.5) for z in rs])
+        tt = t - t0
+        w = 1 / perr ** 2
+        def wfit(yv):
+            A = np.vstack([tt, np.ones_like(tt)]).T
+            cov = np.linalg.inv(A.T @ (A * w[:, None]))
+            beta = cov @ (A.T @ (w * yv))
+            if len(tt) > 2:  # scale by reduced chi^2 when it exceeds 1 (errors underestimated)
+                chi2 = float(np.sum(w * (yv - A @ beta) ** 2)) / (len(tt) - 2)
+                cov = cov * max(1.0, chi2)
+            return beta[0], float(np.sqrt(cov[0, 0]))
+        vra_m, era = wfit(ra_m)
+        vde_m, ede = wfit(de_m)
+        rate = float(np.hypot(vra_m, vde_m))
+        rate_err = float(np.hypot(vra_m * era, vde_m * ede) / rate)
+        pa_err = float(np.degrees(np.hypot(vde_m * era, vra_m * ede) / rate ** 2))
         vra_p, _ = np.polyfit(tp - tp.mean(), ra_p, 1)
         vde_p, _ = np.polyfit(tp - tp.mean(), de_p, 1)
         # MOST positions are tabulated at exposure START; evaluate the predicted track at
@@ -219,8 +235,10 @@ for key, rs in sorted(by_seq.items()):
         entry["median_offset_mid_arcsec"] = float(np.median([z["offset_mid_arcsec"] for z in rs]))
         entry["median_offset_along_cross_arcsec"] = [float(np.median(along)), float(np.median(cross))]
         entry.update(
-            meas_rate_arcsec_per_min=float(np.hypot(vra_m, vde_m)),
+            meas_rate_arcsec_per_min=rate,
+            meas_rate_err=rate_err,
             meas_pa_deg=float(np.degrees(np.arctan2(vra_m, vde_m)) % 360),
+            meas_pa_err=pa_err,
             pred_rate_arcsec_per_min=float(np.hypot(vra_p, vde_p)),
             pred_pa_deg=float(np.degrees(np.arctan2(vra_p, vde_p)) % 360),
             meas_total_motion_arcsec=sky_sep_arcsec(rs[-1]["meas"]["ra"], rs[-1]["meas"]["dec"], rs[0]["meas"]["ra"], rs[0]["meas"]["dec"]),
@@ -241,7 +259,8 @@ for key, rs in sorted(by_seq.items()):
             ra_b, de_b = b.wcs.pixel_to_world_values(xb, yb)
             shifts.append(sky_sep_arcsec(float(ra_b), float(de_b), float(ra_a), float(de_a)))
         entry["star_control"] = dict(n_stars=len(shifts), median_shift_arcsec=float(np.median(shifts)) if shifts else None,
-                                     max_shift_arcsec=float(np.max(shifts)) if shifts else None)
+                                     max_shift_arcsec=float(np.max(shifts)) if shifts else None,
+                                     shifts_arcsec=[round(float(v), 2) for v in shifts])
         # vacancy test: comet's first measured sky position, measured in the LAST frame
         first = rs[0]["meas"]
         xv, yv = (float(v) for v in b.wcs.world_to_pixel_values(first["ra"], first["dec"]))

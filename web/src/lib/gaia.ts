@@ -19,10 +19,15 @@ let cache: Promise<GaiaData> | null = null;
 export function loadGaia(): Promise<GaiaData> {
   if (!cache) {
     cache = Promise.all([
-      fetch("/data/gaia/stars.json").then((r) => r.json()),
-      fetch("/data/gaia/stars.f32").then((r) => r.arrayBuffer()),
-      fetch("/data/gaia/ids.u32").then((r) => r.arrayBuffer()),
-    ]).then(([meta, f, ids]) => ({ meta, f: new Float32Array(f), ids: new Uint32Array(ids) }));
+      fetch("/data/gaia/stars.json").then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))),
+      fetch("/data/gaia/stars.f32").then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`HTTP ${r.status}`)))),
+      fetch("/data/gaia/ids.u32").then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(`HTTP ${r.status}`)))),
+    ])
+      .then(([meta, f, ids]) => ({ meta, f: new Float32Array(f), ids: new Uint32Array(ids) }))
+      .catch((e) => {
+        cache = null;
+        throw e;
+      });
   }
   return cache;
 }

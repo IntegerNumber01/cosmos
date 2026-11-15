@@ -771,9 +771,77 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60914.213196,
+      "date": "2025-08-27T05:07:00",
+      "n_frames": 1,
+      "ra": 269.446158,
+      "dec": 4.767332,
+      "sigma_axis_arcsec": 0.279837,
+      "pred_ra": 269.446208,
+      "pred_dec": 4.767238,
+      "offset_from_pred_E": -0.179678,
+      "offset_from_pred_N": 0.341884,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W35_1A_0432_4"
+      ]
+     },
+     {
+      "mjd": 60948.586006,
+      "date": "2025-09-30T14:03:50",
+      "n_frames": 1,
+      "ra": 269.446097,
+      "dec": 4.767478,
+      "sigma_axis_arcsec": 0.272042,
+      "pred_ra": 269.446174,
+      "pred_dec": 4.767467,
+      "offset_from_pred_E": -0.276752,
+      "offset_from_pred_N": 0.037291,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W40_1A_0353_1"
+      ]
+     },
+     {
+      "mjd": 61110.092069,
+      "date": "2026-03-11T02:12:34",
+      "n_frames": 1,
+      "ra": 269.446709,
+      "dec": 4.768797,
+      "sigma_axis_arcsec": 0.252271,
+      "pred_ra": 269.446376,
+      "pred_dec": 4.768737,
+      "offset_from_pred_E": 1.195846,
+      "offset_from_pred_N": 0.215169,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W11_1A_0430_2"
+      ]
+     }
+    ],
+    "baseline_days": 195.878873,
+    "measured_displacement_E": 1.979166,
+    "measured_displacement_N": 5.272436,
+    "measured_displacement_arcsec": 5.631668,
+    "predicted_displacement_E": 0.603639,
+    "predicted_displacement_N": 5.399151,
+    "predicted_displacement_arcsec": 5.43279,
+    "displacement_sigma_axis_arcsec": 0.376762,
+    "residual_E": 1.375526,
+    "residual_N": -0.126715,
+    "residual_arcsec": 1.381351,
+    "significance_of_motion_sigma": 14.947538,
+    "residual_chi2_2dof": 13.442285,
+    "measured_pa_deg": 20.575118,
+    "predicted_pa_deg": 6.379328,
+    "implied_rate_arcsec_per_yr": 10.501217
+   },
    "photometry": {
     "aperture_radius_px": 2.5,
-    "n_reference_stars": 0,
+    "n_reference_stars": 17,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -781,22 +849,156 @@
      19,
      21
     ],
-    "ok": false,
-    "reason": "only 0 usable reference stars",
-    "raw": [
+    "reference_rejections_per_frame": [
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 280,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 12,
+      "low_snr": 6
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 282,
+      "catalogue": 772,
+      "blended": 62,
+      "masked": 11,
+      "low_snr": 7
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 295,
+      "catalogue": 772,
+      "blended": 52,
+      "masked": 8,
+      "low_snr": 6
      }
-    ]
+    ],
+    "reference_candidates_per_frame": [
+     19,
+     18,
+     19
+    ],
+    "common_mask_fraction_masked": [
+     0.180218,
+     0.179633,
+     0.04188
+    ],
+    "reference_stars": [
+     {
+      "source_id": 4472811897344475776,
+      "g": 15.073379,
+      "median_snr": 36.04858
+     },
+     {
+      "source_id": 4472832165289152896,
+      "g": 13.585307,
+      "median_snr": 107.584365
+     },
+     {
+      "source_id": 4472832165289153024,
+      "g": 11.451174,
+      "median_snr": 258.793022
+     },
+     {
+      "source_id": 4472832375748531584,
+      "g": 13.945418,
+      "median_snr": 83.30824
+     },
+     {
+      "source_id": 4472832513187484544,
+      "g": 14.487946,
+      "median_snr": 44.043878
+     },
+     {
+      "source_id": 4472832788065380224,
+      "g": 14.175624,
+      "median_snr": 60.266691
+     },
+     {
+      "source_id": 4472834402972720000,
+      "g": 14.916165,
+      "median_snr": 47.19095
+     },
+     {
+      "source_id": 4472835708643306496,
+      "g": 14.957024,
+      "median_snr": 44.546014
+     },
+     {
+      "source_id": 4472835914801589888,
+      "g": 14.837437,
+      "median_snr": 34.885468
+     },
+     {
+      "source_id": 4472836047939582592,
+      "g": 13.596711,
+      "median_snr": 51.003413
+     },
+     {
+      "source_id": 4472836292758713216,
+      "g": 11.862574,
+      "median_snr": 240.897692
+     },
+     {
+      "source_id": 4472836361478195200,
+      "g": 14.901133,
+      "median_snr": 42.896132
+     },
+     {
+      "source_id": 4472837147453501952,
+      "g": 14.952384,
+      "median_snr": 42.881414
+     },
+     {
+      "source_id": 4472837495349546240,
+      "g": 13.467515,
+      "median_snr": 112.08165
+     },
+     {
+      "source_id": 4472837632788144640,
+      "g": 15.170515,
+      "median_snr": 37.581245
+     },
+     {
+      "source_id": 4472837770227461504,
+      "g": 12.653553,
+      "median_snr": 185.170885
+     },
+     {
+      "source_id": 4472837770227463680,
+      "g": 13.902466,
+      "median_snr": 84.116109
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     0.993624,
+     0.942026
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.017955,
+     0.049789
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W35_1A_0432_4",
+      "date_avg": "2025-08-27T05:07:00.174",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2025W40_1A_0353_1",
+      "date_avg": "2025-09-30T14:03:50.891",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W11_1A_0430_2",
+      "date_avg": "2026-03-11T02:12:34.771",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -812,9 +1014,77 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60911.495747,
+      "date": "2025-08-24T11:53:52",
+      "n_frames": 1,
+      "ra": 269.4462,
+      "dec": 4.767308,
+      "sigma_axis_arcsec": 0.2511,
+      "pred_ra": 269.446212,
+      "pred_dec": 4.767219,
+      "offset_from_pred_E": -0.043172,
+      "offset_from_pred_N": 0.318369,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W34_2B_0557_4"
+      ]
+     },
+     {
+      "mjd": 61114.10023,
+      "date": "2026-03-15T02:24:19",
+      "n_frames": 1,
+      "ra": 269.446741,
+      "dec": 4.768817,
+      "sigma_axis_arcsec": 0.240738,
+      "pred_ra": 269.446375,
+      "pred_dec": 4.768774,
+      "offset_from_pred_E": 1.314376,
+      "offset_from_pred_N": 0.155808,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W11_2A_0513_1"
+      ]
+     },
+     {
+      "mjd": 61121.228872,
+      "date": "2026-03-22T05:29:34",
+      "n_frames": 1,
+      "ra": 269.446583,
+      "dec": 4.768929,
+      "sigma_axis_arcsec": 0.256397,
+      "pred_ra": 269.446371,
+      "pred_dec": 4.768839,
+      "offset_from_pred_E": 0.760292,
+      "offset_from_pred_N": 0.324304,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W12_2A_0496_1"
+      ]
+     }
+    ],
+    "baseline_days": 209.733124,
+    "measured_displacement_E": 1.37411,
+    "measured_displacement_N": 5.836934,
+    "measured_displacement_arcsec": 5.996497,
+    "predicted_displacement_E": 0.570644,
+    "predicted_displacement_N": 5.830999,
+    "predicted_displacement_arcsec": 5.858856,
+    "displacement_sigma_axis_arcsec": 0.358875,
+    "residual_E": 0.803466,
+    "residual_N": 0.005935,
+    "residual_arcsec": 0.803488,
+    "significance_of_motion_sigma": 16.709175,
+    "residual_chi2_2dof": 5.012723,
+    "measured_pa_deg": 13.247158,
+    "predicted_pa_deg": 5.589384,
+    "implied_rate_arcsec_per_yr": 10.442893
+   },
    "photometry": {
     "aperture_radius_px": 2.5,
-    "n_reference_stars": 0,
+    "n_reference_stars": 11,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -822,22 +1092,126 @@
      19,
      19
     ],
-    "ok": false,
-    "reason": "only 0 usable reference stars",
-    "raw": [
+    "reference_rejections_per_frame": [
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 280,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 18,
+      "low_snr": 3
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 283,
+      "catalogue": 772,
+      "blended": 62,
+      "masked": 18,
+      "low_snr": 3
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 283,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 19,
+      "low_snr": 3
      }
-    ]
+    ],
+    "reference_candidates_per_frame": [
+     16,
+     14,
+     12
+    ],
+    "common_mask_fraction_masked": [
+     0.056761,
+     0.037183,
+     0.051647
+    ],
+    "reference_stars": [
+     {
+      "source_id": 4472831929071913856,
+      "g": 13.897241,
+      "median_snr": 129.238065
+     },
+     {
+      "source_id": 4472832165289153024,
+      "g": 11.451174,
+      "median_snr": 250.8472
+     },
+     {
+      "source_id": 4472832375748531584,
+      "g": 13.945418,
+      "median_snr": 107.79865
+     },
+     {
+      "source_id": 4472832788065380224,
+      "g": 14.175624,
+      "median_snr": 60.919099
+     },
+     {
+      "source_id": 4472835365045780736,
+      "g": 15.054095,
+      "median_snr": 36.786921
+     },
+     {
+      "source_id": 4472836047939582592,
+      "g": 13.596711,
+      "median_snr": 56.602661
+     },
+     {
+      "source_id": 4472836327118455552,
+      "g": 13.4505,
+      "median_snr": 149.157838
+     },
+     {
+      "source_id": 4472837083032703744,
+      "g": 15.472873,
+      "median_snr": 32.101253
+     },
+     {
+      "source_id": 4472837147453501952,
+      "g": 14.952384,
+      "median_snr": 61.324977
+     },
+     {
+      "source_id": 4472837770227461504,
+      "g": 12.653553,
+      "median_snr": 276.378777
+     },
+     {
+      "source_id": 4472837770227463680,
+      "g": 13.902466,
+      "median_snr": 106.912686
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     0.968032,
+     0.984546
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.024382,
+     0.068302
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W34_2B_0557_4",
+      "date_avg": "2025-08-24T11:53:52.568",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W11_2A_0513_1",
+      "date_avg": "2026-03-15T02:24:19.845",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W12_2A_0496_1",
+      "date_avg": "2026-03-22T05:29:34.503",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -853,9 +1227,93 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60905.856907,
+      "date": "2025-08-18T20:33:56",
+      "n_frames": 1,
+      "ra": 269.445813,
+      "dec": 4.76693,
+      "sigma_axis_arcsec": 0.278007,
+      "pred_ra": 269.446223,
+      "pred_dec": 4.767181,
+      "offset_from_pred_E": -1.473117,
+      "offset_from_pred_N": -0.90096,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W34_1B_0164_3"
+      ]
+     },
+     {
+      "mjd": 61118.309897,
+      "date": "2026-03-19T07:26:15",
+      "n_frames": 1,
+      "ra": 269.446785,
+      "dec": 4.768999,
+      "sigma_axis_arcsec": 0.274025,
+      "pred_ra": 269.446373,
+      "pred_dec": 4.768812,
+      "offset_from_pred_E": 1.476694,
+      "offset_from_pred_N": 0.671627,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W12_1A_0598_1"
+      ]
+     },
+     {
+      "mjd": 61124.894932,
+      "date": "2026-03-25T21:28:42",
+      "n_frames": 1,
+      "ra": 269.446501,
+      "dec": 4.769055,
+      "sigma_axis_arcsec": 0.255627,
+      "pred_ra": 269.446369,
+      "pred_dec": 4.768872,
+      "offset_from_pred_E": 0.473034,
+      "offset_from_pred_N": 0.656446,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W13_1A_0549_1"
+      ]
+     },
+     {
+      "mjd": 61140.030727,
+      "date": "2026-04-10T00:44:14",
+      "n_frames": 1,
+      "ra": 269.446353,
+      "dec": 4.768905,
+      "sigma_axis_arcsec": 0.27379,
+      "pred_ra": 269.446351,
+      "pred_dec": 4.76901,
+      "offset_from_pred_E": 0.006956,
+      "offset_from_pred_N": -0.375603,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W15_2A_0137_1"
+      ]
+     }
+    ],
+    "baseline_days": 234.17382,
+    "measured_displacement_E": 1.939641,
+    "measured_displacement_N": 7.11051,
+    "measured_displacement_arcsec": 7.370316,
+    "predicted_displacement_E": 0.459566,
+    "predicted_displacement_N": 6.585154,
+    "predicted_displacement_arcsec": 6.60117,
+    "displacement_sigma_axis_arcsec": 0.390191,
+    "residual_E": 1.480074,
+    "residual_N": 0.525357,
+    "residual_arcsec": 1.570548,
+    "significance_of_motion_sigma": 18.888993,
+    "residual_chi2_2dof": 16.201217,
+    "measured_pa_deg": 15.258199,
+    "predicted_pa_deg": 3.992099,
+    "implied_rate_arcsec_per_yr": 11.495769
+   },
    "photometry": {
     "aperture_radius_px": 2.5,
-    "n_reference_stars": 0,
+    "n_reference_stars": 6,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -864,26 +1322,118 @@
      20,
      19
     ],
-    "ok": false,
-    "reason": "only 0 usable reference stars",
-    "raw": [
+    "reference_rejections_per_frame": [
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 277,
+      "catalogue": 772,
+      "blended": 65,
+      "masked": 23,
+      "low_snr": 4
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 282,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 24,
+      "low_snr": 3
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 282,
+      "catalogue": 772,
+      "blended": 64,
+      "masked": 26,
+      "low_snr": 2
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 282,
+      "catalogue": 772,
+      "blended": 64,
+      "masked": 23,
+      "low_snr": 2
      }
-    ]
+    ],
+    "reference_candidates_per_frame": [
+     11,
+     8,
+     6,
+     9
+    ],
+    "common_mask_fraction_masked": [
+     0.1434,
+     0.090218,
+     0.140332,
+     0.140478
+    ],
+    "reference_stars": [
+     {
+      "source_id": 4472832165289152896,
+      "g": 13.585307,
+      "median_snr": 192.162203
+     },
+     {
+      "source_id": 4472834402972720000,
+      "g": 14.916165,
+      "median_snr": 69.211713
+     },
+     {
+      "source_id": 4472836047939582592,
+      "g": 13.596711,
+      "median_snr": 72.105357
+     },
+     {
+      "source_id": 4472836189681423488,
+      "g": 13.705465,
+      "median_snr": 140.857953
+     },
+     {
+      "source_id": 4472836327118455552,
+      "g": 13.4505,
+      "median_snr": 172.983034
+     },
+     {
+      "source_id": 4472837770227463680,
+      "g": 13.902466,
+      "median_snr": 115.39947
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     1.005804,
+     1.033251,
+     0.976532
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.044528,
+     0.029559,
+     0.056216
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W34_1B_0164_3",
+      "date_avg": "2025-08-18T20:33:56.791",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W12_1A_0598_1",
+      "date_avg": "2026-03-19T07:26:15.140",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W13_1A_0549_1",
+      "date_avg": "2026-03-25T21:28:42.149",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W15_2A_0137_1",
+      "date_avg": "2026-04-10T00:44:14.817",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -899,6 +1449,58 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60912.039568,
+      "date": "2025-08-25T00:56:58",
+      "n_frames": 1,
+      "ra": 269.446227,
+      "dec": 4.76724,
+      "sigma_axis_arcsec": 0.220298,
+      "pred_ra": 269.446211,
+      "pred_dec": 4.767223,
+      "offset_from_pred_E": 0.057558,
+      "offset_from_pred_N": 0.063321,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W35_1A_0008_4"
+      ]
+     },
+     {
+      "mjd": 61164.607786,
+      "date": "2026-05-04T14:35:12",
+      "n_frames": 1,
+      "ra": 269.44642,
+      "dec": 4.769243,
+      "sigma_axis_arcsec": 0.225951,
+      "pred_ra": 269.446303,
+      "pred_dec": 4.769229,
+      "offset_from_pred_E": 0.419465,
+      "offset_from_pred_N": 0.048271,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W19_1A_0216_1"
+      ]
+     }
+    ],
+    "baseline_days": 252.568219,
+    "measured_displacement_E": 0.690799,
+    "measured_displacement_N": 7.207797,
+    "measured_displacement_arcsec": 7.240824,
+    "predicted_displacement_E": 0.328891,
+    "predicted_displacement_N": 7.222846,
+    "predicted_displacement_arcsec": 7.23033,
+    "displacement_sigma_axis_arcsec": 0.315571,
+    "residual_E": 0.361909,
+    "residual_N": -0.01505,
+    "residual_arcsec": 0.362221,
+    "significance_of_motion_sigma": 22.945165,
+    "residual_chi2_2dof": 1.317512,
+    "measured_pa_deg": 5.474537,
+    "predicted_pa_deg": 2.607148,
+    "implied_rate_arcsec_per_yr": 10.471274
+   },
    "photometry": {
     "aperture_radius_px": 2.5,
     "n_reference_stars": 0,
@@ -908,6 +1510,36 @@
      19,
      20,
      19
+    ],
+    "reference_rejections_per_frame": [
+     {
+      "position": 277,
+      "catalogue": 772,
+      "blended": 65,
+      "masked": 38
+     },
+     {
+      "position": 283,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 33
+     },
+     {
+      "position": 283,
+      "catalogue": 772,
+      "blended": 63,
+      "masked": 34
+     }
+    ],
+    "reference_candidates_per_frame": [
+     0,
+     1,
+     0
+    ],
+    "common_mask_fraction_masked": [
+     0.427131,
+     0.068449,
+     0.426401
     ],
     "ok": false,
     "reason": "only 0 usable reference stars",
@@ -940,9 +1572,77 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60914.213196,
+      "date": "2025-08-27T05:07:00",
+      "n_frames": 1,
+      "ra": 269.446266,
+      "dec": 4.767145,
+      "sigma_axis_arcsec": 0.117483,
+      "pred_ra": 269.446208,
+      "pred_dec": 4.767238,
+      "offset_from_pred_E": 0.20983,
+      "offset_from_pred_N": -0.334041,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W35_1A_0432_4"
+      ]
+     },
+     {
+      "mjd": 60948.586006,
+      "date": "2025-09-30T14:03:50",
+      "n_frames": 1,
+      "ra": 269.445897,
+      "dec": 4.767833,
+      "sigma_axis_arcsec": 0.206614,
+      "pred_ra": 269.446174,
+      "pred_dec": 4.767467,
+      "offset_from_pred_E": -0.993402,
+      "offset_from_pred_N": 1.317741,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W40_1A_0353_1"
+      ]
+     },
+     {
+      "mjd": 61110.092069,
+      "date": "2026-03-11T02:12:34",
+      "n_frames": 1,
+      "ra": 269.446388,
+      "dec": 4.768834,
+      "sigma_axis_arcsec": 0.181883,
+      "pred_ra": 269.446376,
+      "pred_dec": 4.768737,
+      "offset_from_pred_E": 0.044877,
+      "offset_from_pred_N": 0.34958,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W11_1A_0430_2"
+      ]
+     }
+    ],
+    "baseline_days": 195.878873,
+    "measured_displacement_E": 0.438686,
+    "measured_displacement_N": 6.082772,
+    "measured_displacement_arcsec": 6.09857,
+    "predicted_displacement_E": 0.603639,
+    "predicted_displacement_N": 5.399151,
+    "predicted_displacement_arcsec": 5.43279,
+    "displacement_sigma_axis_arcsec": 0.216526,
+    "residual_E": -0.164953,
+    "residual_N": 0.68362,
+    "residual_arcsec": 0.70324,
+    "significance_of_motion_sigma": 28.165499,
+    "residual_chi2_2dof": 10.548386,
+    "measured_pa_deg": 4.125001,
+    "predicted_pa_deg": 6.379328,
+    "implied_rate_arcsec_per_yr": 11.371837
+   },
    "photometry": {
     "aperture_radius_px": 3.0,
-    "n_reference_stars": 0,
+    "n_reference_stars": 15,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -950,22 +1650,146 @@
      27,
      29
     ],
-    "ok": false,
-    "reason": "only 0 usable reference stars",
-    "raw": [
+    "reference_rejections_per_frame": [
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 282,
+      "catalogue": 772,
+      "blended": 69,
+      "masked": 7,
+      "low_snr": 5
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 280,
+      "catalogue": 772,
+      "blended": 70,
+      "masked": 5,
+      "low_snr": 9
      },
      {
-      "flux": 0.0,
-      "err": 0.0
+      "position": 283,
+      "catalogue": 772,
+      "blended": 70,
+      "low_snr": 7,
+      "masked": 5
      }
-    ]
+    ],
+    "reference_candidates_per_frame": [
+     17,
+     16,
+     15
+    ],
+    "common_mask_fraction_masked": [
+     0.084082,
+     0.084009,
+     0.044121
+    ],
+    "reference_stars": [
+     {
+      "source_id": 4472831551114789632,
+      "g": 12.914222,
+      "median_snr": 81.830012
+     },
+     {
+      "source_id": 4472831929071913856,
+      "g": 13.897241,
+      "median_snr": 80.420841
+     },
+     {
+      "source_id": 4472832165289152896,
+      "g": 13.585307,
+      "median_snr": 95.833399
+     },
+     {
+      "source_id": 4472832165289153024,
+      "g": 11.451174,
+      "median_snr": 109.156045
+     },
+     {
+      "source_id": 4472832375748531584,
+      "g": 13.945418,
+      "median_snr": 58.447241
+     },
+     {
+      "source_id": 4472832508888391168,
+      "g": 13.028434,
+      "median_snr": 117.525661
+     },
+     {
+      "source_id": 4472832788065380224,
+      "g": 14.175624,
+      "median_snr": 31.092222
+     },
+     {
+      "source_id": 4472834402972720000,
+      "g": 14.916165,
+      "median_snr": 41.177935
+     },
+     {
+      "source_id": 4472835708643306496,
+      "g": 14.957024,
+      "median_snr": 33.981847
+     },
+     {
+      "source_id": 4472836047939582592,
+      "g": 13.596711,
+      "median_snr": 36.275992
+     },
+     {
+      "source_id": 4472836292758713216,
+      "g": 11.862574,
+      "median_snr": 204.072746
+     },
+     {
+      "source_id": 4472836327118455552,
+      "g": 13.4505,
+      "median_snr": 119.411126
+     },
+     {
+      "source_id": 4472837495349546240,
+      "g": 13.467515,
+      "median_snr": 105.296746
+     },
+     {
+      "source_id": 4472837770227461504,
+      "g": 12.653553,
+      "median_snr": 231.01664
+     },
+     {
+      "source_id": 4472837942025804800,
+      "g": 11.821142,
+      "median_snr": 180.793661
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     1.007754,
+     0.984057
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.029055,
+     0.051065
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W35_1A_0432_4",
+      "date_avg": "2025-08-27T05:07:00.175",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2025W40_1A_0353_1",
+      "date_avg": "2025-09-30T14:03:50.892",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W11_1A_0430_2",
+      "date_avg": "2026-03-11T02:12:34.771",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -981,9 +1805,77 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60911.495747,
+      "date": "2025-08-24T11:53:52",
+      "n_frames": 1,
+      "ra": 269.446266,
+      "dec": 4.76726,
+      "sigma_axis_arcsec": 0.15489,
+      "pred_ra": 269.446212,
+      "pred_dec": 4.767219,
+      "offset_from_pred_E": 0.191851,
+      "offset_from_pred_N": 0.148437,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W34_2B_0557_4"
+      ]
+     },
+     {
+      "mjd": 61114.10023,
+      "date": "2026-03-15T02:24:19",
+      "n_frames": 1,
+      "ra": 269.446534,
+      "dec": 4.768782,
+      "sigma_axis_arcsec": 0.222489,
+      "pred_ra": 269.446375,
+      "pred_dec": 4.768774,
+      "offset_from_pred_E": 0.571011,
+      "offset_from_pred_N": 0.030144,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W11_2A_0513_1"
+      ]
+     },
+     {
+      "mjd": 61121.228872,
+      "date": "2026-03-22T05:29:34",
+      "n_frames": 1,
+      "ra": 269.4465,
+      "dec": 4.768984,
+      "sigma_axis_arcsec": 0.171152,
+      "pred_ra": 269.446371,
+      "pred_dec": 4.768839,
+      "offset_from_pred_E": 0.460435,
+      "offset_from_pred_N": 0.52356,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W12_2A_0496_1"
+      ]
+     }
+    ],
+    "baseline_days": 209.733124,
+    "measured_displacement_E": 0.839229,
+    "measured_displacement_N": 6.206123,
+    "measured_displacement_arcsec": 6.262609,
+    "predicted_displacement_E": 0.570644,
+    "predicted_displacement_N": 5.830999,
+    "predicted_displacement_arcsec": 5.858856,
+    "displacement_sigma_axis_arcsec": 0.230834,
+    "residual_E": 0.268586,
+    "residual_N": 0.375123,
+    "residual_arcsec": 0.461363,
+    "significance_of_motion_sigma": 27.130415,
+    "residual_chi2_2dof": 3.994733,
+    "measured_pa_deg": 7.701166,
+    "predicted_pa_deg": 5.589384,
+    "implied_rate_arcsec_per_yr": 10.906326
+   },
    "photometry": {
     "aperture_radius_px": 3.0,
-    "n_reference_stars": 0,
+    "n_reference_stars": 7,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -991,22 +1883,106 @@
      28,
      26
     ],
-    "ok": false,
-    "reason": "only 0 usable reference stars",
-    "raw": [
+    "reference_rejections_per_frame": [
      {
-      "flux": 42.838666,
-      "err": 0.391074
+      "position": 279,
+      "catalogue": 772,
+      "blended": 73,
+      "low_snr": 11,
+      "masked": 9
      },
      {
-      "flux": 27.414121,
-      "err": 0.309708
+      "position": 280,
+      "catalogue": 772,
+      "blended": 70,
+      "low_snr": 13,
+      "masked": 9
      },
      {
-      "flux": 145.909376,
-      "err": 0.725027
+      "position": 282,
+      "catalogue": 772,
+      "blended": 70,
+      "low_snr": 12,
+      "masked": 9
      }
-    ]
+    ],
+    "reference_candidates_per_frame": [
+     8,
+     8,
+     7
+    ],
+    "common_mask_fraction_masked": [
+     0.040397,
+     0.040836,
+     0.041639
+    ],
+    "reference_stars": [
+     {
+      "source_id": 4472831551114789632,
+      "g": 12.914222,
+      "median_snr": 37.040148
+     },
+     {
+      "source_id": 4472832165289152896,
+      "g": 13.585307,
+      "median_snr": 48.811504
+     },
+     {
+      "source_id": 4472832165289153024,
+      "g": 11.451174,
+      "median_snr": 49.443203
+     },
+     {
+      "source_id": 4472836189681423488,
+      "g": 13.705465,
+      "median_snr": 34.703296
+     },
+     {
+      "source_id": 4472836292758713216,
+      "g": 11.862574,
+      "median_snr": 96.893582
+     },
+     {
+      "source_id": 4472837495349546240,
+      "g": 13.467515,
+      "median_snr": 41.756546
+     },
+     {
+      "source_id": 4472837770227461504,
+      "g": 12.653553,
+      "median_snr": 95.300686
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     1.006036,
+     1.006514
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.005715,
+     0.028063
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W34_2B_0557_4",
+      "date_avg": "2025-08-24T11:53:52.568",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W11_2A_0513_1",
+      "date_avg": "2026-03-15T02:24:19.845",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2026W12_2A_0496_1",
+      "date_avg": "2026-03-22T05:29:34.503",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -1022,9 +1998,77 @@
    "motion": {
     "visits": []
    },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60912.039568,
+      "date": "2025-08-25T00:56:58",
+      "n_frames": 1,
+      "ra": 269.44623,
+      "dec": 4.767249,
+      "sigma_axis_arcsec": 0.152262,
+      "pred_ra": 269.446211,
+      "pred_dec": 4.767223,
+      "offset_from_pred_E": 0.067873,
+      "offset_from_pred_N": 0.093344,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W35_1A_0008_4"
+      ]
+     },
+     {
+      "mjd": 61121.364791,
+      "date": "2026-03-22T08:45:17",
+      "n_frames": 1,
+      "ra": 269.446475,
+      "dec": 4.768928,
+      "sigma_axis_arcsec": 0.147937,
+      "pred_ra": 269.446371,
+      "pred_dec": 4.76884,
+      "offset_from_pred_E": 0.371715,
+      "offset_from_pred_N": 0.316484,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W12_2A_0520_1"
+      ]
+     },
+     {
+      "mjd": 61164.607786,
+      "date": "2026-05-04T14:35:12",
+      "n_frames": 1,
+      "ra": 269.446369,
+      "dec": 4.769331,
+      "sigma_axis_arcsec": 0.200359,
+      "pred_ra": 269.446303,
+      "pred_dec": 4.769229,
+      "offset_from_pred_E": 0.234569,
+      "offset_from_pred_N": 0.366073,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W19_1A_0216_1"
+      ]
+     }
+    ],
+    "baseline_days": 252.568219,
+    "measured_displacement_E": 0.495587,
+    "measured_displacement_N": 7.495576,
+    "measured_displacement_arcsec": 7.511941,
+    "predicted_displacement_E": 0.328891,
+    "predicted_displacement_N": 7.222846,
+    "predicted_displacement_arcsec": 7.23033,
+    "displacement_sigma_axis_arcsec": 0.251649,
+    "residual_E": 0.166696,
+    "residual_N": 0.272729,
+    "residual_arcsec": 0.319639,
+    "significance_of_motion_sigma": 29.850867,
+    "residual_chi2_2dof": 1.61335,
+    "measured_pa_deg": 3.782733,
+    "predicted_pa_deg": 2.607148,
+    "implied_rate_arcsec_per_yr": 10.863348
+   },
    "photometry": {
     "aperture_radius_px": 3.0,
-    "n_reference_stars": 0,
+    "n_reference_stars": 1,
     "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
     "target_aperture_complete_all_epochs": false,
     "target_missing_px": [
@@ -1032,8 +2076,41 @@
      20,
      17
     ],
+    "reference_rejections_per_frame": [
+     {
+      "position": 277,
+      "catalogue": 772,
+      "blended": 73,
+      "low_snr": 13,
+      "masked": 16
+     },
+     {
+      "position": 282,
+      "catalogue": 772,
+      "blended": 71,
+      "low_snr": 12,
+      "masked": 14
+     },
+     {
+      "position": 283,
+      "catalogue": 772,
+      "blended": 70,
+      "low_snr": 13,
+      "masked": 13
+     }
+    ],
+    "reference_candidates_per_frame": [
+     1,
+     1,
+     1
+    ],
+    "common_mask_fraction_masked": [
+     0.055519,
+     0.06056,
+     0.064139
+    ],
     "ok": false,
-    "reason": "only 0 usable reference stars",
+    "reason": "only 1 usable reference stars",
     "raw": [
      {
       "flux": 190.737252,
@@ -1081,6 +2158,21 @@
     "offset_from_pred_px": 0.087336
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446159,
+    "dec_raw": 4.767352,
+    "ra": 269.446158,
+    "dec": 4.767332,
+    "sigma_axis_arcsec": 0.279837,
+    "formal_axis_arcsec": 0.265581,
+    "floor_arcsec": 0.084815,
+    "zp_err_arcsec": 0.024129,
+    "offset_from_pred_E": -0.179678,
+    "offset_from_pred_N": 0.341884,
+    "offset_from_pred_arcsec": 0.386224,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1142,6 +2234,21 @@
     "offset_from_pred_px": 0.059751
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446092,
+    "dec_raw": 4.767465,
+    "ra": 269.446097,
+    "dec": 4.767478,
+    "sigma_axis_arcsec": 0.272042,
+    "formal_axis_arcsec": 0.256074,
+    "floor_arcsec": 0.088924,
+    "zp_err_arcsec": 0.022926,
+    "offset_from_pred_E": -0.276752,
+    "offset_from_pred_N": 0.037291,
+    "offset_from_pred_arcsec": 0.279253,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1203,6 +2310,21 @@
     "offset_from_pred_px": 0.128646
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446682,
+    "dec_raw": 4.76883,
+    "ra": 269.446709,
+    "dec": 4.768797,
+    "sigma_axis_arcsec": 0.252271,
+    "formal_axis_arcsec": 0.240525,
+    "floor_arcsec": 0.070814,
+    "zp_err_arcsec": 0.027818,
+    "offset_from_pred_E": 1.195846,
+    "offset_from_pred_N": 0.215169,
+    "offset_from_pred_arcsec": 1.21505,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1264,6 +2386,21 @@
     "offset_from_pred_px": 0.010907
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446179,
+    "dec_raw": 4.767274,
+    "ra": 269.4462,
+    "dec": 4.767308,
+    "sigma_axis_arcsec": 0.2511,
+    "formal_axis_arcsec": 0.213314,
+    "floor_arcsec": 0.127806,
+    "zp_err_arcsec": 0.034847,
+    "offset_from_pred_E": -0.043172,
+    "offset_from_pred_N": 0.318369,
+    "offset_from_pred_arcsec": 0.321283,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1325,6 +2462,21 @@
     "offset_from_pred_px": 0.187838
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446786,
+    "dec_raw": 4.768848,
+    "ra": 269.446741,
+    "dec": 4.768817,
+    "sigma_axis_arcsec": 0.240738,
+    "formal_axis_arcsec": 0.228982,
+    "floor_arcsec": 0.064097,
+    "zp_err_arcsec": 0.037597,
+    "offset_from_pred_E": 1.314376,
+    "offset_from_pred_N": 0.155808,
+    "offset_from_pred_arcsec": 1.323579,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1386,6 +2538,21 @@
     "offset_from_pred_px": 0.11204
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446606,
+    "dec_raw": 4.768937,
+    "ra": 269.446583,
+    "dec": 4.768929,
+    "sigma_axis_arcsec": 0.256397,
+    "formal_axis_arcsec": 0.240633,
+    "floor_arcsec": 0.083466,
+    "zp_err_arcsec": 0.029477,
+    "offset_from_pred_E": 0.760292,
+    "offset_from_pred_N": 0.324304,
+    "offset_from_pred_arcsec": 0.82657,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1447,6 +2614,21 @@
     "offset_from_pred_px": 0.326845
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.445789,
+    "dec_raw": 4.766988,
+    "ra": 269.445813,
+    "dec": 4.76693,
+    "sigma_axis_arcsec": 0.278007,
+    "formal_axis_arcsec": 0.267,
+    "floor_arcsec": 0.072085,
+    "zp_err_arcsec": 0.028334,
+    "offset_from_pred_E": -1.473117,
+    "offset_from_pred_N": -0.90096,
+    "offset_from_pred_arcsec": 1.72679,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 34.590364,
@@ -1509,6 +2691,21 @@
     "offset_from_pred_px": 0.245509
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446817,
+    "dec_raw": 4.768926,
+    "ra": 269.446785,
+    "dec": 4.768999,
+    "sigma_axis_arcsec": 0.274025,
+    "formal_axis_arcsec": 0.208984,
+    "floor_arcsec": 0.171017,
+    "zp_err_arcsec": 0.046566,
+    "offset_from_pred_E": 1.476694,
+    "offset_from_pred_N": 0.671627,
+    "offset_from_pred_arcsec": 1.622254,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1570,6 +2767,21 @@
     "offset_from_pred_px": 0.160269
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446533,
+    "dec_raw": 4.76901,
+    "ra": 269.446501,
+    "dec": 4.769055,
+    "sigma_axis_arcsec": 0.255627,
+    "formal_axis_arcsec": 0.183731,
+    "floor_arcsec": 0.174617,
+    "zp_err_arcsec": 0.033122,
+    "offset_from_pred_E": 0.473034,
+    "offset_from_pred_N": 0.656446,
+    "offset_from_pred_arcsec": 0.809124,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1631,6 +2843,21 @@
     "offset_from_pred_px": 0.125519
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446416,
+    "dec_raw": 4.768825,
+    "ra": 269.446353,
+    "dec": 4.768905,
+    "sigma_axis_arcsec": 0.27379,
+    "formal_axis_arcsec": 0.219392,
+    "floor_arcsec": 0.159443,
+    "zp_err_arcsec": 0.037497,
+    "offset_from_pred_E": 0.006956,
+    "offset_from_pred_N": -0.375603,
+    "offset_from_pred_arcsec": 0.375667,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1692,6 +2919,21 @@
     "offset_from_pred_px": 0.022647
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446229,
+    "dec_raw": 4.767292,
+    "ra": 269.446227,
+    "dec": 4.76724,
+    "sigma_axis_arcsec": 0.220298,
+    "formal_axis_arcsec": 0.18277,
+    "floor_arcsec": 0.119314,
+    "zp_err_arcsec": 0.029845,
+    "offset_from_pred_E": 0.057558,
+    "offset_from_pred_N": 0.063321,
+    "offset_from_pred_arcsec": 0.085571,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1740,6 +2982,8 @@
    },
    "fit": null,
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": null,
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1796,6 +3040,21 @@
     "offset_from_pred_px": 0.058593
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.44644,
+    "dec_raw": 4.769188,
+    "ra": 269.44642,
+    "dec": 4.769243,
+    "sigma_axis_arcsec": 0.225951,
+    "formal_axis_arcsec": 0.167457,
+    "floor_arcsec": 0.148131,
+    "zp_err_arcsec": 0.032696,
+    "offset_from_pred_E": 0.419465,
+    "offset_from_pred_N": 0.048271,
+    "offset_from_pred_arcsec": 0.422234,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 2.5,
     "flux_sum_mjysr_px": 0.0,
@@ -1844,6 +3103,21 @@
    },
    "fit": null,
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446249,
+    "dec_raw": 4.76716,
+    "ra": 269.446266,
+    "dec": 4.767145,
+    "sigma_axis_arcsec": 0.117483,
+    "formal_axis_arcsec": 0.104942,
+    "floor_arcsec": 0.041229,
+    "zp_err_arcsec": 0.033011,
+    "offset_from_pred_E": 0.20983,
+    "offset_from_pred_N": -0.334041,
+    "offset_from_pred_arcsec": 0.394477,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 0.0,
@@ -1905,6 +3179,21 @@
     "offset_from_pred_px": 0.341061
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.44587,
+    "dec_raw": 4.767846,
+    "ra": 269.445897,
+    "dec": 4.767833,
+    "sigma_axis_arcsec": 0.206614,
+    "formal_axis_arcsec": 0.12962,
+    "floor_arcsec": 0.156016,
+    "zp_err_arcsec": 0.039331,
+    "offset_from_pred_E": -0.993402,
+    "offset_from_pred_N": 1.317741,
+    "offset_from_pred_arcsec": 1.650239,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 0.0,
@@ -1967,6 +3256,21 @@
     "offset_from_pred_px": 0.127889
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446389,
+    "dec_raw": 4.768976,
+    "ra": 269.446388,
+    "dec": 4.768834,
+    "sigma_axis_arcsec": 0.181883,
+    "formal_axis_arcsec": 0.063145,
+    "floor_arcsec": 0.162277,
+    "zp_err_arcsec": 0.052536,
+    "offset_from_pred_E": 0.044877,
+    "offset_from_pred_N": 0.34958,
+    "offset_from_pred_arcsec": 0.352448,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 0.0,
@@ -2028,6 +3332,21 @@
     "offset_from_pred_px": 0.008606
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446244,
+    "dec_raw": 4.767229,
+    "ra": 269.446266,
+    "dec": 4.76726,
+    "sigma_axis_arcsec": 0.15489,
+    "formal_axis_arcsec": 0.134909,
+    "floor_arcsec": 0.072993,
+    "zp_err_arcsec": 0.021506,
+    "offset_from_pred_E": 0.191851,
+    "offset_from_pred_N": 0.148437,
+    "offset_from_pred_arcsec": 0.24257,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 240.88963,
@@ -2089,6 +3408,21 @@
     "offset_from_pred_px": 0.111116
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446553,
+    "dec_raw": 4.768799,
+    "ra": 269.446534,
+    "dec": 4.768782,
+    "sigma_axis_arcsec": 0.222489,
+    "formal_axis_arcsec": 0.152101,
+    "floor_arcsec": 0.156086,
+    "zp_err_arcsec": 0.044761,
+    "offset_from_pred_E": 0.571011,
+    "offset_from_pred_N": 0.030144,
+    "offset_from_pred_arcsec": 0.571806,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 75.454882,
@@ -2150,6 +3484,21 @@
     "offset_from_pred_px": 0.11401
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446507,
+    "dec_raw": 4.768991,
+    "ra": 269.4465,
+    "dec": 4.768984,
+    "sigma_axis_arcsec": 0.171152,
+    "formal_axis_arcsec": 0.120033,
+    "floor_arcsec": 0.117704,
+    "zp_err_arcsec": 0.032106,
+    "offset_from_pred_E": 0.460435,
+    "offset_from_pred_N": 0.52356,
+    "offset_from_pred_arcsec": 0.69722,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 178.94713,
@@ -2211,6 +3560,21 @@
     "offset_from_pred_px": 0.019252
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446249,
+    "dec_raw": 4.767243,
+    "ra": 269.44623,
+    "dec": 4.767249,
+    "sigma_axis_arcsec": 0.152262,
+    "formal_axis_arcsec": 0.114063,
+    "floor_arcsec": 0.091197,
+    "zp_err_arcsec": 0.043086,
+    "offset_from_pred_E": 0.067873,
+    "offset_from_pred_N": 0.093344,
+    "offset_from_pred_arcsec": 0.115412,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 604.848373,
@@ -2272,6 +3636,21 @@
     "offset_from_pred_px": 0.082686
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446476,
+    "dec_raw": 4.768967,
+    "ra": 269.446475,
+    "dec": 4.768928,
+    "sigma_axis_arcsec": 0.147937,
+    "formal_axis_arcsec": 0.130138,
+    "floor_arcsec": 0.064348,
+    "zp_err_arcsec": 0.028438,
+    "offset_from_pred_E": 0.371715,
+    "offset_from_pred_N": 0.316484,
+    "offset_from_pred_arcsec": 0.488195,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 301.209799,
@@ -2334,6 +3713,21 @@
     "offset_from_pred_px": 0.085096
    },
    "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 269.446353,
+    "dec_raw": 4.769347,
+    "ra": 269.446369,
+    "dec": 4.769331,
+    "sigma_axis_arcsec": 0.200359,
+    "formal_axis_arcsec": 0.138613,
+    "floor_arcsec": 0.135377,
+    "zp_err_arcsec": 0.051022,
+    "offset_from_pred_E": 0.234569,
+    "offset_from_pred_N": 0.366073,
+    "offset_from_pred_arcsec": 0.434778,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
    "flux": {
     "aperture_radius_px": 3.0,
     "flux_sum_mjysr_px": 355.672273,
@@ -2630,5 +4024,5 @@
   "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both."
  ],
  "method": "Positions/fluxes measured on each frame's native pixel grid with its own WCS (no resampling). Wavelength at the target from each cutout's own WCS-WAVE. Frames compared only within a same-detector set whose wavelengths at the target agree within half a channel bandwidth. Astrometry: weighted Gaussian PSF fit; WCS zero point and empirical precision from isolated Gaia DR3 stars propagated (proper motion + parallax) to each DATE-AVG. Photometry: aperture minus annulus, common valid-pixel mask across epochs, differential against non-variable Gaia reference stars; empirical errors from blank-sky control apertures and reference-star scatter.",
- "generated": "2026-11-15T03:43:01+00:00"
+ "generated": "2026-11-15T03:45:35+00:00"
 }

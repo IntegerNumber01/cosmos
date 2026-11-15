@@ -112,7 +112,7 @@ export default function TimeTravelClient() {
   const [showGaia, setShowGaia] = useState(true);
   const loadToken = useRef(0);
 
-  const obs = obsState.obs ?? [];
+  const obs = useMemo(() => obsState.obs ?? [], [obsState.obs]);
   const sets = useMemo(() => matchedSets(obs), [obs]);
   const nInside = obs.filter((o) => o.inside).length;
   const nDays = new Set(obs.filter((o) => o.inside).map((o) => Math.floor(o.mjd))).size;

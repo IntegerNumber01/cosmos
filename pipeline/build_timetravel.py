@@ -113,21 +113,55 @@ for det_seq in ("2025W44_1A_0045_D1", "2025W44_1A_0045_D4"):
             rgba = MAGMA(stretch(np.nan_to_num(arr, nan=lo), lo, hi))
             rgba[~np.isfinite(arr)] = [0.02, 0.02, 0.05, 1]
             to_png(rgba, d / f"{name}.png")
-        D = a1 - a0
-        Z = D / np.sqrt(v0 + v1)
-        zc = 10.0
-        zr = DIV(np.clip(0.5 + np.nan_to_num(Z) / (2 * zc), 0, 1))
-        zr[~np.isfinite(Z)] = [0.5, 0.5, 0.5, 1]
-        to_png(zr, d / "z.png")
-        # comet aperture: measured Oct position, flux in both dates
+        # ---- change map on a COMMON valid-pixel mask, empirically calibrated ----
+        common = np.isfinite(a0) & np.isfinite(a1) & np.isfinite(v0) & np.isfinite(v1)
+        D = np.where(common, a1 - a0, np.nan)
+        Znom = D / np.sqrt(v0 + v1)  # nominal: ignores resampling covariance
         mx, my = fr["measured"]["x"], fr["measured"]["y"]
         yy, xx = np.indices((n, n))
-        ap = (xx - mx) ** 2 + (yy - my) ** 2 <= 9
-        f0, f1 = float(np.nansum(a0[ap])), float(np.nansum(a1[ap]))
-        zap = float(np.nansum(D[ap]) / np.sqrt(np.nansum(v0[ap]) + np.nansum(v1[ap])))
-        # field: fraction of pixels with |Z|>5 outside the comet region (residual stars/artefacts)
-        far = (xx - mx) ** 2 + (yy - my) ** 2 > 30 ** 2
-        frac5 = float(np.mean(np.abs(Z[far & np.isfinite(Z)]) > 5))
+        far = ((xx - mx) ** 2 + (yy - my) ** 2 > 30 ** 2) & common
+        zf = Znom[far]
+        med = np.nanmedian(zf)
+        scale = float(1.4826 * np.nanmedian(np.abs(zf - med)))  # robust scatter of the nominal Z in the field
+        Z = (Znom - med) / scale  # calibrated so the comet-free field has unit robust scatter
+        zc = 8.0
+        zr = DIV(np.clip(0.5 + np.nan_to_num(Z) / (2 * zc), 0, 1))
+        zr[~common] = [0.5, 0.5, 0.5, 1]
+        to_png(zr, d / "z.png")
+        frac5 = float(np.mean(np.abs(Z[far]) > 5))
+        # ---- comet photometry on NATIVE pixels with empirical (control-aperture) errors ----
+        def native_ap(im, ra, dec, r=3.0):
+            x, y = (float(v) for v in im.wcs.world_to_pixel_values(ra, dec))
+            hard = 0
+            for nm, (m, _) in im.flag_defs.items():
+                if nm in REJECT_FLAG_NAMES and nm != "OUTLIER":
+                    hard |= m
+            ok = ((im.flags & hard) == 0) & np.isfinite(im.image)
+            jj, ii = np.indices(im.image.shape)
+            def ap(cx, cy):
+                inn = (ii - cx) ** 2 + (jj - cy) ** 2 <= r * r
+                ann = ((ii - cx) ** 2 + (jj - cy) ** 2 >= 8 ** 2) & ((ii - cx) ** 2 + (jj - cy) ** 2 <= 12 ** 2) & ok
+                bg = np.median(im.image[ann]) if ann.any() else np.nan
+                nbad = int((inn & ~ok).sum())
+                return float(np.sum(np.where(inn & ok, im.image - bg, 0))), nbad, int(inn.sum())
+            f, nbad, ntot = ap(x, y)
+            ctrl = []
+            rng = np.random.default_rng(0)
+            H, Wd = im.image.shape
+            while len(ctrl) < 48:
+                cx, cy = rng.uniform(15, Wd - 15), rng.uniform(15, H - 15)
+                if np.hypot(cx - x, cy - y) < 40:  # stay clear of the comet's coma
+                    continue
+                cf, cb, _ = ap(cx, cy)
+                if cb == 0:
+                    ctrl.append(cf)
+            ctrl = np.array(ctrl)
+            emp = float(1.4826 * np.median(np.abs(ctrl - np.median(ctrl))))  # robust: control apertures may hit stars
+            return f, emp, nbad, ntot
+        cra, cdec = fr["measured"]["ra"], fr["measured"]["dec"]
+        f0, e0, b0, nt = native_ap(before, cra, cdec)
+        f1, e1, b1, _ = native_ap(after, cra, cdec)
+        zap = (f1 - f0) / float(np.hypot(e0, e1))
         pairs_out.append(
             dict(
                 id=pid,
@@ -143,13 +177,16 @@ for det_seq in ("2025W44_1A_0045_D1", "2025W44_1A_0045_D4"):
                 days_apart=round(float(after.header["MJD-AVG"]) - fr["mjd_avg"], 2),
                 z_png=f"/data/timetravel/{pid}/z.png",
                 z_scale=zc,
-                comet_aperture=dict(x=mx, y=my, r_px=3, flux_before=round(f0, 1), flux_after=round(f1, 1), z=round(zap, 1)),
+                z_calibration=dict(nominal_field_scatter=round(scale, 2), note="Nominal Z (VARIANCE planes, resampled) divided by its robust scatter in the comet-free field; common valid-pixel mask."),
+                comet_aperture=dict(x=mx, y=my, r_px=3, method="native pixels, background annulus 8-12 px, empirical error from 48 blank control apertures per frame",
+                                    flux_before=round(f0, 1), flux_after=round(f1, 1), err_before=round(e0, 2), err_after=round(e1, 2),
+                                    rejected_px_before=b0, rejected_px_after=b1, aperture_px=nt, z=round(zap, 1)),
                 field_frac_absz_gt5=round(frac5, 4),
                 grid=g,
                 seq=det_seq,
             )
         )
-        print(pid, "dλ=%.4f" % (lam_after - lam_before), "bw=%.4f" % bw_before, "comet flux %.1f -> %.1f  Z_ap=%.1f  field|Z|>5: %.3f" % (f0, f1, zap, frac5))
+        print(pid, "dλ=%.4f" % (lam_after - lam_before), "bw=%.4f" % bw_before, "native flux %.1f±%.2f -> %.1f±%.2f  S/N_change=%.0f  rejected px %d/%d of %d  nominal-Z field scatter %.2f  field|Zcal|>5: %.4f" % (f0, e0, f1, e1, zap, b0, b1, nt, scale, frac5))
 
 (OUT / "pairs.json").write_text(json.dumps(dict(
     position=dict(ra=seqs["2025W44_1A_0045_D1"]["grid"]["center_ra"], dec=seqs["2025W44_1A_0045_D1"]["grid"]["center_dec"]),

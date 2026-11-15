@@ -1,7 +1,7 @@
-import InvestigateClient from "./InvestigateClient";
+import InvestigateHub from "./InvestigateHub";
 
 export const metadata = { title: "Investigate · COSMOS" };
 
 export default function InvestigatePage() {
-  return <InvestigateClient />;
+  return <InvestigateHub />;
 }

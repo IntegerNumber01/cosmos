@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { GaiaData, bpRpToRGB, dirFromRaDec, eqToScene, loadGaia, starInfo, StarInfo } from "@/lib/gaia";
 
 export type StarFieldHandle = {
@@ -173,10 +174,12 @@ function CameraRig({
   rig,
   mode,
   onCamera,
+  reducedMotion,
 }: {
   rig: React.MutableRefObject<Rig>;
   mode: "fly" | "ambient";
   onCamera?: Props["onCamera"];
+  reducedMotion: boolean;
 }) {
   const { camera, gl } = useThree();
   const keys = useRef<Record<string, boolean>>({});
@@ -228,8 +231,8 @@ function CameraRig({
     const r = rig.current;
     const now = state.clock.elapsedTime;
     if (mode === "ambient") {
-      // slow cinematic drift outward from the Sun through the solar neighbourhood
-      const t = now * 0.04;
+      // slow cinematic drift through the solar neighbourhood (frozen if the user prefers reduced motion)
+      const t = (reducedMotion ? 2 : now) * 0.04;
       r.pos.set(Math.sin(t) * 6, Math.sin(t * 0.7) * 2.2, Math.cos(t) * 6);
       camera.position.copy(r.pos);
       camera.lookAt(Math.sin(t + 0.9) * 30, 0, Math.cos(t + 0.9) * 30);
@@ -366,16 +369,20 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
   ref,
 ) {
   const [g, setG] = useState<GaiaData | null>(null);
+  const [loadErr, setLoadErr] = useState(false);
+  const reduced = useReducedMotion();
   const camPos = useRef(new THREE.Vector3());
   const rig = useRef<Rig>({ pos: new THREE.Vector3(0, 0, 0.0001), yaw: 0, pitch: 0, speed: 2, tween: null });
   const clock = useRef<THREE.Clock | null>(null);
   const cameraRef = useRef<THREE.Camera | null>(null);
 
   useEffect(() => {
-    loadGaia().then((d) => {
-      setG(d);
-      onReady?.(d);
-    });
+    loadGaia()
+      .then((d) => {
+        setG(d);
+        onReady?.(d);
+      })
+      .catch(() => setLoadErr(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -413,6 +420,12 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
     },
   }));
 
+  if (loadErr)
+    return (
+      <div className="grid h-full w-full place-items-center bg-[#020308] text-[13px] text-warn">
+        The Gaia star data couldn&apos;t be loaded. Check your connection and reload.
+      </div>
+    );
   return (
     <Canvas
       camera={{ fov: 60, near: 0.0005, far: 50000, position: [0, 0, 0.0001] }}
@@ -433,7 +446,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
           <Picker g={g} enabled={mode === "fly"} onPick={(i) => onSelect?.(i === null ? null : starInfo(g, i))} />
         </>
       )}
-      <CameraRig rig={rig} mode={mode} onCamera={onCamera} />
+      <CameraRig rig={rig} mode={mode} onCamera={onCamera} reducedMotion={reduced} />
     </Canvas>
   );
 });

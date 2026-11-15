@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/explore", label: "Explore", hint: "102-colour infrared sky" },
   { href: "/fly", label: "Fly", hint: "Gaia-measured 3D stars" },
-  { href: "/investigate", label: "Investigate", hint: "Time Travel + evidence" },
+  { href: "/timetravel", label: "Time Travel", hint: "Any coordinates: every date SPHEREx looked" },
+  { href: "/investigate", label: "Investigate", hint: "Case files and validation targets" },
   { href: "/about", label: "Data & Method", hint: "Sources and limits" },
 ];
 
@@ -37,13 +38,22 @@ export default function NavBar() {
               key={l.href}
               href={l.href}
               title={l.hint}
-              className={`rounded-full px-2.5 py-1.5 text-[12.5px] font-medium transition sm:px-4 sm:text-[13px] ${
+              className={`rounded-full px-2 py-1.5 text-[12px] font-medium transition sm:px-3.5 sm:text-[13px] ${
                 active ? "bg-white/10 text-white" : "text-muted hover:text-white"
               }`}
             >
               {l.href === "/about" ? (
                 <>
-                  <span className="hidden sm:inline">Data &amp; </span>Method
+                  <span className="hidden lg:inline">Data &amp; </span>Method
+                </>
+              ) : l.href === "/timetravel" ? (
+                <>
+                  <span className="hidden sm:inline">Time </span>Travel
+                </>
+              ) : l.href === "/investigate" ? (
+                <>
+                  <span className="hidden sm:inline">Investigate</span>
+                  <span className="sm:hidden">Cases</span>
                 </>
               ) : (
                 l.label

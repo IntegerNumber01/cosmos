@@ -98,7 +98,10 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
           <span className="text-[#e46a5a]">red</span>: brighter in the last exposure ·{" "}
           <span className="text-[#6aa5e4]">blue</span>: brighter in the first
           <br />
-          <span className="text-muted">Stars cancel. The comet leaves a blue/red pair.</span>
+          <span className="text-muted">
+            The comet leaves a blue/red pair. These exposures are {seq.diff_wavelength_gap_channels} channel widths apart in wavelength, so star
+            residuals remain. Use this for position only.
+          </span>
         </div>
       )}
     </div>

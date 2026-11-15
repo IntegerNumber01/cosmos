@@ -143,8 +143,14 @@ export default function FlyClient() {
               <button className="btn" onClick={() => field.current?.flyToStar(sel.i)}>
                 Fly here
               </button>
+              <Link
+                className="btn btn-primary"
+                href={`/timetravel?ra=${sel.ra.toFixed(5)}&dec=${sel.dec.toFixed(5)}&name=${encodeURIComponent(sel.name ?? `Gaia DR3 ${sel.sourceId}`)}`}
+              >
+                Time Travel this star →
+              </Link>
               <Link className="btn" href={`/explore?ra=${sel.ra.toFixed(4)}&dec=${sel.dec.toFixed(4)}&fov=0.5&frame=20`}>
-                See it in SPHEREx infrared
+                See it on the infrared map
               </Link>
             </div>
           </div>
