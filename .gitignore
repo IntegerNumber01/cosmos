@@ -15,3 +15,4 @@ out/
 next-env.d.ts
 .env*.local
 data/dev.log
+data/serve.log
