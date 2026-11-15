@@ -58,6 +58,7 @@ export default function ExploreClient() {
     [],
   );
   const viewer = useRef<SkyViewerHandle>(null);
+  const [clean] = useState(() => sp.get("clean") === "1"); // hide all UI (for recording / captures)
   const [frame, setFrame] = useState(init.frame);
   const [cmap, setCmap] = useState("magma");
   const [grid, setGrid] = useState(false);
@@ -78,10 +79,11 @@ export default function ExploreClient() {
         fov: view.fov.toPrecision(4),
         frame: String(frame),
       });
+      if (clean) q.set("clean", "1");
       window.history.replaceState(null, "", `/explore?${q.toString()}`);
     }, 400);
     return () => clearTimeout(id);
-  }, [view, frame]);
+  }, [view, frame, clean]);
 
   const onFrame = useCallback((f: number) => setFrame(f), []);
 
@@ -124,7 +126,7 @@ export default function ExploreClient() {
         frame={frame}
         colormap={cmap}
         showGrid={grid}
-        markers={markers}
+        markers={clean ? [] : markers}
         onView={setView}
         onPointer={setPointer}
         onStatus={(s, msg) => setStatus({ s, msg })}
@@ -133,9 +135,9 @@ export default function ExploreClient() {
       {/* vignette for legibility */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(3,4,10,0.65)_100%)]" />
 
-      <NavBar />
+      {!clean && <NavBar />}
 
-      {status.s === "loading" && (
+      {!clean && status.s === "loading" && (
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="glass rounded-full px-5 py-2.5 text-[13px] text-muted">Loading the SPHEREx infrared sky…</div>
         </div>
@@ -149,6 +151,7 @@ export default function ExploreClient() {
         </div>
       )}
 
+      {!clean && (<>
       {/* destinations */}
       <aside
         className={`absolute left-4 top-20 z-30 w-[300px] transition-transform duration-500 sm:left-5 ${
@@ -283,6 +286,7 @@ export default function ExploreClient() {
           reddest light your eyes can see
         </div>
       </div>
+      </>)}
     </main>
   );
 }
