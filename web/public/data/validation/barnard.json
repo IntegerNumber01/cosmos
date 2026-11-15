@@ -2190,6 +2190,7 @@
     "median_nominal_err": 0.12282,
     "empirical_over_nominal": 2.532801
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2266,6 +2267,7 @@
     "median_nominal_err": 0.124178,
     "empirical_over_nominal": 2.639364
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2342,6 +2344,7 @@
     "median_nominal_err": 0.130034,
     "empirical_over_nominal": 1.915736
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2418,6 +2421,7 @@
     "median_nominal_err": 0.150423,
     "empirical_over_nominal": 4.010334
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2494,6 +2498,7 @@
     "median_nominal_err": 0.167386,
     "empirical_over_nominal": 2.070982
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2570,6 +2575,7 @@
     "median_nominal_err": 0.173081,
     "empirical_over_nominal": 2.87626
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2646,6 +2652,7 @@
     "median_nominal_err": 0.155417,
     "empirical_over_nominal": 4.182043
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "NONFUNC",
@@ -2723,6 +2730,7 @@
     "median_nominal_err": 0.17022,
     "empirical_over_nominal": 2.70349
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2799,6 +2807,7 @@
     "median_nominal_err": 0.179288,
     "empirical_over_nominal": 4.156936
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2875,6 +2884,7 @@
     "median_nominal_err": 0.162559,
     "empirical_over_nominal": 3.771958
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2951,6 +2961,7 @@
     "median_nominal_err": 0.140443,
     "empirical_over_nominal": 3.899794
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2995,6 +3006,7 @@
     "flux_mJy_approx": 0.0
    },
    "control_apertures": null,
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3072,6 +3084,7 @@
     "median_nominal_err": 0.142484,
     "empirical_over_nominal": 3.942134
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3135,6 +3148,7 @@
     "median_nominal_err": 0.172973,
     "empirical_over_nominal": 3.709732
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3211,6 +3225,7 @@
     "median_nominal_err": 0.178892,
     "empirical_over_nominal": 3.896101
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "NONFUNC",
@@ -3288,6 +3303,7 @@
     "median_nominal_err": 0.247986,
     "empirical_over_nominal": 3.221804
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3364,6 +3380,7 @@
     "median_nominal_err": 0.200237,
     "empirical_over_nominal": 2.635847
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3440,6 +3457,7 @@
     "median_nominal_err": 0.214103,
     "empirical_over_nominal": 1.43916
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3516,6 +3534,7 @@
     "median_nominal_err": 0.215609,
     "empirical_over_nominal": 1.993338
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3592,6 +3611,7 @@
     "median_nominal_err": 0.322855,
     "empirical_over_nominal": 1.671077
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3668,6 +3688,7 @@
     "median_nominal_err": 0.388922,
     "empirical_over_nominal": 1.111948
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "NONFUNC",
@@ -3739,6 +3760,7 @@
     "flux_mJy_approx": 316.190749
    },
    "control_apertures": null,
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3756,9 +3778,216 @@
   }
  ],
  "result": {
-  "verdict": "inconclusive",
-  "summary": "provisional run",
-  "numbers": {}
+  "verdict": "unreliable",
+  "summary": "Saturated (OVERFLOW, core pixels rejected) in every matched set examined, so no calibrated position can be measured. A supplementary wings-only fit (not used for the verdict) gives 5.63\u20137.52\" displacements vs 5.43\u20137.23\" predicted in 7 sets (cross-set residual scatter 0.49\" per axis).",
+  "numbers": {
+   "n_sia2_frames": 240,
+   "n_matched_sets_measured": 7,
+   "n_cutouts_measured": 22,
+   "per_detector": {
+    "D1": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      0.7501,
+      0.7501,
+      0.7449
+     ]
+    },
+    "D2": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      1.2096,
+      1.1971,
+      1.1995
+     ]
+    },
+    "D3": {
+     "n_frames": 7,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 7,
+     "snr_empirical": [
+      52.2,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      1.788,
+      1.7935,
+      1.7793,
+      1.7932,
+      2.149,
+      2.1551,
+      2.1546
+     ]
+    },
+    "D4": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      2.4409,
+      2.4409,
+      2.4297
+     ]
+    },
+    "D5": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      230.4,
+      133.9,
+      201.3
+     ],
+     "wavelengths_um": [
+      3.9557,
+      3.9407,
+      3.9437
+     ]
+    },
+    "D6": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      335.9,
+      229.4,
+      null
+     ],
+     "wavelengths_um": [
+      4.8191,
+      4.8238,
+      4.8234
+     ]
+    }
+   },
+   "saturated_core_supplement": {
+    "method": "SUPPLEMENTARY, NOT USED FOR THE VERDICT: Gaussian fit to unflagged PSF wings with the saturated core and BLOOM pixels masked",
+    "sets": [
+     {
+      "set_id": "D1/most_visits_and_longest_baseline",
+      "lam": 0.7484,
+      "baseline_days": 195.9,
+      "measured_E": 1.98,
+      "measured_N": 5.27,
+      "predicted_E": 0.6,
+      "predicted_N": 5.4,
+      "residual_E": 1.38,
+      "residual_N": -0.13,
+      "formal_sigma_axis": 0.38
+     },
+     {
+      "set_id": "D2/most_visits_and_longest_baseline",
+      "lam": 1.2021,
+      "baseline_days": 209.7,
+      "measured_E": 1.37,
+      "measured_N": 5.84,
+      "predicted_E": 0.57,
+      "predicted_N": 5.83,
+      "residual_E": 0.8,
+      "residual_N": 0.01,
+      "formal_sigma_axis": 0.36
+     },
+     {
+      "set_id": "D3/most_visits",
+      "lam": 1.7885,
+      "baseline_days": 234.2,
+      "measured_E": 1.94,
+      "measured_N": 7.11,
+      "predicted_E": 0.46,
+      "predicted_N": 6.59,
+      "residual_E": 1.48,
+      "residual_N": 0.53,
+      "formal_sigma_axis": 0.39
+     },
+     {
+      "set_id": "D3/longest_baseline",
+      "lam": 2.1529,
+      "baseline_days": 252.6,
+      "measured_E": 0.69,
+      "measured_N": 7.21,
+      "predicted_E": 0.33,
+      "predicted_N": 7.22,
+      "residual_E": 0.36,
+      "residual_N": -0.02,
+      "formal_sigma_axis": 0.32
+     },
+     {
+      "set_id": "D4/most_visits_and_longest_baseline",
+      "lam": 2.4372,
+      "baseline_days": 195.9,
+      "measured_E": 0.44,
+      "measured_N": 6.08,
+      "predicted_E": 0.6,
+      "predicted_N": 5.4,
+      "residual_E": -0.16,
+      "residual_N": 0.68,
+      "formal_sigma_axis": 0.22
+     },
+     {
+      "set_id": "D5/most_visits_and_longest_baseline",
+      "lam": 3.9467,
+      "baseline_days": 209.7,
+      "measured_E": 0.84,
+      "measured_N": 6.21,
+      "predicted_E": 0.57,
+      "predicted_N": 5.83,
+      "residual_E": 0.27,
+      "residual_N": 0.38,
+      "formal_sigma_axis": 0.23
+     },
+     {
+      "set_id": "D6/most_visits_and_longest_baseline",
+      "lam": 4.8221,
+      "baseline_days": 252.6,
+      "measured_E": 0.5,
+      "measured_N": 7.5,
+      "predicted_E": 0.33,
+      "predicted_N": 7.22,
+      "residual_E": 0.17,
+      "residual_N": 0.27,
+      "formal_sigma_axis": 0.25
+     }
+    ],
+    "n_sets": 7,
+    "mean_residual_E": 0.61,
+    "mean_residual_N": 0.25,
+    "cross_set_residual_scatter_axis_arcsec": 0.49,
+    "measured_range_arcsec": [
+     5.63,
+     7.52
+    ],
+    "predicted_range_arcsec": [
+     5.43,
+     7.23
+    ],
+    "median_formal_sigma_axis": 0.32,
+    "note": "D1/D4, D2/D5 and D3/D6 are exposed simultaneously (same OBSID), so sets from paired detectors are not fully independent."
+   }
+  }
  },
  "alignment_checks": {
   "D1/most_visits_and_longest_baseline": [
@@ -4024,5 +4253,168 @@
   "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both."
  ],
  "method": "Positions/fluxes measured on each frame's native pixel grid with its own WCS (no resampling). Wavelength at the target from each cutout's own WCS-WAVE. Frames compared only within a same-detector set whose wavelengths at the target agree within half a channel bandwidth. Astrometry: weighted Gaussian PSF fit; WCS zero point and empirical precision from isolated Gaia DR3 stars propagated (proper motion + parallax) to each DATE-AVG. Photometry: aperture minus annulus, common valid-pixel mask across epochs, differential against non-variable Gaia reference stars; empirical errors from blank-sky control apertures and reference-star scatter.",
- "generated": "2026-11-15T03:45:35+00:00"
+ "generated": "2026-11-15T03:59:16+00:00",
+ "motion_set_table": [
+  {
+   "set_id": "D1/most_visits_and_longest_baseline",
+   "lam": 0.748,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D2/most_visits_and_longest_baseline",
+   "lam": 1.202,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D3/most_visits",
+   "lam": 1.788,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D3/longest_baseline",
+   "lam": 2.153,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D4/most_visits_and_longest_baseline",
+   "lam": 2.437,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D5/most_visits_and_longest_baseline",
+   "lam": 3.947,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  },
+  {
+   "set_id": "D6/most_visits_and_longest_baseline",
+   "lam": 4.822,
+   "baseline_days": null,
+   "n_visits": 0.0,
+   "measured_displacement_E": null,
+   "measured_displacement_N": null,
+   "measured_displacement_arcsec": null,
+   "predicted_displacement_E": null,
+   "predicted_displacement_N": null,
+   "predicted_displacement_arcsec": null,
+   "displacement_sigma_axis_arcsec": null,
+   "residual_E": null,
+   "residual_N": null,
+   "residual_arcsec": null,
+   "significance_of_motion_sigma": null,
+   "residual_chi2_2dof": null,
+   "measured_pa_deg": null,
+   "predicted_pa_deg": null,
+   "usable": false,
+   "clean": false,
+   "detected_all": false
+  }
+ ]
 }

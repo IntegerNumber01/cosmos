@@ -90,8 +90,8 @@ for det_seq in ("2025W44_1A_0045_D1", "2025W44_1A_0045_D4"):
         lam = fr["wavelength_um"]
         best = min(later, key=lambda c: abs(c["wavelength_um"] - lam))
         dl = best["wavelength_um"] - lam
-        if abs(dl) > 0.5 * fr["bandwidth_um"]:
-            print("skip", fr["productid"], "no match within half a bandwidth", round(dl, 4))
+        if abs(dl) > 0.25 * fr["bandwidth_um"]:  # pairwise within half a channel, as in the live engine
+            print("skip", fr["productid"], "no match within a quarter bandwidth", round(dl, 4))
             continue
         dest = RAW / f"{best['obs_id']}D{det}.fits"
         fetch(best["url"], g["center_ra"], g["center_dec"], dest)

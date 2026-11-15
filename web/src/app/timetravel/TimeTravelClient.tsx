@@ -17,6 +17,7 @@ import {
   makeGrid,
   MatchedSet,
   matchedSets,
+  MATCH_TOL,
   Observation,
   reproject,
   robustSigma,
@@ -56,7 +57,7 @@ const fmtDate = (iso: string) =>
 const fmtDateTime = (iso: string) => `${fmtDate(iso)} ${iso.slice(11, 16)} UTC`;
 
 function pickSet(obs: Observation[], ref: Observation): MatchedSet {
-  const members = obs.filter((o) => o.inside && o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= 0.5 * ref.bw);
+  const members = obs.filter((o) => o.inside && o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= MATCH_TOL * ref.bw);
   const byDay = new Map<number, Observation>();
   for (const m of members) {
     const day = Math.floor(m.mjd);
@@ -182,12 +183,18 @@ export default function TimeTravelClient() {
     Promise.all([worker(), worker(), worker()]).then(() => {
       if (token !== loadToken.current) return;
       const ok = results.filter(Boolean) as { frame: Frame; source: Source }[];
-      // exact wavelength (from each cutout header) must still be within half a bandwidth of the reference
+      // exact wavelengths (from each cutout header) must agree pairwise within half a bandwidth:
+      // keep frames within ±0.25·bw of the median exact wavelength
       const excluded: Loaded["excluded"] = [];
+      const exact = ok.map((r) => r.frame.meta.target.wl).sort((a, b) => a - b);
+      const centre = exact.length ? exact[exact.length >> 1] : set.lambdaRef;
       const keep = ok.filter((r) => {
-        const d = Math.abs(r.frame.meta.target.wl - set.lambdaRef);
-        if (d > 0.5 * set.bandwidth) {
-          excluded.push({ obsid: r.frame.meta.obsid, reason: `exact λ ${r.frame.meta.target.wl.toFixed(4)} µm is ${d.toFixed(4)} µm from the reference (> half a bandwidth)` });
+        const d = Math.abs(r.frame.meta.target.wl - centre);
+        if (d > MATCH_TOL * set.bandwidth) {
+          excluded.push({
+            obsid: r.frame.meta.obsid,
+            reason: `exact λ ${r.frame.meta.target.wl.toFixed(4)} µm is ${d.toFixed(4)} µm from the set's centre (more than a quarter channel)`,
+          });
           return false;
         }
         return true;
@@ -396,7 +403,7 @@ export default function TimeTravelClient() {
                   <ObsTimeline obs={obs} selected={set} onPick={(o) => setSet(pickSet(obs, o))} />
                 </div>
                 <div className="mt-3">
-                  <div className="label mb-1.5">Comparable sets (same detector, wavelength within half a channel)</div>
+                  <div className="label mb-1.5">Comparable sets (same detector; every pair of dates within half a channel in wavelength)</div>
                   {sets.length === 0 ? (
                     <p className="text-[12.5px] text-warn">
                       No two dates share a detector and wavelength here, so a fair comparison isn&apos;t possible. You can still pick a single dot to view it.

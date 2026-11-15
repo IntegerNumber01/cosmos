@@ -1,6 +1,7 @@
 // Client-side sequence engine: matched-wavelength selection, reprojection for DISPLAY, change finding,
 // and native-grid measurements. Scientific rules:
-//  * frames are only compared when same detector AND |Δλ| ≤ 0.5 × bandwidth at the target;
+//  * frames are only compared when same detector AND every pair agrees within 0.5 × bandwidth at the
+//    target (members within ±0.25 × bandwidth of the set's reference wavelength);
 //  * measurements (photometry, centroids) use each frame's NATIVE pixels and its own WCS;
 //  * change maps use a common valid-pixel mask and an EMPIRICAL noise scale (robust scatter of the
 //    difference image), because resampling correlates noise and nominal variances are not calibrated.
@@ -57,13 +58,16 @@ export function decodeFrame(buf: ArrayBuffer): Frame {
   return { meta, image, flags, variance, valid, outlier };
 }
 
-/** Group observations into wavelength-matched sets: same detector, |Δλ| ≤ 0.5·bw, one frame per day. */
+/** Wavelength-matched sets: same detector, all members within ±0.25·bw of the reference (so any two
+ * frames differ by ≤ 0.5·bw), one frame per day. */
+export const MATCH_TOL = 0.25;
+
 export function matchedSets(obs: Observation[], max = 8): MatchedSet[] {
   const inside = obs.filter((o) => o.inside);
   const sets: MatchedSet[] = [];
   const seen = new Set<string>();
   for (const ref of inside) {
-    const members = inside.filter((o) => o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= 0.5 * ref.bw);
+    const members = inside.filter((o) => o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= MATCH_TOL * ref.bw);
     const byDay = new Map<number, Observation>();
     for (const m of members) {
       const day = Math.floor(m.mjd);

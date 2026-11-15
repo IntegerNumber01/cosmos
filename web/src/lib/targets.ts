@@ -106,14 +106,14 @@ export const TARGETS: Target[] = [
     id: "wise0855",
     name: "WISE 0855−0714",
     kind: "Coldest known brown dwarf",
-    ra: 133.79513,
-    dec: -7.245147,
+    ra: 133.75999, // 2025.9 position propagated from SIMBAD astrometry (pm -8123.7, +673.2 mas/yr)
+    dec: -7.2422,
     fov: 0.6,
     frame: 88,
     blurb:
       "One of the Sun's nearest neighbours (about 2.3 pc). It is very cold and very faint, so look at the longest wavelengths.",
     caution:
-      "J2000 reference coordinates. WISE 0855 moves about 8.1″ per year across the sky, so by 2025 it sits roughly 3.4 arcminutes from this marker.",
+      "Marker at its mid-2025 position, worked out from catalogue proper motion (about 8.1″ per year westward). It is very faint, so it may not stand out in the time-averaged map. Try Time Travel for dated frames.",
   },
   {
     id: "barnard",
