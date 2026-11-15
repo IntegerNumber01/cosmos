@@ -427,6 +427,72 @@
    ]
   },
   {
+   "set_id": "D1/shortest_wavelength",
+   "selection": "shortest_wavelength",
+   "detector": "D1",
+   "lambda_ref_um": 0.758278,
+   "bandwidth_um": 0.017745,
+   "wavelength_spread_um": 0.008152,
+   "matched_within_half_bandwidth": true,
+   "frames": [
+    {
+     "obsid": "2025W29_1A_0141_3",
+     "date_avg": "2025-07-14T17:30:45.325",
+     "mjd": 60870.729691,
+     "wavelength_um": 0.761966,
+     "bandwidth_um": 0.018214,
+     "wavelength_header_scan_um": 0.761966,
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W29_1A/l2b-v27-2026-217/1/level2_2025W29_1A_0141_3D1_spx_l2b-v27-2026-217.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W29_1A/l2b-v27-2026-217/1/level2_2025W29_1A_0141_3D1_spx_l2b-v27-2026-217.fits?center=248.167239,66.755023d&size=0.2",
+     "flags_at_target": [
+      "BLOOM",
+      "OVERFLOW",
+      "SOURCE",
+      "SUR_ERROR",
+      "TRANSIENT"
+     ],
+     "l2dqa": "Pass"
+    },
+    {
+     "obsid": "2025W42_2A_0499_2",
+     "date_avg": "2025-10-18T21:43:13.311",
+     "mjd": 60966.905015,
+     "wavelength_um": 0.759055,
+     "bandwidth_um": 0.017877,
+     "wavelength_header_scan_um": 0.759055,
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W42_2A/l2b-v27-2026-243/1/level2_2025W42_2A_0499_2D1_spx_l2b-v27-2026-243.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W42_2A/l2b-v27-2026-243/1/level2_2025W42_2A_0499_2D1_spx_l2b-v27-2026-243.fits?center=248.167235,66.755023d&size=0.2",
+     "flags_at_target": [
+      "BLOOM",
+      "OVERFLOW",
+      "SOURCE",
+      "SUR_ERROR",
+      "TRANSIENT"
+     ],
+     "l2dqa": "Pass"
+    },
+    {
+     "obsid": "2025W45_1A_0067_2",
+     "date_avg": "2025-11-03T07:40:22.701",
+     "mjd": 60982.319707,
+     "wavelength_um": 0.753813,
+     "bandwidth_um": 0.017745,
+     "wavelength_header_scan_um": 0.753813,
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W45_1A/l2b-v27-2026-247/1/level2_2025W45_1A_0067_2D1_spx_l2b-v27-2026-247.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W45_1A/l2b-v27-2026-247/1/level2_2025W45_1A_0067_2D1_spx_l2b-v27-2026-247.fits?center=248.167235,66.755023d&size=0.2",
+     "flags_at_target": [
+      "BLOOM",
+      "HOT",
+      "OVERFLOW",
+      "SOURCE",
+      "SUR_ERROR",
+      "TRANSIENT"
+     ],
+     "l2dqa": "Pass"
+    }
+   ]
+  },
+  {
    "set_id": "D2/most_visits_and_longest_baseline",
    "selection": "most_visits_and_longest_baseline",
    "detector": "D2",
@@ -1423,6 +1489,189 @@
       "err": 0.0
      }
     ]
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "selection": "shortest_wavelength",
+   "detector": "D1",
+   "lambda_ref_um": 0.758278,
+   "bandwidth_um": 0.017745,
+   "wavelength_spread_um": 0.008152,
+   "matched_within_half_bandwidth": true,
+   "n_visits": 3,
+   "span_days": 111.590016,
+   "motion": {
+    "visits": []
+   },
+   "motion_saturated_supplementary": {
+    "visits": [
+     {
+      "mjd": 60870.729691,
+      "date": "2025-07-14T17:30:45",
+      "n_frames": 1,
+      "ra": 248.166964,
+      "dec": 66.755036,
+      "sigma_axis_arcsec": 0.214869,
+      "pred_ra": 248.167239,
+      "pred_dec": 66.755023,
+      "offset_from_pred_E": -0.391781,
+      "offset_from_pred_N": 0.045194,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W29_1A_0141_3"
+      ]
+     },
+     {
+      "mjd": 60966.905015,
+      "date": "2025-10-18T21:43:13",
+      "n_frames": 1,
+      "ra": 248.167306,
+      "dec": 66.754847,
+      "sigma_axis_arcsec": 0.22098,
+      "pred_ra": 248.167235,
+      "pred_dec": 66.755023,
+      "offset_from_pred_E": 0.099999,
+      "offset_from_pred_N": -0.63605,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W42_2A_0499_2"
+      ]
+     },
+     {
+      "mjd": 60982.319707,
+      "date": "2025-11-03T07:40:22",
+      "n_frames": 1,
+      "ra": 248.167775,
+      "dec": 66.754669,
+      "sigma_axis_arcsec": 0.207675,
+      "pred_ra": 248.167235,
+      "pred_dec": 66.755023,
+      "offset_from_pred_E": 0.767851,
+      "offset_from_pred_N": -1.275536,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W45_1A_0067_2"
+      ]
+     }
+    ],
+    "baseline_days": 111.590016,
+    "measured_displacement_E": 1.153575,
+    "measured_displacement_N": -1.320877,
+    "measured_displacement_arcsec": 1.753696,
+    "predicted_displacement_E": -0.006056,
+    "predicted_displacement_N": -0.000147,
+    "predicted_displacement_arcsec": 0.006058,
+    "displacement_sigma_axis_arcsec": 0.298827,
+    "residual_E": 1.159631,
+    "residual_N": -1.32073,
+    "residual_arcsec": 1.757576,
+    "significance_of_motion_sigma": 5.868602,
+    "residual_chi2_2dof": 34.59304,
+    "measured_pa_deg": 138.86798,
+    "predicted_pa_deg": 268.613705,
+    "implied_rate_arcsec_per_yr": 5.740098
+   },
+   "photometry": {
+    "aperture_radius_px": 2.5,
+    "n_reference_stars": 5,
+    "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
+    "target_aperture_complete_all_epochs": false,
+    "target_missing_px": [
+     19,
+     20,
+     21
+    ],
+    "reference_rejections_per_frame": [
+     {
+      "position": 30,
+      "catalogue": 69,
+      "blended": 7,
+      "masked": 3,
+      "low_snr": 2
+     },
+     {
+      "position": 30,
+      "catalogue": 69,
+      "low_snr": 3,
+      "blended": 6,
+      "masked": 3
+     },
+     {
+      "position": 31,
+      "catalogue": 69,
+      "blended": 6,
+      "masked": 2,
+      "low_snr": 2
+     }
+    ],
+    "reference_candidates_per_frame": [
+     5,
+     5,
+     6
+    ],
+    "common_mask_fraction_masked": [
+     0.211557,
+     0.157532,
+     0.212872
+    ],
+    "reference_stars": [
+     {
+      "source_id": 1648326843826192768,
+      "g": 12.515624,
+      "median_snr": 166.216972
+     },
+     {
+      "source_id": 1648327226079824640,
+      "g": 13.752996,
+      "median_snr": 69.2997
+     },
+     {
+      "source_id": 1648328085073287040,
+      "g": 14.204461,
+      "median_snr": 40.838581
+     },
+     {
+      "source_id": 1648331074370509952,
+      "g": 13.639153,
+      "median_snr": 100.382756
+     },
+     {
+      "source_id": 1648331692845809024,
+      "g": 13.952741,
+      "median_snr": 81.383071
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     0.966523,
+     0.984899
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.030462,
+     0.004183
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W29_1A_0141_3",
+      "date_avg": "2025-07-14T17:30:45.325",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2025W42_2A_0499_2",
+      "date_avg": "2025-10-18T21:43:13.311",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     },
+     {
+      "obsid": "2025W45_1A_0067_2",
+      "date_avg": "2025-11-03T07:40:22.701",
+      "usable": false,
+      "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
    }
   },
   {
@@ -2500,6 +2749,7 @@
     "median_nominal_err": 0.241629,
     "empirical_over_nominal": 2.808222
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2562,6 +2812,7 @@
     "median_nominal_err": 0.119335,
     "empirical_over_nominal": 2.517793
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2625,6 +2876,7 @@
     "median_nominal_err": 0.10037,
     "empirical_over_nominal": 2.248487
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "HOT",
@@ -2689,6 +2941,7 @@
     "median_nominal_err": 0.115546,
     "empirical_over_nominal": 2.355958
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "HOT",
@@ -2740,6 +2993,7 @@
     "median_nominal_err": 0.247895,
     "empirical_over_nominal": 2.180115
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2802,6 +3056,7 @@
     "median_nominal_err": 0.15345,
     "empirical_over_nominal": 2.300325
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2864,6 +3119,7 @@
     "median_nominal_err": 0.130074,
     "empirical_over_nominal": 2.557072
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2877,6 +3133,238 @@
     ],
     "n_rejected_px_within_1p5": 8,
     "peak_mjysr": null
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "detector": "D1",
+   "obsid": "2025W29_1A_0141_3",
+   "date_avg": "2025-07-14T17:30:45.325",
+   "mjd": 60870.729691,
+   "wavelength_um": 0.761966,
+   "predicted": {
+    "ra": 248.167239,
+    "dec": 66.755023,
+    "x": 58.407272,
+    "y": 57.904947,
+    "catalogue_err_arcsec": 0.000938
+   },
+   "fit": {
+    "x": 58.317964,
+    "y": 57.93681,
+    "x_err": 0.040841,
+    "y_err": 0.027932,
+    "sigma_x": 1.425041,
+    "sigma_y": 1.382648,
+    "chi2r": 61.33437,
+    "ok": true,
+    "n_bad_core": 14,
+    "psf_sigma_ratio_to_field_stars": 2.979485,
+    "point_like": false,
+    "offset_from_pred_px": 0.094822
+   },
+   "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 248.166937,
+    "dec_raw": 66.755001,
+    "ra": 248.166964,
+    "dec": 66.755036,
+    "sigma_axis_arcsec": 0.214869,
+    "formal_axis_arcsec": 0.209417,
+    "floor_arcsec": 0.045438,
+    "zp_err_arcsec": 0.015753,
+    "offset_from_pred_E": -0.391781,
+    "offset_from_pred_N": 0.045194,
+    "offset_from_pred_arcsec": 0.394379,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
+   "flux": {
+    "aperture_radius_px": 2.5,
+    "flux_sum_mjysr_px": 0.0,
+    "err_nominal": 0.0,
+    "err_empirical": null,
+    "snr_nominal": null,
+    "snr_empirical": null,
+    "n_missing_px": 19,
+    "flux_mJy_approx": 0.0
+   },
+   "control_apertures": {
+    "n": 80,
+    "robust_std": 0.180895,
+    "median": 0.02903,
+    "median_nominal_err": 0.095461,
+    "empirical_over_nominal": 1.894968
+   },
+   "forced_epsf_deblended": null,
+   "flags_at_target": [
+    "BLOOM",
+    "OVERFLOW",
+    "SOURCE",
+    "SUR_ERROR",
+    "TRANSIENT"
+   ],
+   "saturation": {
+    "sat_or_nonlinear_flags": [
+     "OVERFLOW"
+    ],
+    "n_rejected_px_within_1p5": 7,
+    "peak_mjysr": 2510.057617
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "detector": "D1",
+   "obsid": "2025W42_2A_0499_2",
+   "date_avg": "2025-10-18T21:43:13.311",
+   "mjd": 60966.905015,
+   "wavelength_um": 0.759055,
+   "predicted": {
+    "ra": 248.167235,
+    "dec": 66.755023,
+    "x": 50.324153,
+    "y": 57.896825,
+    "catalogue_err_arcsec": 0.000962
+   },
+   "fit": {
+    "x": 50.294167,
+    "y": 57.996178,
+    "x_err": 0.031092,
+    "y_err": 0.028064,
+    "sigma_x": 1.353781,
+    "sigma_y": 1.270601,
+    "chi2r": 69.861565,
+    "ok": true,
+    "n_bad_core": 12,
+    "psf_sigma_ratio_to_field_stars": 2.69174,
+    "point_like": false,
+    "offset_from_pred_px": 0.103779
+   },
+   "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 248.167466,
+    "dec_raw": 66.754856,
+    "ra": 248.167306,
+    "dec": 66.754847,
+    "sigma_axis_arcsec": 0.22098,
+    "formal_axis_arcsec": 0.188733,
+    "floor_arcsec": 0.107557,
+    "zp_err_arcsec": 0.040537,
+    "offset_from_pred_E": 0.099999,
+    "offset_from_pred_N": -0.63605,
+    "offset_from_pred_arcsec": 0.643863,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
+   "flux": {
+    "aperture_radius_px": 2.5,
+    "flux_sum_mjysr_px": 0.0,
+    "err_nominal": 0.0,
+    "err_empirical": null,
+    "snr_nominal": null,
+    "snr_empirical": null,
+    "n_missing_px": 20,
+    "flux_mJy_approx": 0.0
+   },
+   "control_apertures": {
+    "n": 80,
+    "robust_std": 0.154597,
+    "median": 0.020512,
+    "median_nominal_err": 0.079524,
+    "empirical_over_nominal": 1.944043
+   },
+   "forced_epsf_deblended": null,
+   "flags_at_target": [
+    "BLOOM",
+    "OVERFLOW",
+    "SOURCE",
+    "SUR_ERROR",
+    "TRANSIENT"
+   ],
+   "saturation": {
+    "sat_or_nonlinear_flags": [
+     "OVERFLOW"
+    ],
+    "n_rejected_px_within_1p5": 7,
+    "peak_mjysr": 1704.693359
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "detector": "D1",
+   "obsid": "2025W45_1A_0067_2",
+   "date_avg": "2025-11-03T07:40:22.701",
+   "mjd": 60982.319707,
+   "wavelength_um": 0.753813,
+   "predicted": {
+    "ra": 248.167235,
+    "dec": 66.755023,
+    "x": 57.88217,
+    "y": 57.857332,
+    "catalogue_err_arcsec": 0.000966
+   },
+   "fit": {
+    "x": 57.746425,
+    "y": 58.097406,
+    "x_err": 0.037659,
+    "y_err": 0.036216,
+    "sigma_x": 1.910337,
+    "sigma_y": 1.894388,
+    "chi2r": 35.134144,
+    "ok": true,
+    "n_bad_core": 11,
+    "psf_sigma_ratio_to_field_stars": 3.958495,
+    "point_like": false,
+    "offset_from_pred_px": 0.275794
+   },
+   "measured": null,
+   "saturated_core": true,
+   "measured_saturated_supplementary": {
+    "ra_raw": 248.167888,
+    "dec_raw": 66.75465,
+    "ra": 248.167775,
+    "dec": 66.754669,
+    "sigma_axis_arcsec": 0.207675,
+    "formal_axis_arcsec": 0.165335,
+    "floor_arcsec": 0.116872,
+    "zp_err_arcsec": 0.046198,
+    "offset_from_pred_E": 0.767851,
+    "offset_from_pred_N": -1.275536,
+    "offset_from_pred_arcsec": 1.488821,
+    "method": "masked_core_gaussian_SUPPLEMENTARY"
+   },
+   "flux": {
+    "aperture_radius_px": 2.5,
+    "flux_sum_mjysr_px": 0.0,
+    "err_nominal": 0.0,
+    "err_empirical": null,
+    "snr_nominal": null,
+    "snr_empirical": null,
+    "n_missing_px": 21,
+    "flux_mJy_approx": 0.0
+   },
+   "control_apertures": {
+    "n": 80,
+    "robust_std": 0.169848,
+    "median": 0.038663,
+    "median_nominal_err": 0.083383,
+    "empirical_over_nominal": 2.036968
+   },
+   "forced_epsf_deblended": null,
+   "flags_at_target": [
+    "BLOOM",
+    "HOT",
+    "OVERFLOW",
+    "SOURCE",
+    "SUR_ERROR",
+    "TRANSIENT"
+   ],
+   "saturation": {
+    "sat_or_nonlinear_flags": [
+     "OVERFLOW"
+    ],
+    "n_rejected_px_within_1p5": 8,
+    "peak_mjysr": 2274.772217
    }
   },
   {
@@ -2940,6 +3428,7 @@
     "median_nominal_err": 0.123828,
     "empirical_over_nominal": 2.995907
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3016,6 +3505,7 @@
     "median_nominal_err": 0.104682,
     "empirical_over_nominal": 2.989412
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3079,6 +3569,7 @@
     "median_nominal_err": 0.149391,
     "empirical_over_nominal": 2.47106
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3141,6 +3632,7 @@
     "median_nominal_err": 0.127801,
     "empirical_over_nominal": 3.553657
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3203,6 +3695,7 @@
     "median_nominal_err": 0.159003,
     "empirical_over_nominal": 2.777001
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3265,6 +3758,7 @@
     "median_nominal_err": 0.132213,
     "empirical_over_nominal": 2.866656
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3327,6 +3821,7 @@
     "median_nominal_err": 0.139531,
     "empirical_over_nominal": 2.745004
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3389,6 +3884,7 @@
     "median_nominal_err": 0.168352,
     "empirical_over_nominal": 3.674128
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3451,6 +3947,7 @@
     "median_nominal_err": 0.157982,
     "empirical_over_nominal": 3.992839
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3513,6 +4010,7 @@
     "median_nominal_err": 0.092966,
     "empirical_over_nominal": 3.997022
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3576,6 +4074,7 @@
     "median_nominal_err": 0.167267,
     "empirical_over_nominal": 3.196255
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3638,6 +4137,7 @@
     "median_nominal_err": 0.119242,
     "empirical_over_nominal": 2.519804
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3700,6 +4200,7 @@
     "median_nominal_err": 0.104379,
     "empirical_over_nominal": 2.964378
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3762,6 +4263,7 @@
     "median_nominal_err": 0.099598,
     "empirical_over_nominal": 3.376714
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3811,6 +4313,7 @@
     "median_nominal_err": 0.24862,
     "empirical_over_nominal": 4.265122
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3860,6 +4363,7 @@
     "median_nominal_err": 0.275274,
     "empirical_over_nominal": 4.154215
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3909,6 +4413,7 @@
     "median_nominal_err": 0.128123,
     "empirical_over_nominal": 4.02245
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -3958,6 +4463,7 @@
     "median_nominal_err": 0.150658,
     "empirical_over_nominal": 2.314584
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4007,6 +4513,7 @@
     "median_nominal_err": 0.230461,
     "empirical_over_nominal": 3.044436
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4056,6 +4563,7 @@
     "median_nominal_err": 0.175532,
     "empirical_over_nominal": 2.535152
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4105,6 +4613,7 @@
     "median_nominal_err": 0.164017,
     "empirical_over_nominal": 2.849608
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4154,6 +4663,7 @@
     "median_nominal_err": 0.296661,
     "empirical_over_nominal": 1.633093
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4203,6 +4713,7 @@
     "median_nominal_err": 0.259247,
     "empirical_over_nominal": 2.349277
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4253,6 +4764,7 @@
     "median_nominal_err": 0.250542,
     "empirical_over_nominal": 1.804059
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4303,6 +4815,7 @@
     "median_nominal_err": 0.270419,
     "empirical_over_nominal": 2.572544
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4353,6 +4866,7 @@
     "median_nominal_err": 0.262342,
     "empirical_over_nominal": 2.846201
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4403,6 +4917,7 @@
     "median_nominal_err": 0.339649,
     "empirical_over_nominal": 2.64962
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4453,6 +4968,7 @@
     "median_nominal_err": 0.30947,
     "empirical_over_nominal": 1.553172
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4503,6 +5019,7 @@
     "median_nominal_err": 0.314266,
     "empirical_over_nominal": 1.566609
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4553,6 +5070,7 @@
     "median_nominal_err": 0.297141,
     "empirical_over_nominal": 1.496596
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4603,6 +5121,7 @@
     "median_nominal_err": 0.290462,
     "empirical_over_nominal": 1.64616
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4653,6 +5172,7 @@
     "median_nominal_err": 0.327009,
     "empirical_over_nominal": 2.195225
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4703,6 +5223,7 @@
     "median_nominal_err": 0.325609,
     "empirical_over_nominal": 1.821573
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4753,6 +5274,7 @@
     "median_nominal_err": 0.319174,
     "empirical_over_nominal": 2.059666
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4803,6 +5325,7 @@
     "median_nominal_err": 0.280731,
     "empirical_over_nominal": 1.628823
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -4820,9 +5343,160 @@
   }
  ],
  "result": {
-  "verdict": "inconclusive",
-  "summary": "provisional run",
-  "numbers": {}
+  "verdict": "unreliable",
+  "summary": "Saturated or core pixels rejected in every matched set examined, so the flux cannot be measured reliably.",
+  "numbers": {
+   "n_sia2_frames": 422,
+   "n_matched_sets_measured": 11,
+   "n_cutouts_measured": 45,
+   "per_detector": {
+    "D1": {
+     "n_frames": 10,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 10,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      0.9436,
+      0.9406,
+      0.9416,
+      0.9344,
+      1.0127,
+      1.0101,
+      1.0026,
+      0.762,
+      0.7591,
+      0.7538
+     ]
+    },
+    "D2": {
+     "n_frames": 5,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 5,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      1.4047,
+      1.4096,
+      1.4017,
+      1.4057,
+      1.3955
+     ]
+    },
+    "D3": {
+     "n_frames": 9,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 9,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      1.905,
+      1.8844,
+      1.895,
+      1.8979,
+      1.8975,
+      1.8549,
+      1.8613,
+      1.8414,
+      1.8547
+     ]
+    },
+    "D4": {
+     "n_frames": 7,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 7,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      3.2557,
+      3.2436,
+      3.2482,
+      3.2186,
+      3.4345,
+      3.4253,
+      3.396
+     ]
+    },
+    "D5": {
+     "n_frames": 5,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 5,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      4.1797,
+      4.1851,
+      4.1767,
+      4.1809,
+      4.1696
+     ]
+    },
+    "D6": {
+     "n_frames": 9,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 9,
+     "snr_empirical": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "wavelengths_um": [
+      4.6388,
+      4.6225,
+      4.6307,
+      4.6323,
+      4.6321,
+      4.5989,
+      4.605,
+      4.5892,
+      4.5987
+     ]
+    }
+   },
+   "usable_sets": []
+  }
  },
  "alignment_checks": {
   "D1/most_visits": [
@@ -4904,6 +5578,41 @@
     "residual_scatter_N_arcsec": 0.137901,
     "bright_star_floor_arcsec": 0.116708,
     "n_bright": 3
+   }
+  ],
+  "D1/shortest_wavelength": [
+   {
+    "obsid": "2025W29_1A_0141_3",
+    "n_stars": 13,
+    "ok": true,
+    "zero_point_E_arcsec": -0.038345,
+    "zero_point_N_arcsec": -0.126653,
+    "residual_scatter_E_arcsec": 0.048481,
+    "residual_scatter_N_arcsec": 0.042176,
+    "bright_star_floor_arcsec": 0.045438,
+    "n_bright": 2
+   },
+   {
+    "obsid": "2025W42_2A_0499_2",
+    "n_stars": 11,
+    "ok": true,
+    "zero_point_E_arcsec": 0.227354,
+    "zero_point_N_arcsec": 0.033751,
+    "residual_scatter_E_arcsec": 0.07754,
+    "residual_scatter_N_arcsec": 0.13086,
+    "bright_star_floor_arcsec": 0.107557,
+    "n_bright": 2
+   },
+   {
+    "obsid": "2025W45_1A_0067_2",
+    "n_stars": 10,
+    "ok": true,
+    "zero_point_E_arcsec": 0.159406,
+    "zero_point_N_arcsec": -0.069185,
+    "residual_scatter_E_arcsec": 0.163828,
+    "residual_scatter_N_arcsec": 0.021872,
+    "bright_star_floor_arcsec": 0.116872,
+    "n_bright": 4
    }
   ],
   "D2/most_visits_and_longest_baseline": [
@@ -5310,9 +6019,170 @@
  },
  "limitations": [
   "SPHEREx pixels are 6.15\"; positions come from a Gaussian PSF fit, not the pipeline EPSF, so absolute centroids can carry sub-pixel PSF-model bias. It largely cancels between matched-wavelength frames of the same detector, and the Gaia field-star floor measures what is left.",
-  "Only one matched set per detector was measured (the one with the most visits and the longest time span). Other matched sets exist (see observations_examined.matched_set_candidates).",
-  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both."
+  "Per detector, at most two matched sets were measured: the one with the most visits and the one with the longest baseline. For variable stars the shortest-wavelength D1 set was added. Other matched sets exist (see observations_examined.matched_set_candidates).",
+  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both.",
+  "R Dra is heavily saturated in every measured matched set: OVERFLOW, SUR_ERROR and BLOOM on the core, 6\u20139 core pixels rejected, and about a quarter of the cutout lost under the common mask. No calibrated flux is possible.",
+  "Measuring this Mira's ~246-day near-IR variability with SPHEREx would need PSF-wing photometry calibrated on comparably saturated stars, or the mission's own bright-star treatment. That is outside the rules applied here."
  ],
  "method": "Positions/fluxes measured on each frame's native pixel grid with its own WCS (no resampling). Wavelength at the target from each cutout's own WCS-WAVE. Frames compared only within a same-detector set whose wavelengths at the target agree within half a channel bandwidth. Astrometry: weighted Gaussian PSF fit; WCS zero point and empirical precision from isolated Gaia DR3 stars propagated (proper motion + parallax) to each DATE-AVG. Photometry: aperture minus annulus, common valid-pixel mask across epochs, differential against non-variable Gaia reference stars; empirical errors from blank-sky control apertures and reference-star scatter.",
- "generated": "2026-11-15T03:56:35+00:00"
+ "generated": "2026-11-15T04:13:08+00:00",
+ "variability_set_table": [
+  {
+   "detector": "D1/most_visits",
+   "lam": 0.940056,
+   "matched": true,
+   "clean": false,
+   "n_frames": 4,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D1/longest_baseline",
+   "lam": 1.008464,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 2,
+   "ok": false,
+   "reason": "only 2 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D1/shortest_wavelength",
+   "lam": 0.758278,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 5,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.030462,
+    0.004183
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D2/most_visits_and_longest_baseline",
+   "lam": 1.403428,
+   "matched": true,
+   "clean": false,
+   "n_frames": 5,
+   "n_refs": 1,
+   "ok": false,
+   "reason": "only 1 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D3/most_visits",
+   "lam": 1.895953,
+   "matched": true,
+   "clean": false,
+   "n_frames": 5,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D3/longest_baseline",
+   "lam": 1.853078,
+   "matched": true,
+   "clean": false,
+   "n_frames": 4,
+   "n_refs": 1,
+   "ok": false,
+   "reason": "only 1 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D4/most_visits",
+   "lam": 3.241518,
+   "matched": true,
+   "clean": false,
+   "n_frames": 4,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D4/longest_baseline",
+   "lam": 3.418591,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D5/most_visits_and_longest_baseline",
+   "lam": 4.178415,
+   "matched": true,
+   "clean": false,
+   "n_frames": 5,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D6/most_visits",
+   "lam": 4.63127,
+   "matched": true,
+   "clean": false,
+   "n_frames": 5,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  },
+  {
+   "detector": "D6/longest_baseline",
+   "lam": 4.597945,
+   "matched": true,
+   "clean": false,
+   "n_frames": 4,
+   "n_refs": 0,
+   "ok": false,
+   "reason": "only 0 usable reference stars",
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": null,
+   "usable": false
+  }
+ ]
 }

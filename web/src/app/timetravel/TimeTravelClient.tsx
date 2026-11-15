@@ -17,7 +17,8 @@ import {
   makeGrid,
   MatchedSet,
   matchedSets,
-  MATCH_TOL,
+  setContaining,
+  exactWindow,
   Observation,
   reproject,
   robustSigma,
@@ -28,7 +29,14 @@ import { sky2pix, waveAt } from "@/lib/engine/wcs";
 import { wavelengthColor } from "@/lib/spherex";
 import { TT_BY_SLUG, TT_TARGETS } from "@/lib/ttTargets";
 
-type Target = { ra: number; dec: number; name?: string; slug?: string };
+type Target = { ra: number; dec: number; name?: string; slug?: string; pm?: [number, number]; epochYear?: number };
+
+/** Position of a target with proper motion (mas/yr) at a given MJD. */
+function targetAt(t: Target, mjd: number): [number, number] {
+  if (!t.pm || t.epochYear === undefined) return [t.ra, t.dec];
+  const dt = (mjd - (51544.5 + (t.epochYear - 2000) * 365.25)) / 365.25;
+  return [t.ra + (t.pm[0] * dt) / 3.6e6 / Math.cos((t.dec * Math.PI) / 180), t.dec + (t.pm[1] * dt) / 3.6e6];
+}
 type Loaded = {
   frames: Frame[];
   sources: Source[];
@@ -57,23 +65,7 @@ const fmtDate = (iso: string) =>
 const fmtDateTime = (iso: string) => `${fmtDate(iso)} ${iso.slice(11, 16)} UTC`;
 
 function pickSet(obs: Observation[], ref: Observation): MatchedSet {
-  const members = obs.filter((o) => o.inside && o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= MATCH_TOL * ref.bw);
-  const byDay = new Map<number, Observation>();
-  for (const m of members) {
-    const day = Math.floor(m.mjd);
-    const cur = byDay.get(day);
-    if (!cur || Math.abs(m.wl - ref.wl) < Math.abs(cur.wl - ref.wl)) byDay.set(day, m);
-  }
-  const frames = [...byDay.values()].sort((a, b) => a.mjd - b.mjd);
-  return {
-    key: `pick:${ref.obsid}:${ref.detector}`,
-    detector: ref.detector,
-    lambdaRef: ref.wl,
-    bandwidth: ref.bw,
-    frames,
-    nDays: frames.length,
-    spanDays: frames.length ? frames[frames.length - 1].mjd - frames[0].mjd : 0,
-  };
+  return setContaining(obs, ref);
 }
 
 export default function TimeTravelClient() {
@@ -83,15 +75,26 @@ export default function TimeTravelClient() {
     const slug = sp.get("target");
     if (slug && TT_BY_SLUG[slug]) {
       const t = TT_BY_SLUG[slug];
-      return { ra: t.ra, dec: t.dec, name: t.name, slug };
+      return { ra: t.ra, dec: t.dec, name: t.name, slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined };
     }
     const ra = parseFloat(sp.get("ra") ?? "");
     const dec = parseFloat(sp.get("dec") ?? "");
-    if (Number.isFinite(ra) && Number.isFinite(dec)) return { ra, dec, name: sp.get("name") ?? undefined };
+    const pmra = parseFloat(sp.get("pmra") ?? "");
+    const pmdec = parseFloat(sp.get("pmdec") ?? "");
+    const epoch = parseFloat(sp.get("epoch") ?? "");
+    if (Number.isFinite(ra) && Number.isFinite(dec))
+      return {
+        ra,
+        dec,
+        name: sp.get("name") ?? undefined,
+        pm: Number.isFinite(pmra) && Number.isFinite(pmdec) ? ([pmra, pmdec] as [number, number]) : undefined,
+        epochYear: Number.isFinite(epoch) ? epoch : undefined,
+      };
     return null;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [target, setTarget] = useState<Target | null>(initial);
+  const [fromGaia] = useState(() => sp.get("from") === "gaia");
   const [input, setInput] = useState(initial ? `${initial.ra.toFixed(5)} ${initial.dec.toFixed(5)}` : "");
   const [inputErr, setInputErr] = useState("");
   const [size, setSize] = useState(0.1);
@@ -108,7 +111,16 @@ export default function TimeTravelClient() {
   const [split, setSplit] = useState(0.5);
   const [change, setChange] = useState<ChangeMap | null>(null);
   const [cand, setCand] = useState<Candidate | null>(null);
-  const [measureAt, setMeasureAt] = useState<{ ra: number; dec: number; label: string; partner?: { ra: number; dec: number }; mjd?: number; when?: string } | null>(null);
+  const [measureAt, setMeasureAt] = useState<{
+    ra: number;
+    dec: number;
+    label: string;
+    partner?: { ra: number; dec: number };
+    mjd?: number;
+    when?: string;
+    pm?: [number, number];
+    epochYear?: number;
+  } | null>(null);
   const [gaia, setGaia] = useState<{ rows: GaiaRow[]; mjd: number } | null>(null);
   const [showGaia, setShowGaia] = useState(true);
   const loadToken = useRef(0);
@@ -184,21 +196,12 @@ export default function TimeTravelClient() {
       if (token !== loadToken.current) return;
       const ok = results.filter(Boolean) as { frame: Frame; source: Source }[];
       // exact wavelengths (from each cutout header) must agree pairwise within half a bandwidth:
-      // keep frames within ±0.25·bw of the median exact wavelength
-      const excluded: Loaded["excluded"] = [];
-      const exact = ok.map((r) => r.frame.meta.target.wl).sort((a, b) => a - b);
-      const centre = exact.length ? exact[exact.length >> 1] : set.lambdaRef;
-      const keep = ok.filter((r) => {
-        const d = Math.abs(r.frame.meta.target.wl - centre);
-        if (d > MATCH_TOL * set.bandwidth) {
-          excluded.push({
-            obsid: r.frame.meta.obsid,
-            reason: `exact λ ${r.frame.meta.target.wl.toFixed(4)} µm is ${d.toFixed(4)} µm from the set's centre (more than a quarter channel)`,
-          });
-          return false;
-        }
-        return true;
-      });
+      // keep the largest subset that fits in a 0.5·bw window
+      const { keep, drop } = exactWindow(ok, (r) => r.frame.meta.target.wl, set.bandwidth);
+      const excluded: Loaded["excluded"] = drop.map((r) => ({
+        obsid: r.frame.meta.obsid,
+        reason: `exact λ ${r.frame.meta.target.wl.toFixed(4)} µm doesn't fit within half a channel of the other dates`,
+      }));
       if (!keep.length) {
         setProgress({ done, total: todo.length, error: lastErr || "No frames could be loaded." });
         return;
@@ -294,7 +297,8 @@ export default function TimeTravelClient() {
       : [];
   const sx = (x: number) => x + 0.5;
   const sy = (y: number) => n - 0.5 - y;
-  const tgt = loaded ? skyToGrid(loaded.grid, target!.ra, target!.dec) : [0, 0];
+  // crosshair follows the target's proper motion to the date shown
+  const tgt = loaded && cur ? skyToGrid(loaded.grid, ...targetAt(target!, cur.meta.mjdAvg)) : [0, 0];
 
   return (
     <main className="relative min-h-screen bg-bg pb-20">
@@ -341,7 +345,7 @@ export default function TimeTravelClient() {
                 type="button"
                 onClick={() => {
                   setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
-                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug });
+                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
                 }}
                 className={`rounded-full border px-3 py-1 text-[12px] transition ${
                   target?.slug === t.slug ? "border-accent/60 bg-accent/10 text-white" : "border-line text-muted hover:text-white"
@@ -356,6 +360,16 @@ export default function TimeTravelClient() {
           </div>
         </form>
 
+        {target?.name && !target.slug && (
+          <p className="mt-2 text-[12.5px] text-muted">
+            <b className="text-text">{target.name}</b>
+            {fromGaia
+              ? ` · Gaia DR3 position propagated to ${target.epochYear ?? 2016} with its proper motion${
+                  target.pm ? ` (${(Math.hypot(target.pm[0], target.pm[1]) / 1000).toFixed(2)}″/yr). The crosshair and measurements follow it date by date` : ""
+                }.`
+              : " · position from the COSMOS map bookmark."}
+          </p>
+        )}
         {target?.slug && TT_BY_SLUG[target.slug] && (
           <p className="mt-2 text-[12.5px] text-muted">
             <b className="text-text">{TT_BY_SLUG[target.slug].name}:</b> {TT_BY_SLUG[target.slug].why}{" "}
@@ -673,7 +687,7 @@ export default function TimeTravelClient() {
                     <button
                       className="btn"
                       onClick={() => {
-                        setMeasureAt({ ra: target!.ra, dec: target!.dec, label: target!.name ?? "Target position" });
+                        setMeasureAt({ ra: target!.ra, dec: target!.dec, label: target!.name ?? "Target position", pm: target!.pm, epochYear: target!.epochYear });
                         setCand(null);
                       }}
                     >
@@ -755,7 +769,7 @@ export default function TimeTravelClient() {
                 key={t.slug}
                 onClick={() => {
                   setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
-                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug });
+                  search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
                 }}
                 className="glass rounded-2xl p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40"
               >

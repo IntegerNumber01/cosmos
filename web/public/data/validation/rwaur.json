@@ -363,6 +363,45 @@
    ]
   },
   {
+   "set_id": "D1/shortest_wavelength",
+   "selection": "shortest_wavelength",
+   "detector": "D1",
+   "lambda_ref_um": 0.743895,
+   "bandwidth_um": 0.017124,
+   "wavelength_spread_um": 0.006063,
+   "matched_within_half_bandwidth": true,
+   "frames": [
+    {
+     "obsid": "2025W36_1A_0233_2",
+     "date_avg": "2025-09-02T00:44:21.538",
+     "mjd": 60920.030805,
+     "wavelength_um": 0.746926,
+     "bandwidth_um": 0.017505,
+     "wavelength_header_scan_um": 0.746926,
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W36_1A/l2b-v27-2026-232/1/level2_2025W36_1A_0233_2D1_spx_l2b-v27-2026-232.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W36_1A/l2b-v27-2026-232/1/level2_2025W36_1A_0233_2D1_spx_l2b-v27-2026-232.fits?center=76.956091,30.401131d&size=0.2",
+     "flags_at_target": [
+      "SOURCE"
+     ],
+     "l2dqa": "Pass"
+    },
+    {
+     "obsid": "2026W10_2B_0591_3",
+     "date_avg": "2026-03-08T16:13:49.635",
+     "mjd": 61107.676269,
+     "wavelength_um": 0.740863,
+     "bandwidth_um": 0.017124,
+     "wavelength_header_scan_um": 0.740863,
+     "source_fits": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W10_2B/l2b-v27-2026-231/1/level2_2026W10_2B_0591_3D1_spx_l2b-v27-2026-231.fits",
+     "cutout_url": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W10_2B/l2b-v27-2026-231/1/level2_2026W10_2B_0591_3D1_spx_l2b-v27-2026-231.fits?center=76.956088,30.401127d&size=0.2",
+     "flags_at_target": [
+      "SOURCE"
+     ],
+     "l2dqa": "Pass"
+    }
+   ]
+  },
+  {
    "set_id": "D2/most_visits_and_longest_baseline",
    "selection": "most_visits_and_longest_baseline",
    "detector": "D2",
@@ -851,6 +890,159 @@
       "date_avg": "2026-03-12T00:03:57.874",
       "usable": false,
       "reason": "target aperture incomplete under common mask"
+     }
+    ],
+    "ok": true
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "selection": "shortest_wavelength",
+   "detector": "D1",
+   "lambda_ref_um": 0.743895,
+   "bandwidth_um": 0.017124,
+   "wavelength_spread_um": 0.006063,
+   "matched_within_half_bandwidth": true,
+   "n_visits": 2,
+   "span_days": 187.645464,
+   "motion": {
+    "visits": [
+     {
+      "mjd": 60920.030805,
+      "date": "2025-09-02T00:44:21",
+      "n_frames": 1,
+      "ra": 76.956298,
+      "dec": 30.401186,
+      "sigma_axis_arcsec": 0.11783,
+      "pred_ra": 76.956091,
+      "pred_dec": 30.401131,
+      "offset_from_pred_E": 0.64111,
+      "offset_from_pred_N": 0.198087,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2025W36_1A_0233_2"
+      ]
+     },
+     {
+      "mjd": 61107.676269,
+      "date": "2026-03-08T16:13:49",
+      "n_frames": 1,
+      "ra": 76.956289,
+      "dec": 30.401207,
+      "sigma_axis_arcsec": 0.120199,
+      "pred_ra": 76.956088,
+      "pred_dec": 30.401127,
+      "offset_from_pred_E": 0.626233,
+      "offset_from_pred_N": 0.288971,
+      "within_visit_rms_arcsec": null,
+      "obsids": [
+       "2026W10_2B_0591_3"
+      ]
+     }
+    ],
+    "baseline_days": 187.645464,
+    "measured_displacement_E": -0.026212,
+    "measured_displacement_N": 0.075804,
+    "measured_displacement_arcsec": 0.080207,
+    "predicted_displacement_E": -0.011335,
+    "predicted_displacement_N": -0.01508,
+    "predicted_displacement_arcsec": 0.018865,
+    "displacement_sigma_axis_arcsec": 0.168321,
+    "residual_E": -0.014877,
+    "residual_N": 0.090884,
+    "residual_arcsec": 0.092093,
+    "significance_of_motion_sigma": 0.476516,
+    "residual_chi2_2dof": 0.299351,
+    "measured_pa_deg": 340.925418,
+    "predicted_pa_deg": 216.930445,
+    "implied_rate_arcsec_per_yr": 0.156123
+   },
+   "photometry": {
+    "aperture_radius_px": 2.5,
+    "n_reference_stars": 4,
+    "common_mask": "pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)",
+    "target_aperture_complete_all_epochs": true,
+    "target_missing_px": [
+     0,
+     0
+    ],
+    "reference_rejections_per_frame": [
+     {
+      "position": 215,
+      "catalogue": 489,
+      "blended": 39,
+      "low_snr": 3,
+      "masked": 10
+     },
+     {
+      "position": 221,
+      "catalogue": 489,
+      "blended": 33,
+      "masked": 7,
+      "low_snr": 3
+     }
+    ],
+    "reference_candidates_per_frame": [
+     6,
+     9
+    ],
+    "common_mask_fraction_masked": [
+     0.339811,
+     0.270225
+    ],
+    "reference_stars": [
+     {
+      "source_id": 156337294907839232,
+      "g": 12.780926,
+      "median_snr": 135.849695
+     },
+     {
+      "source_id": 156429894403506048,
+      "g": 14.771431,
+      "median_snr": 46.72511
+     },
+     {
+      "source_id": 156430272360627968,
+      "g": 14.358623,
+      "median_snr": 60.808378
+     },
+     {
+      "source_id": 156430375439690368,
+      "g": 13.544579,
+      "median_snr": 80.291724
+     }
+    ],
+    "ensemble_scale_change": [
+     1.0,
+     0.998142
+    ],
+    "reference_dm_robust_scatter_mag": [
+     0.063161
+    ],
+    "epochs": [
+     {
+      "obsid": "2025W36_1A_0233_2",
+      "date_avg": "2025-09-02T00:44:21.538",
+      "usable": true,
+      "flux_sum_mjysr_px": 80.943874,
+      "flux_err_nominal": 0.340478,
+      "ratio_to_ensemble": 1.254157,
+      "ratio_err_nominal": 0.009068,
+      "dmag_vs_first": -0.0,
+      "dmag_err_nominal": 0.011102,
+      "dmag_err_empirical": 0.011102
+     },
+     {
+      "obsid": "2026W10_2B_0591_3",
+      "date_avg": "2026-03-08T16:13:49.635",
+      "usable": true,
+      "flux_sum_mjysr_px": 131.650982,
+      "flux_err_nominal": 0.427914,
+      "ratio_to_ensemble": 2.043618,
+      "ratio_err_nominal": 0.013619,
+      "dmag_vs_first": -0.53012,
+      "dmag_err_nominal": 0.010676,
+      "dmag_err_empirical": 0.064057
      }
     ],
     "ok": true
@@ -1826,6 +2018,7 @@
     "median_nominal_err": 0.122691,
     "empirical_over_nominal": 1.68781
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -1902,6 +2095,7 @@
     "median_nominal_err": 0.116988,
     "empirical_over_nominal": 2.01855
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "HALO",
     "OVERFLOW",
@@ -1976,6 +2170,7 @@
     "median_nominal_err": 0.1229,
     "empirical_over_nominal": 1.835574
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -1986,6 +2181,148 @@
     ],
     "n_rejected_px_within_1p5": 1,
     "peak_mjysr": 167.745285
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "detector": "D1",
+   "obsid": "2025W36_1A_0233_2",
+   "date_avg": "2025-09-02T00:44:21.538",
+   "mjd": 60920.030805,
+   "wavelength_um": 0.746926,
+   "predicted": {
+    "ra": 76.956091,
+    "dec": 30.401131,
+    "x": 58.423144,
+    "y": 57.831682,
+    "catalogue_err_arcsec": 0.000519
+   },
+   "fit": {
+    "x": 58.346228,
+    "y": 57.855589,
+    "x_err": 0.010927,
+    "y_err": 0.011672,
+    "sigma_x": 0.506255,
+    "sigma_y": 0.479512,
+    "chi2r": 25.021668,
+    "ok": true,
+    "n_bad_core": 0,
+    "psf_sigma_ratio_to_field_stars": 1.05666,
+    "point_like": true,
+    "offset_from_pred_px": 0.080546
+   },
+   "measured": {
+    "ra_raw": 76.956242,
+    "dec_raw": 30.401186,
+    "ra": 76.956298,
+    "dec": 30.401186,
+    "sigma_axis_arcsec": 0.11783,
+    "formal_axis_arcsec": 0.069529,
+    "floor_arcsec": 0.088055,
+    "zp_err_arcsec": 0.036,
+    "offset_from_pred_E": 0.64111,
+    "offset_from_pred_N": 0.198087,
+    "offset_from_pred_arcsec": 0.671015,
+    "method": "gaussian_psf_fit"
+   },
+   "saturated_core": false,
+   "measured_saturated_supplementary": null,
+   "flux": {
+    "aperture_radius_px": 2.5,
+    "flux_sum_mjysr_px": 80.945074,
+    "err_nominal": 0.340298,
+    "err_empirical": 0.365907,
+    "snr_nominal": 237.864975,
+    "snr_empirical": 221.217862,
+    "n_missing_px": 0,
+    "flux_mJy_approx": 71.959738
+   },
+   "control_apertures": {
+    "n": 80,
+    "robust_std": 0.179344,
+    "median": -0.058671,
+    "median_nominal_err": 0.118658,
+    "empirical_over_nominal": 1.511435
+   },
+   "forced_epsf_deblended": null,
+   "flags_at_target": [
+    "SOURCE"
+   ],
+   "saturation": {
+    "sat_or_nonlinear_flags": [],
+    "n_rejected_px_within_1p5": 0,
+    "peak_mjysr": 39.999977
+   }
+  },
+  {
+   "set_id": "D1/shortest_wavelength",
+   "detector": "D1",
+   "obsid": "2026W10_2B_0591_3",
+   "date_avg": "2026-03-08T16:13:49.635",
+   "mjd": 61107.676269,
+   "wavelength_um": 0.740863,
+   "predicted": {
+    "ra": 76.956088,
+    "dec": 30.401127,
+    "x": 57.603019,
+    "y": 58.219223,
+    "catalogue_err_arcsec": 0.000544
+   },
+   "fit": {
+    "x": 57.696215,
+    "y": 58.202209,
+    "x_err": 0.014075,
+    "y_err": 0.014884,
+    "sigma_x": 0.491168,
+    "sigma_y": 0.454403,
+    "chi2r": 66.806042,
+    "ok": true,
+    "n_bad_core": 0,
+    "psf_sigma_ratio_to_field_stars": 1.017984,
+    "point_like": true,
+    "offset_from_pred_px": 0.094736
+   },
+   "measured": {
+    "ra_raw": 76.95627,
+    "dec_raw": 30.401176,
+    "ra": 76.956289,
+    "dec": 30.401207,
+    "sigma_axis_arcsec": 0.120199,
+    "formal_axis_arcsec": 0.089083,
+    "floor_arcsec": 0.0698,
+    "zp_err_arcsec": 0.040499,
+    "offset_from_pred_E": 0.626233,
+    "offset_from_pred_N": 0.288971,
+    "offset_from_pred_arcsec": 0.68969,
+    "method": "gaussian_psf_fit"
+   },
+   "saturated_core": false,
+   "measured_saturated_supplementary": null,
+   "flux": {
+    "aperture_radius_px": 2.5,
+    "flux_sum_mjysr_px": 131.650982,
+    "err_nominal": 0.427918,
+    "err_empirical": 0.448047,
+    "snr_nominal": 307.654842,
+    "snr_empirical": 293.832776,
+    "n_missing_px": 0,
+    "flux_mJy_approx": 117.03702
+   },
+   "control_apertures": {
+    "n": 80,
+    "robust_std": 0.177794,
+    "median": -0.015174,
+    "median_nominal_err": 0.118228,
+    "empirical_over_nominal": 1.503823
+   },
+   "forced_epsf_deblended": null,
+   "flags_at_target": [
+    "SOURCE"
+   ],
+   "saturation": {
+    "sat_or_nonlinear_flags": [],
+    "n_rejected_px_within_1p5": 0,
+    "peak_mjysr": 70.152901
    }
   },
   {
@@ -2049,6 +2386,7 @@
     "median_nominal_err": 0.125967,
     "empirical_over_nominal": 2.76734
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2122,6 +2460,7 @@
     "median_nominal_err": 0.122132,
     "empirical_over_nominal": 2.770574
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2195,6 +2534,7 @@
     "median_nominal_err": 0.12949,
     "empirical_over_nominal": 2.322265
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2268,6 +2608,7 @@
     "median_nominal_err": 0.096516,
     "empirical_over_nominal": 3.308537
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "SOURCE",
@@ -2341,6 +2682,7 @@
     "median_nominal_err": 0.099612,
     "empirical_over_nominal": 2.608523
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2416,6 +2758,7 @@
     "median_nominal_err": 0.103546,
     "empirical_over_nominal": 3.140099
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2492,6 +2835,7 @@
     "median_nominal_err": 0.103451,
     "empirical_over_nominal": 2.510766
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2568,6 +2912,7 @@
     "median_nominal_err": 0.112802,
     "empirical_over_nominal": 2.12322
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2644,6 +2989,7 @@
     "median_nominal_err": 0.230707,
     "empirical_over_nominal": 1.198346
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2720,6 +3066,7 @@
     "median_nominal_err": 0.219694,
     "empirical_over_nominal": 1.042172
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "BLOOM",
     "OVERFLOW",
@@ -2796,6 +3143,7 @@
     "median_nominal_err": 0.234815,
     "empirical_over_nominal": 1.002737
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2869,6 +3217,7 @@
     "median_nominal_err": 0.489175,
     "empirical_over_nominal": 0.834912
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2942,6 +3291,7 @@
     "median_nominal_err": 0.479403,
     "empirical_over_nominal": 0.987194
    },
+   "forced_epsf_deblended": null,
    "flags_at_target": [
     "OVERFLOW",
     "SOURCE"
@@ -2956,9 +3306,155 @@
   }
  ],
  "result": {
-  "verdict": "inconclusive",
-  "summary": "provisional run",
-  "numbers": {}
+  "verdict": "confirmed",
+  "summary": "Brightness change detected: \u0394m = -0.530 \u00b1 0.064 mag (8\u03c3 empirical) at 0.744 \u00b5m by 2026-03-08 relative to the first epoch of the same matched set; 1/1 usable sets show \u22655\u03c3 changes. EPSF re-fits (all pixels / peak pixel excluded) give -0.52 / -0.44 mag, so the change does not depend on the method.",
+  "numbers": {
+   "n_sia2_frames": 226,
+   "n_matched_sets_measured": 7,
+   "n_cutouts_measured": 18,
+   "per_detector": {
+    "D1": {
+     "n_frames": 5,
+     "n_detected": 2,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      155.0,
+      267.6,
+      233.5,
+      221.2,
+      293.8
+     ],
+     "wavelengths_um": [
+      0.8587,
+      0.8582,
+      0.8519,
+      0.7469,
+      0.7409
+     ]
+    },
+    "D2": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      204.7,
+      293.7,
+      318.3
+     ],
+     "wavelengths_um": [
+      1.2726,
+      1.2691,
+      1.2597
+     ]
+    },
+    "D3": {
+     "n_frames": 2,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 2,
+     "snr_empirical": [
+      253.1,
+      267.3
+     ],
+     "wavelengths_um": [
+      2.354,
+      2.3751
+     ]
+    },
+    "D4": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      144.0,
+      155.6,
+      85.5
+     ],
+     "wavelengths_um": [
+      2.8434,
+      2.8414,
+      2.8168
+     ]
+    },
+    "D5": {
+     "n_frames": 3,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 3,
+     "snr_empirical": [
+      296.3,
+      355.8,
+      434.3
+     ],
+     "wavelengths_um": [
+      4.0303,
+      4.0263,
+      4.0153
+     ]
+    },
+    "D6": {
+     "n_frames": 2,
+     "n_detected": 0,
+     "n_saturated_or_core_rejected": 2,
+     "snr_empirical": [
+      405.7,
+      441.2
+     ],
+     "wavelengths_um": [
+      4.9607,
+      4.9755
+     ]
+    }
+   },
+   "usable_sets": [
+    {
+     "detector": "D1/shortest_wavelength",
+     "lam": 0.743895,
+     "matched": true,
+     "clean": true,
+     "n_frames": 2,
+     "n_refs": 4,
+     "ok": true,
+     "reason": null,
+     "aperture_complete": true,
+     "epochs": [
+      {
+       "date": "2025-09-02",
+       "dmag": -0.0,
+       "err_emp": 0.011102,
+       "err_nom": 0.011102
+      },
+      {
+       "date": "2026-03-08",
+       "dmag": -0.53012,
+       "err_emp": 0.064057,
+       "err_nom": 0.010676
+      }
+     ],
+     "ref_scatter": [
+      0.063161
+     ],
+     "max_abs_dmag": 0.53012,
+     "max_sig": 8.275738,
+     "max_date": "2026-03-08",
+     "max_dmag": -0.53012,
+     "max_err": 0.064057,
+     "usable": true
+    }
+   ],
+   "most_significant_change": {
+    "set_id": "D1/shortest_wavelength",
+    "lam": 0.7439,
+    "dmag": -0.53,
+    "err_empirical": 0.064,
+    "significance": 8.3,
+    "date": "2026-03-08"
+   },
+   "n_usable_sets": 1,
+   "n_sets_change_ge_5sigma": 1,
+   "dmag_range_across_methods": [
+    -0.53,
+    -0.44
+   ]
+  }
  },
  "alignment_checks": {
   "D1/most_visits_and_longest_baseline": [
@@ -2994,6 +3490,30 @@
     "residual_scatter_N_arcsec": 0.145627,
     "bright_star_floor_arcsec": 0.062431,
     "n_bright": 11
+   }
+  ],
+  "D1/shortest_wavelength": [
+   {
+    "obsid": "2025W36_1A_0233_2",
+    "n_stars": 29,
+    "ok": true,
+    "zero_point_E_arcsec": -0.173533,
+    "zero_point_N_arcsec": 0.000557,
+    "residual_scatter_E_arcsec": 0.154321,
+    "residual_scatter_N_arcsec": 0.15586,
+    "bright_star_floor_arcsec": 0.088055,
+    "n_bright": 8
+   },
+   {
+    "obsid": "2026W10_2B_0591_3",
+    "n_stars": 24,
+    "ok": true,
+    "zero_point_E_arcsec": -0.060958,
+    "zero_point_N_arcsec": -0.112734,
+    "residual_scatter_E_arcsec": 0.159699,
+    "residual_scatter_N_arcsec": 0.157743,
+    "bright_star_floor_arcsec": 0.0698,
+    "n_bright": 7
    }
   ],
   "D2/most_visits_and_longest_baseline": [
@@ -3152,9 +3672,185 @@
  },
  "limitations": [
   "SPHEREx pixels are 6.15\"; positions come from a Gaussian PSF fit, not the pipeline EPSF, so absolute centroids can carry sub-pixel PSF-model bias. It largely cancels between matched-wavelength frames of the same detector, and the Gaia field-star floor measures what is left.",
-  "Only one matched set per detector was measured (the one with the most visits and the longest time span). Other matched sets exist (see observations_examined.matched_set_candidates).",
-  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both."
+  "Per detector, at most two matched sets were measured: the one with the most visits and the one with the longest baseline. For variable stars the shortest-wavelength D1 set was added. Other matched sets exist (see observations_examined.matched_set_candidates).",
+  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both.",
+  "RW Aur A+B (1.4\" apart) are blended into one SPHEREx source, so any variability refers to the combined light.",
+  "RW Aur is saturated (OVERFLOW on the core) in every measured set from 0.86 to 5 \u00b5m. Only the shortest-wavelength D1 set (0.744 \u00b5m) is clean, so the variability result rests on ONE matched pair of epochs (2025-09-02 vs 2026-03-08).",
+  "Only 4 reference stars survive the isolation, S/N and common-mask cuts, so the empirical reference scatter (0.063 mag) is itself uncertain. The 0.53 mag change exceeds it by 8x, and the reference ensemble changed by only 0.2% between epochs.",
+  "In the first epoch the peak pixel reads 40.00 MJy/sr, carrying only the informational SOURCE flag. A cap was ruled out: no other unflagged ~40.0 pixel exists among 163 cutouts, and an EPSF fit excluding that pixel predicts 36.6 there (not more). Excluding it changes \u0394m from \u22120.52 to \u22120.44 mag.",
+  "The mildly saturated 0.86 and 1.27 \u00b5m sets also show higher S/N in March 2026 than in September 2025, consistent with brightening. They are NOT used quantitatively.",
+  "RW Aur sits in Taurus-Auriga nebulosity, so local-annulus backgrounds may carry structured emission."
  ],
  "method": "Positions/fluxes measured on each frame's native pixel grid with its own WCS (no resampling). Wavelength at the target from each cutout's own WCS-WAVE. Frames compared only within a same-detector set whose wavelengths at the target agree within half a channel bandwidth. Astrometry: weighted Gaussian PSF fit; WCS zero point and empirical precision from isolated Gaia DR3 stars propagated (proper motion + parallax) to each DATE-AVG. Photometry: aperture minus annulus, common valid-pixel mask across epochs, differential against non-variable Gaia reference stars; empirical errors from blank-sky control apertures and reference-star scatter.",
- "generated": "2026-11-15T03:53:15+00:00"
+ "generated": "2026-11-15T04:13:08+00:00",
+ "variability_set_table": [
+  {
+   "detector": "D1/most_visits_and_longest_baseline",
+   "lam": 0.85626,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 13,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.048018,
+    0.043398
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D1/shortest_wavelength",
+   "lam": 0.743895,
+   "matched": true,
+   "clean": true,
+   "n_frames": 2,
+   "n_refs": 4,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": true,
+   "epochs": [
+    {
+     "date": "2025-09-02",
+     "dmag": -0.0,
+     "err_emp": 0.011102,
+     "err_nom": 0.011102
+    },
+    {
+     "date": "2026-03-08",
+     "dmag": -0.53012,
+     "err_emp": 0.064057,
+     "err_nom": 0.010676
+    }
+   ],
+   "ref_scatter": [
+    0.063161
+   ],
+   "max_abs_dmag": 0.53012,
+   "max_sig": 8.275738,
+   "max_date": "2026-03-08",
+   "max_dmag": -0.53012,
+   "max_err": 0.064057,
+   "usable": true
+  },
+  {
+   "detector": "D2/most_visits_and_longest_baseline",
+   "lam": 1.267159,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 14,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.048545,
+    0.040095
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D3/most_visits_and_longest_baseline",
+   "lam": 2.364541,
+   "matched": true,
+   "clean": false,
+   "n_frames": 2,
+   "n_refs": 12,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.076851
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D4/most_visits_and_longest_baseline",
+   "lam": 2.833868,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 4,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.049398,
+    0.028592
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D5/most_visits_and_longest_baseline",
+   "lam": 4.023968,
+   "matched": true,
+   "clean": false,
+   "n_frames": 3,
+   "n_refs": 4,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.027262,
+    0.042958
+   ],
+   "usable": false
+  },
+  {
+   "detector": "D6/most_visits_and_longest_baseline",
+   "lam": 4.968073,
+   "matched": true,
+   "clean": false,
+   "n_frames": 2,
+   "n_refs": 3,
+   "ok": true,
+   "reason": null,
+   "aperture_complete": false,
+   "epochs": [],
+   "ref_scatter": [
+    0.019413
+   ],
+   "usable": false
+  }
+ ],
+ "checks": {
+  "method_robustness": [
+   {
+    "set_id": "D1/shortest_wavelength",
+    "epochs": [
+     {
+      "obsid": "2025W36_1A_0233_2",
+      "date": "2025-09-02",
+      "peak_pixel_value": 39.999977,
+      "peak_predicted_without_it": 36.625198,
+      "epsf_flux_all": 82.542964,
+      "epsf_flux_excl_peak": 79.379634,
+      "chi2r_all": 13.244196,
+      "chi2r_excl_peak": 12.837677,
+      "dmag_epsf_all": -0.0,
+      "dmag_epsf_excl_peak": -0.0
+     },
+     {
+      "obsid": "2026W10_2B_0591_3",
+      "date": "2026-03-08",
+      "peak_pixel_value": 70.152901,
+      "peak_predicted_without_it": 55.938368,
+      "epsf_flux_all": 133.266957,
+      "epsf_flux_excl_peak": 119.015627,
+      "chi2r_all": 18.11375,
+      "chi2r_excl_peak": 14.004753,
+      "dmag_epsf_all": -0.520106,
+      "dmag_epsf_excl_peak": -0.439737
+     }
+    ],
+    "note": "Raw EPSF-fit flux ratios (no reference-star normalisation; reference ensemble changes are reported separately). chi2r >> 1 reflects EPSF model mismatch for a very bright star; aperture photometry remains the primary measurement."
+   }
+  ]
+ }
 }

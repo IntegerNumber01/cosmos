@@ -60,36 +60,63 @@ export function decodeFrame(buf: ArrayBuffer): Frame {
 
 /** Wavelength-matched sets: same detector, all members within ±0.25·bw of the reference (so any two
  * frames differ by ≤ 0.5·bw), one frame per day. */
-export const MATCH_TOL = 0.25;
+export const MATCH_TOL = 0.25; // half-width of the allowed window, in channel bandwidths (window = 0.5 bw)
 
+/** One frame per day inside a wavelength window [lo, lo + 0.5·bw] on one detector. */
+function windowSet(frames: Observation[], det: number, lo: number, bw: number, prefer?: Observation): Observation[] {
+  const hi = lo + 2 * MATCH_TOL * bw;
+  const c = (lo + hi) / 2;
+  const byDay = new Map<number, Observation>();
+  for (const m of frames) {
+    if (m.detector !== det || m.wl < lo - 1e-9 || m.wl > hi + 1e-9) continue;
+    const day = Math.floor(m.mjd);
+    const cur = byDay.get(day);
+    if (prefer && cur === prefer) continue;
+    if (!cur || m === prefer || Math.abs(m.wl - c) < Math.abs(cur.wl - c)) byDay.set(day, m);
+  }
+  return [...byDay.values()].sort((a, b) => a.mjd - b.mjd);
+}
+
+/** Best matched set containing a given frame: the 0.5·bw window (containing it) with the most dates. */
+export function setContaining(obs: Observation[], ref: Observation): MatchedSet {
+  const inside = obs.filter((o) => o.inside);
+  const bw = ref.bw;
+  let best: Observation[] = [ref];
+  // candidate window lower edges: every frame wavelength within half a bandwidth below the reference
+  const edges = inside.filter((o) => o.detector === ref.detector && o.wl <= ref.wl && o.wl >= ref.wl - 2 * MATCH_TOL * bw).map((o) => o.wl);
+  for (const lo of edges) {
+    const f = windowSet(inside, ref.detector, lo, bw, ref);
+    if (f.includes(ref) && (f.length > best.length || (f.length === best.length && span(f) > span(best)))) best = f;
+  }
+  return mk(ref.detector, best, bw, `pick:${ref.obsid}:${ref.detector}`);
+}
+
+const span = (f: Observation[]) => (f.length ? f[f.length - 1].mjd - f[0].mjd : 0);
+const mk = (det: number, frames: Observation[], bw: number, key: string): MatchedSet => ({
+  key,
+  detector: det,
+  lambdaRef: frames.reduce((a, f) => a + f.wl, 0) / Math.max(1, frames.length),
+  bandwidth: bw,
+  frames,
+  nDays: frames.length,
+  spanDays: span(frames),
+});
+
+/** Wavelength-matched sets: same detector, every pair of frames within half a channel bandwidth (a 0.5·bw
+ * window), one frame per day. Windows are tried at every frame's wavelength as the lower edge. */
 export function matchedSets(obs: Observation[], max = 8): MatchedSet[] {
   const inside = obs.filter((o) => o.inside);
   const sets: MatchedSet[] = [];
   const seen = new Set<string>();
   for (const ref of inside) {
-    const members = inside.filter((o) => o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= MATCH_TOL * ref.bw);
-    const byDay = new Map<number, Observation>();
-    for (const m of members) {
-      const day = Math.floor(m.mjd);
-      const cur = byDay.get(day);
-      if (!cur || Math.abs(m.wl - ref.wl) < Math.abs(cur.wl - ref.wl)) byDay.set(day, m);
-    }
-    const frames = [...byDay.values()].sort((a, b) => a.mjd - b.mjd);
+    const frames = windowSet(inside, ref.detector, ref.wl, ref.bw);
     if (frames.length < 2) continue;
     const key = `D${ref.detector}:` + frames.map((f) => f.obsid).join(",");
     if (seen.has(key)) continue;
     seen.add(key);
-    sets.push({
-      key,
-      detector: ref.detector,
-      lambdaRef: ref.wl,
-      bandwidth: ref.bw,
-      frames,
-      nDays: frames.length,
-      spanDays: frames[frames.length - 1].mjd - frames[0].mjd,
-    });
+    sets.push(mk(ref.detector, frames, ref.bw, key));
   }
-  // prefer more distinct dates, then a longer time baseline; drop near-duplicates
+  // prefer more distinct dates, then a longer time baseline; drop overlapping windows
   sets.sort((a, b) => b.nDays - a.nDays || b.spanDays - a.spanDays);
   const out: MatchedSet[] = [];
   for (const s of sets) {
@@ -98,6 +125,18 @@ export function matchedSets(obs: Observation[], max = 8): MatchedSet[] {
     if (out.length >= max) break;
   }
   return out;
+}
+
+/** Keep the largest subset whose EXACT wavelengths all lie within half a bandwidth of each other. */
+export function exactWindow<T>(items: T[], wl: (t: T) => number, bw: number): { keep: T[]; drop: T[] } {
+  const sorted = [...items].sort((a, b) => wl(a) - wl(b));
+  let best: T[] = sorted.slice(0, 1);
+  for (let i = 0; i < sorted.length; i++) {
+    const w: T[] = [];
+    for (let j = i; j < sorted.length && wl(sorted[j]) - wl(sorted[i]) <= 2 * MATCH_TOL * bw + 1e-9; j++) w.push(sorted[j]);
+    if (w.length > best.length) best = w;
+  }
+  return { keep: items.filter((x) => best.includes(x)), drop: items.filter((x) => !best.includes(x)) };
 }
 
 export type Grid = { n: number; ra: number; dec: number; pixDeg: number };
@@ -187,12 +226,62 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
       D[k] = after[k] - before[k];
       nv++;
     }
-  // remove any overall sky offset between the dates before scaling
-  const dMed = median(D);
-  for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) D[k] -= dMed;
+  // remove a robust plane: the zodiacal-light level AND gradient differ between seasons
+  let keep = new Uint8Array(n * n);
+  for (let k = 0; k < n * n; k++) keep[k] = Number.isFinite(D[k]) ? 1 : 0;
+  let pa = 0,
+    pb = 0,
+    pc = 0;
+  for (let it = 0; it < 4; it++) {
+    // least squares D ~ pa + pb*i + pc*j over kept pixels
+    let s1 = 0, si = 0, sj = 0, sii = 0, sjj = 0, sij = 0, sd = 0, sdi = 0, sdj = 0;
+    for (let k = 0; k < n * n; k++) {
+      if (!keep[k]) continue;
+      const i = k % n,
+        j = (k / n) | 0,
+        d = D[k];
+      s1++; si += i; sj += j; sii += i * i; sjj += j * j; sij += i * j; sd += d; sdi += d * i; sdj += d * j;
+    }
+    const M = [
+      [s1, si, sj],
+      [si, sii, sij],
+      [sj, sij, sjj],
+    ];
+    const v = [sd, sdi, sdj];
+    const det3 = (m: number[][]) =>
+      m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    const dM = det3(M);
+    if (!Number.isFinite(dM) || Math.abs(dM) < 1e-9) break;
+    const col = (c: number) => M.map((row, r) => row.map((x, k2) => (k2 === c ? v[r] : x)));
+    pa = det3(col(0)) / dM;
+    pb = det3(col(1)) / dM;
+    pc = det3(col(2)) / dM;
+    const res: number[] = [];
+    for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) res.push(D[k] - (pa + pb * (k % n) + pc * ((k / n) | 0)));
+    const rs = robustSigma(res);
+    const rm = median(res);
+    const nk = new Uint8Array(n * n);
+    for (let k = 0; k < n * n; k++)
+      if (Number.isFinite(D[k]) && Math.abs(D[k] - (pa + pb * (k % n) + pc * ((k / n) | 0)) - rm) < 3 * rs) nk[k] = 1;
+    keep = nk;
+  }
+  for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) D[k] -= pa + pb * (k % n) + pc * ((k / n) | 0);
   const sigma = robustSigma(D);
   const z = new Float32Array(n * n).fill(NaN);
   for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) z[k] = D[k] / sigma;
+  // pixels within 5 px of a pixel that is unusable on either date (e.g. a saturated core)
+  const nearMask = new Uint8Array(n * n);
+  for (let k = 0; k < n * n; k++) {
+    if (Number.isFinite(D[k])) continue;
+    const ki = k % n,
+      kj = (k / n) | 0;
+    for (let dj = -5; dj <= 5; dj++)
+      for (let di = -5; di <= 5; di++) {
+        const ii = ki + di,
+          jj = kj + dj;
+        if (ii >= 0 && jj >= 0 && ii < n && jj < n) nearMask[jj * n + ii] = 1;
+      }
+  }
   const refSig = robustSigma(before);
   const refMed = median(before);
   // connected components of |Z| ≥ thresh with consistent sign (8-connectivity)
@@ -224,7 +313,7 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
     }
     comps.push({ sign, px });
   }
-  type C = { sign: number; x: number; y: number; peak: number; npix: number; refPeak: number; sumZ: number; px: number; py: number };
+  type C = { sign: number; x: number; y: number; peak: number; npix: number; refPeak: number; sumZ: number; px: number; py: number; nearMaskFrac: number; bothPeak: number };
   const cs: C[] = comps
     .filter((c) => c.px.length >= 3)
     .map((c) => {
@@ -233,7 +322,9 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
         sy = 0,
         peak = 0,
         pk = c.px[0],
-        refPeak = -Infinity;
+        refPeak = -Infinity,
+        bothPeak = -Infinity,
+        nNear = 0;
       for (const q of c.px) {
         const w = Math.abs(z[q]);
         sw += w;
@@ -243,6 +334,9 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
           peak = z[q];
           pk = q;
         }
+        if (nearMask[q]) nNear++;
+        if (Number.isFinite(before[q]) && Number.isFinite(after[q]))
+          bothPeak = Math.max(bothPeak, Math.min((before[q] - refMed) / refSig, (after[q] - refMed) / refSig));
         if (Number.isFinite(before[q])) refPeak = Math.max(refPeak, (before[q] - refMed) / refSig);
         if (Number.isFinite(after[q])) refPeak = Math.max(refPeak, (after[q] - refMed) / refSig);
       }
@@ -258,11 +352,31 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
         sumZ: sw,
         px: pk % n,
         py: (pk / n) | 0,
+        nearMaskFrac: nNear / c.px.length,
+        bothPeak,
       };
     });
   const used = new Set<number>();
   const out: Candidate[] = [];
   const toSky = (x: number, y: number) => gridToSky(g, x, y);
+  cs.forEach((c, ic) => {
+    // a star's halo is bright on BOTH dates; a comet or transient is bright on only one
+    if (c.nearMaskFrac >= 0.2 && c.bothPeak > 15) {
+      used.add(ic);
+      const [ra, dec] = toSky(c.x, c.y);
+      out.push({
+        id: 0,
+        kind: "residual",
+        x: c.x,
+        y: c.y,
+        ra,
+        dec,
+        peakZ: Math.abs(c.peak),
+        npix: c.npix,
+        note: "Hugs the flagged (usually saturated) core of a bright star. The star's halo changed between dates, from its own motion and/or point-spread differences. Not a separate object.",
+      });
+    }
+  });
   // pair opposite-sign components: a source that MOVED leaves a faded spot and a brightened spot
   cs.forEach((a, ia) => {
     if (used.has(ia) || a.sign > 0) return;

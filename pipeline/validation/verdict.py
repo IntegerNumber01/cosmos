@@ -20,6 +20,23 @@ def frame_ok(m):
     return not s.get("sat_or_nonlinear_flags") and (s.get("n_rejected_px_within_1p5", 0) == 0)
 
 
+def detected_frame(m, snr_min=5.0):
+    """Target detected in this frame: empirical S/N >= 5, clean core, point-like Gaussian fit, AND the
+    zero-point-corrected position agrees with the catalogue prediction within max(3 sigma_2D, 1.5\").
+    (Without the position test, a stationary background star a few arcsec away would count.)"""
+    fl = m.get("flux") or {}
+    fit = m.get("fit") or {}
+    if not ((fl.get("snr_empirical") or 0) >= snr_min and frame_ok(m) and fit.get("ok") and fit.get("point_like")):
+        return False
+    me = m.get("measured")
+    if me:
+        cat = (m.get("predicted") or {}).get("catalogue_err_arcsec") or 0
+        tol = max(3 * np.hypot(me["sigma_axis_arcsec"] * np.sqrt(2), cat), 1.5)
+        return bool(me["offset_from_pred_arcsec"] <= tol)
+    off = fit.get("offset_from_pred_px")
+    return bool(off is not None and off * 6.15 <= 1.5)
+
+
 def set_frames(R, sid):
     return [m for m in R["measurements"] if m["set_id"] == sid]
 
@@ -40,7 +57,7 @@ def motion_sets(R, need_detection=True):
         mo = s.get("motion") or {}
         fr = set_frames(R, det)
         clean = all(frame_ok(m) for m in fr)
-        det_ok = all(((m["flux"] or {}).get("snr_empirical") or 0) >= 5 for m in fr)
+        det_ok = all(detected_frame(m) for m in fr)
         n_ast = sum(1 for m in fr if m.get("measured"))
         row = dict(detector=det, lam=s["lambda_ref_um"], matched=s["matched_within_half_bandwidth"], clean=clean, detected_all=det_ok,
                    n_frames=len(fr), n_astrometric=n_ast, n_visits=len(mo.get("visits", [])), baseline_days=mo.get("baseline_days"))

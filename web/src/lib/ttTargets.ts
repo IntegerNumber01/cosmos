@@ -32,6 +32,7 @@ export const TT_TARGETS: TTTarget[] = [
     pm: [-8123.7, 673.2],
     challenge: true,
     why: "At about 250 K it is extremely faint and glows mainly beyond 4 µm, so it's a hard test of what SPHEREx can detect.",
+    prefer: { obsid: "2025W45_2A_0292_3", detector: 5 }, // 4.22 µm set where the validation detected it (by stacking)
   },
   {
     slug: "epsindib",
@@ -42,6 +43,7 @@ export const TT_TARGETS: TTTarget[] = [
     pm: [3982.0, -2466.8],
     challenge: true,
     why: "A nearby pair of brown dwarfs 6.7′ from the bright star ε Indi A, moving about 4.7″ per year.",
+    prefer: { obsid: "2025W17_4B_0027_3", detector: 2 }, // 1.108 µm, one-year baseline (validation: confirmed)
   },
   {
     slug: "rwaur",
@@ -51,6 +53,7 @@ export const TT_TARGETS: TTTarget[] = [
     dec: 30.40129,
     challenge: true,
     why: "A young star system known for deep, irregular dimming events.",
+    prefer: { obsid: "2025W36_1A_0233_2", detector: 1 }, // 0.744 µm: the only unsaturated matched pair
   },
   {
     slug: "rdra",

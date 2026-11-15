@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import NavBar from "@/components/NavBar";
 import StarField, { StarFieldHandle } from "@/components/StarField";
-import { GaiaData, PC_TO_LY, StarInfo, starInfo } from "@/lib/gaia";
+import { GaiaData, PC_TO_LY, propagate, StarInfo, starInfo } from "@/lib/gaia";
 
 function fmtDist(pc: number) {
   if (pc < 0.01) return "at the Sun";
@@ -145,7 +145,11 @@ export default function FlyClient() {
               </button>
               <Link
                 className="btn btn-primary"
-                href={`/timetravel?ra=${sel.ra.toFixed(5)}&dec=${sel.dec.toFixed(5)}&name=${encodeURIComponent(sel.name ?? `Gaia DR3 ${sel.sourceId}`)}`}
+                href={(() => {
+                  // SPHEREx DR1 spans 2025-2026: hand over the position propagated to 2025.9 plus the proper motion
+                  const p = propagate(sel, 2025.9);
+                  return `/timetravel?ra=${p.ra.toFixed(5)}&dec=${p.dec.toFixed(5)}&pmra=${sel.pmra.toFixed(1)}&pmdec=${sel.pmdec.toFixed(1)}&epoch=2025.9&name=${encodeURIComponent(sel.name ?? `Gaia DR3 ${sel.sourceId}`)}&from=gaia`;
+                })()}
               >
                 Time Travel this star →
               </Link>

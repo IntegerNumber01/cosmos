@@ -210,6 +210,12 @@ def offsets_arcsec(ra, dec, ra0, dec0):
     return (np.asarray(ra) - ra0) * np.cos(np.radians(dec0)) * 3600, (np.asarray(dec) - dec0) * 3600
 
 
+def fcol(t, name, fill=0.0) -> np.ndarray:
+    """Column as float array with masked/NaN entries replaced by `fill` (works for masked and plain columns)."""
+    a = np.ma.filled(np.ma.asarray(t[name], dtype=float), np.nan)
+    return np.where(np.isfinite(a), a, fill)
+
+
 def gaia_field(ra, dec, radius_deg, gmax=18.0) -> Table:
     return tap_query(GAIA_TAP,
                      f"SELECT {GAIA_COLS} FROM gaiadr3.gaia_source WHERE phot_g_mean_mag < {gmax} AND "

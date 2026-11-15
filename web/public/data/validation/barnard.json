@@ -4249,11 +4249,13 @@
  },
  "limitations": [
   "SPHEREx pixels are 6.15\"; positions come from a Gaussian PSF fit, not the pipeline EPSF, so absolute centroids can carry sub-pixel PSF-model bias. It largely cancels between matched-wavelength frames of the same detector, and the Gaia field-star floor measures what is left.",
-  "Only one matched set per detector was measured (the one with the most visits and the longest time span). Other matched sets exist (see observations_examined.matched_set_candidates).",
-  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both."
+  "Per detector, at most two matched sets were measured: the one with the most visits and the one with the longest baseline. For variable stars the shortest-wavelength D1 set was added. Other matched sets exist (see observations_examined.matched_set_candidates).",
+  "DR1 spans about one year, so motion baselines are at most ~12 months and parallax is not separated from proper motion: the prediction includes both.",
+  "Barnard's Star (K \u2248 4.5) is saturated in every measured matched set from 0.75 to 4.8 \u00b5m: OVERFLOW, SUR_ERROR and BLOOM flags on the core, with 4\u20139 pixels within 1.5 px rejected. The rules require declaring this unreliable instead of fitting a clipped PSF.",
+  "The supplementary wings-only displacement is NOT calibrated: unsaturated Gaia stars cannot calibrate a clipped-core centroid, and the field holds too few comparably saturated stars. Its cross-set scatter is the only empirical precision estimate."
  ],
  "method": "Positions/fluxes measured on each frame's native pixel grid with its own WCS (no resampling). Wavelength at the target from each cutout's own WCS-WAVE. Frames compared only within a same-detector set whose wavelengths at the target agree within half a channel bandwidth. Astrometry: weighted Gaussian PSF fit; WCS zero point and empirical precision from isolated Gaia DR3 stars propagated (proper motion + parallax) to each DATE-AVG. Photometry: aperture minus annulus, common valid-pixel mask across epochs, differential against non-variable Gaia reference stars; empirical errors from blank-sky control apertures and reference-star scatter.",
- "generated": "2026-11-15T03:59:16+00:00",
+ "generated": "2026-11-15T04:13:08+00:00",
  "motion_set_table": [
   {
    "set_id": "D1/most_visits_and_longest_baseline",

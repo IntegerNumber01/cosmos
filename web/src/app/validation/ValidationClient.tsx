@@ -172,7 +172,7 @@ export default function ValidationClient() {
                     {r.matched_sets.map((m: any, i: number) => (
                       <div key={i} className="rounded-xl border border-line p-3 text-[12px]">
                         <div className="data" style={{ color: m.lambda_ref_um ? wavelengthColor(m.lambda_ref_um) : undefined }}>
-                          D{m.detector} · {m.lambda_ref_um?.toFixed?.(4)} µm (channel width {m.bandwidth_um?.toFixed?.(4)})
+                          {String(m.detector).startsWith("D") ? m.detector : `D${m.detector}`} · {m.lambda_ref_um?.toFixed?.(4)} µm (channel width {m.bandwidth_um?.toFixed?.(4)})
                         </div>
                         <ul className="mt-1 space-y-0.5">
                           {(m.frames ?? []).map((f: any, k: number) => (

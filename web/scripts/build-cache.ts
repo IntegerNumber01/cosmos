@@ -4,23 +4,13 @@
 import { mkdirSync, writeFileSync, existsSync } from "node:fs";
 import { findObservations } from "../src/lib/engine/observations";
 import { fetchCutout } from "../src/lib/engine/cutout";
-import { matchedSets, MatchedSet, MATCH_TOL, Observation } from "../src/lib/engine/sequence";
+import { matchedSets, Observation, setContaining } from "../src/lib/engine/sequence";
 import { TT_TARGETS } from "../src/lib/ttTargets";
 
 const SIZE = 0.1;
 const OUT = new URL("../public/cache/", import.meta.url);
 
-function pick(obs: Observation[], ref: Observation): MatchedSet {
-  const members = obs.filter((o) => o.inside && o.detector === ref.detector && Math.abs(o.wl - ref.wl) <= MATCH_TOL * ref.bw);
-  const byDay = new Map<number, Observation>();
-  for (const m of members) {
-    const day = Math.floor(m.mjd);
-    const cur = byDay.get(day);
-    if (!cur || Math.abs(m.wl - ref.wl) < Math.abs(cur.wl - ref.wl)) byDay.set(day, m);
-  }
-  const frames = [...byDay.values()].sort((a, b) => a.mjd - b.mjd);
-  return { key: "pick", detector: ref.detector, lambdaRef: ref.wl, bandwidth: ref.bw, frames, nDays: frames.length, spanDays: 0 };
-}
+const pick = setContaining;
 
 async function main() {
   const only = process.argv.slice(2);

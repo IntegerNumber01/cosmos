@@ -53,8 +53,18 @@ export type StarInfo = {
   bpRp: number | null;
   teff: number | null;
   ruwe: number | null;
+  pmra: number; // mas/yr
+  pmdec: number; // mas/yr
   pos: [number, number, number]; // scene coordinates
 };
+
+/** Position propagated from Gaia DR3's J2016.0 to a decimal year with proper motion. */
+export function propagate(s: StarInfo, year: number): { ra: number; dec: number } {
+  const dt = year - 2016.0;
+  const dec = s.dec + (s.pmdec * dt) / 3.6e6;
+  const ra = s.ra + (s.pmra * dt) / 3.6e6 / Math.cos((s.dec * Math.PI) / 180);
+  return { ra: ((ra % 360) + 360) % 360, dec };
+}
 
 /** ICRS (x, y, z) -> scene (x, z, -y): north celestial pole is "up"; a proper rotation, no mirroring. */
 export function eqToScene(x: number, y: number, z: number): [number, number, number] {
@@ -95,6 +105,8 @@ export function starInfo(g: GaiaData, i: number): StarInfo {
     bpRp: bp < -50 ? null : bp,
     teff: g.meta.teff[i],
     ruwe: g.meta.ruwe[i],
+    pmra: s >= 10 ? g.f[i * s + 8] : 0,
+    pmdec: s >= 10 ? g.f[i * s + 9] : 0,
     pos: eqToScene(x, y, z),
   };
 }

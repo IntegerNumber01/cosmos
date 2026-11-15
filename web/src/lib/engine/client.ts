@@ -78,7 +78,16 @@ export type GaiaRow = {
   dec_epoch: number;
   sep_arcsec: number;
 };
-export type SimbadRow = { main_id: string; otype: string; otype_label: string | null; sep_arcsec: number; ra_epoch: number; dec_epoch: number };
+export type SimbadRow = {
+  main_id: string;
+  otype: string;
+  otype_label: string | null;
+  sep_arcsec: number;
+  ra_epoch: number;
+  dec_epoch: number;
+  pmra?: number;
+  pmdec?: number;
+};
 export type SmallBodyRow = { name: string; ra_hms: string; dec_dms: string; sep_arcsec: number; vmag: string; ra_rate_arcsec_h: number; dec_rate_arcsec_h: number };
 
 export async function getKnown(ra: number, dec: number, r: number, mjd: number, services: string, slug?: string): Promise<Known> {

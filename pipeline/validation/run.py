@@ -13,7 +13,7 @@ from astropy.time import Time
 
 from spherex_io import load_l2
 
-from .common import (OUT_JSON, PIX_ARCSEC, RAW, ROOT, TARGETS, gaia_field, http_get, offsets_arcsec, propagate,
+from .common import (OUT_JSON, PIX_ARCSEC, RAW, ROOT, TARGETS, fcol, gaia_field, http_get, offsets_arcsec, propagate,
                      target_position, target_position_err_arcsec)
 from .measure import (SAT_FLAG_NAMES, aperture, bad_mask, control_apertures, disk, field_star_astrometry, flags_in,
                       gaia_pixels, in_bounds, isolated, psf_fit)
@@ -99,6 +99,14 @@ def measure_frame(tid, cat, f, path, gaia, det):
     r_ap = AP_R[det]
     fit = psf_fit(im, xp, yp, bad, half=4, max_shift=2.5)
     rec["fit"] = fit
+    rec["saturated_core"] = bool(sat) or rec["saturation"]["n_rejected_px_within_1p5"] > 0
+    if rec["saturated_core"]:
+        # SUPPLEMENTARY ONLY: Gaussian fit to the unflagged wings (rejected + BLOOM pixels masked).
+        # Not used for verdicts; its precision is not calibrated by unsaturated field stars.
+        from .measure import flag_bits
+        m2 = bad | ((im.flags & flag_bits(im, {"BLOOM"})) != 0)
+        fs = psf_fit(im, xp, yp, m2, half=6, max_shift=2.5, smax=6.0)
+        rec["fit_saturated_core"] = fs
     if fit and rec["alignment"].get("ok"):
         al = rec["alignment"]
         sg = float(np.sqrt(fit["sigma_x"] * fit["sigma_y"]))
@@ -120,15 +128,103 @@ def measure_frame(tid, cat, f, path, gaia, det):
         src_var = max(forced["err"] ** 2 - bg_nom ** 2, 0)
         rec["forced_aperture"]["err_empirical"] = float(np.sqrt(emp ** 2 + src_var))
         rec["forced_aperture"]["snr_empirical"] = forced["flux"] / rec["forced_aperture"]["err_empirical"]
+    if TARGETS[tid]["test_type"] == "detection_and_motion":
+        fe = deblended_forced(im, bad, path, xp, yp, gx, gy, gaia, tid_ids)
+        if fe and fe.get("err_empirical"):
+            fe["snr_empirical"] = fe["flux"] / fe["err_empirical"]
+        rec["forced_epsf"] = fe
     rec["status"] = "measured"
     return rec, im
 
 
-def astrometry_from(rec):
-    """Zero-point-corrected target position and its offset from prediction (E, N arcsec)."""
-    fit, al, im_wcs = rec.get("fit"), rec.get("alignment"), rec.get("_wcs")
-    if not fit or not fit["ok"] or not al or not al.get("ok") or not fit.get("point_like"):
+def deblended_forced(im, bad, path, xp, yp, gx, gy, gaia, tid_ids, nb_r_px=3.5, n_ctrl=60):
+    """Forced EPSF photometry at the predicted target position, fitting catalogued Gaia neighbours
+    (within nb_r_px) simultaneously at their propagated positions. Empirical error: the same fit at
+    blank-sky positions with the same neighbour geometry (robust scatter of the 'target' flux)."""
+    from .epsf import EPSF, forced_fit
+    psf = EPSF(path)
+    nbs = [(float(gx[i]), float(gy[i]), int(gaia["source_id"][i]), float(gaia["phot_g_mean_mag"][i])) for i in range(len(gx))
+           if int(gaia["source_id"][i]) not in tid_ids and np.hypot(gx[i] - xp, gy[i] - yp) <= nb_r_px]
+    pos = [(xp, yp)] + [(x, y) for x, y, _, _ in nbs]
+    r = forced_fit(im, bad, psf, pos, half=5)
+    if r is None:
         return None
+    rng = np.random.default_rng(1)
+    H, W = im.image.shape
+    allxy = np.c_[gx, gy]
+    ctrl = []
+    for _ in range(n_ctrl * 40):
+        if len(ctrl) >= n_ctrl:
+            break
+        cx, cy = rng.uniform(8, W - 9), rng.uniform(8, H - 9)
+        shifted = [(cx + (x - xp), cy + (y - yp)) for x, y in pos]
+        if np.min(np.hypot(allxy[:, 0] - cx, allxy[:, 1] - cy)) < 4 or np.hypot(cx - xp, cy - yp) < 12:
+            continue
+        if any(not (6 <= sx <= W - 7 and 6 <= sy <= H - 7) for sx, sy in shifted):
+            continue
+        rc = forced_fit(im, bad, psf, shifted, half=5)
+        if rc is None or rc["n_bad_in_stamp"] > 6:
+            continue
+        ctrl.append(rc["flux"][0])
+    ctrl = np.array(ctrl)
+    emp = float(1.4826 * np.median(np.abs(ctrl - np.median(ctrl)))) if len(ctrl) >= 15 else None
+    f, e = r["flux"][0], r["err"][0]
+    # neighbour-leak control: a fake target at the same offset from OTHER Gaia stars of similar brightness,
+    # fitted with the same two-source model. Its flux should scatter around zero if the EPSF models the star well.
+    leak = []
+    gmag = fcol(gaia, "phot_g_mean_mag", 99.0)
+    if nbs:
+        vx, vy = xp - nbs[0][0], yp - nbs[0][1]
+        g0 = nbs[0][3]
+        for i in range(len(gx)):
+            if abs(gmag[i] - g0) > 1.5 or int(gaia["source_id"][i]) in tid_ids or np.hypot(gx[i] - xp, gy[i] - yp) < 12:
+                continue
+            fx, fy = gx[i] + vx, gy[i] + vy
+            if not (6 <= fx <= W - 7 and 6 <= fy <= H - 7 and 6 <= gx[i] <= W - 7 and 6 <= gy[i] <= H - 7):
+                continue
+            others = np.ones(len(gx), bool)
+            others[i] = False
+            d_others = np.hypot(allxy[others, 0] - fx, allxy[others, 1] - fy)
+            d_star = np.hypot(allxy[others, 0] - gx[i], allxy[others, 1] - gy[i])
+            if d_others.min() < 3.0 or d_star.min() < 3.5:
+                continue
+            rl = forced_fit(im, bad, psf, [(fx, fy), (gx[i], gy[i])], half=5)
+            if rl is None or rl["n_bad_in_stamp"] > 6:
+                continue
+            leak.append(rl["flux"][0])
+    leak = np.array(leak)
+    # free-position target fit (neighbours fixed) for astrometry
+    from .epsf import free_fit
+    ff = free_fit(im, bad, psf, xp, yp, fixed=[(x, y) for x, y, _, _ in nbs], half=5, max_shift=2.0)
+    if ff:
+        ra_f, dec_f = (float(v) for v in im.wcs.pixel_to_world_values(ff["x"], ff["y"]))
+        ff.update(ra=ra_f, dec=dec_f, pos_err_axis_arcsec=float(np.hypot(ff["x_err"], ff["y_err"]) / np.sqrt(2) * PIX_ARCSEC))
+    return dict(free_fit=ff, leak_control=dict(n=int(len(leak)), median=float(np.median(leak)) if len(leak) else None,
+                                               robust_std=float(1.4826 * np.median(np.abs(leak - np.median(leak)))) if len(leak) >= 3 else None,
+                                               values=[round(float(v), 4) for v in leak]),
+                flux=f, err_nominal=e, err_blank_sky=emp,
+                # conservative empirical error: the larger of blank-sky and neighbour-leak scatter
+                err_empirical=(float(max(emp, float(1.4826 * np.median(np.abs(leak - np.median(leak)))) if len(leak) >= 10 else 0.0))
+                               if emp is not None else None),
+                snr_nominal=f / e if e > 0 else None, n_control=int(len(ctrl)),
+                control_median=float(np.median(ctrl)) if len(ctrl) else None, chi2r=r["chi2r"], n_bad_in_stamp=r["n_bad_in_stamp"],
+                corr_target_neighbour=r["corr_target_neighbour"], psf_fwhm_arcsec=psf.fwhm_arcsec,
+                neighbours=[dict(source_id=sid, g=gm, sep_arcsec=float(np.hypot(x - xp, y - yp) * PIX_ARCSEC), flux=r["flux"][k + 1],
+                                 err=r["err"][k + 1]) for k, (x, y, sid, gm) in enumerate(nbs)])
+
+
+def astrometry_from(rec, saturated=False):
+    """Zero-point-corrected target position and its offset from prediction (E, N arcsec).
+    saturated=True uses the supplementary masked-core fit (only for saturated targets)."""
+    al, im_wcs = rec.get("alignment"), rec.get("_wcs")
+    if saturated:
+        fit = rec.get("fit_saturated_core")
+        if not fit or not fit["ok"] or not al or not al.get("ok"):
+            return None
+    else:
+        fit = rec.get("fit")
+        if rec.get("saturated_core") or not fit or not fit["ok"] or not al or not al.get("ok") or not fit.get("point_like"):
+            return None
     ra_raw, dec_raw = (float(v) for v in im_wcs.pixel_to_world_values(fit["x"], fit["y"]))
     zE, zN = al["zero_point_E"], al["zero_point_N"]
     dec_c = dec_raw - zN / 3600
@@ -139,12 +235,12 @@ def astrometry_from(rec):
     return dict(ra_raw=ra_raw, dec_raw=dec_raw, ra=ra_c, dec=dec_c, sigma_axis_arcsec=sigma, formal_axis_arcsec=formal,
                 floor_arcsec=al["bright_star_floor_arcsec"], zp_err_arcsec=al["zero_point_err"],
                 offset_from_pred_E=float(dE), offset_from_pred_N=float(dN),
-                offset_from_pred_arcsec=float(np.hypot(dE, dN)))
+                offset_from_pred_arcsec=float(np.hypot(dE, dN)), method="masked_core_gaussian_SUPPLEMENTARY" if saturated else "gaussian_psf_fit")
 
 
-def motion_analysis(cat, recs):
+def motion_analysis(cat, recs, key="astrometry"):
     """Visit-averaged positions; measured displacement first->last visit vs predicted displacement."""
-    good = [r for r in recs if r.get("astrometry")]
+    good = [dict(r, astrometry=r[key]) for r in recs if r.get(key)]
     vs = visits([dict(r, mjd=r["mjd"]) for r in good])
     vout = []
     for v in vs:
@@ -186,6 +282,51 @@ def motion_analysis(cat, recs):
     return out
 
 
+WCS_FLOOR_ARCSEC = 0.3  # conservative per-frame WCS systematic (field-star zero points/floors measured in D1-D4 here are <= 0.3")
+
+
+def epsf_motion(cat, recs, min_snr=3.0):
+    """Motion test from free-position EPSF fits (catalogued neighbours fitted simultaneously at fixed positions).
+    Raw frame WCS (no zero-point correction: D5/D6 frames lack enough bright Gaia stars), with a WCS floor
+    added in quadrature. Frames with fitted target S/N < min_snr are not used."""
+    pts = []
+    for r in recs:
+        ff = ((r.get("forced_epsf") or {}).get("free_fit")) or None
+        if not ff or not ff["ok"] or ff["flux"] / ff["flux_err"] < min_snr:
+            continue
+        sig = float(np.hypot(ff["pos_err_axis_arcsec"], WCS_FLOOR_ARCSEC))
+        pts.append(dict(mjd=r["mjd"], obsid=r["obsid"], ra=ff["ra"], dec=ff["dec"], sig=sig, snr=ff["flux"] / ff["flux_err"]))
+    out = dict(n_frames_used=len(pts), min_snr=min_snr, wcs_floor_arcsec=WCS_FLOOR_ARCSEC, frames=pts)
+    vs = visits(pts)
+    vout = []
+    for v in vs:
+        w = np.array([1 / p["sig"] ** 2 for p in v])
+        ra = float(np.sum(np.array([p["ra"] for p in v]) * w) / w.sum())
+        dec = float(np.sum(np.array([p["dec"] for p in v]) * w) / w.sum())
+        mjd = float(np.mean([p["mjd"] for p in v]))
+        pr, pd = target_position(cat, Time(mjd, format="mjd"))
+        dE, dN = offsets_arcsec(ra, dec, pr, pd)
+        vout.append(dict(mjd=mjd, date=Time(mjd, format="mjd").isot[:10], n=len(v), ra=ra, dec=dec, sigma_axis_arcsec=float(1 / np.sqrt(w.sum())),
+                         pred_ra=pr, pred_dec=pd, offset_from_pred_E=float(dE), offset_from_pred_N=float(dN)))
+    out["visits"] = vout
+    if len(vout) >= 2:
+        a, b = vout[0], vout[-1]
+        mE, mN = offsets_arcsec(b["ra"], b["dec"], a["ra"], a["dec"])
+        pE, pN = offsets_arcsec(b["pred_ra"], b["pred_dec"], a["pred_ra"], a["pred_dec"])
+        sig = float(np.hypot(a["sigma_axis_arcsec"], b["sigma_axis_arcsec"]))
+        out.update(baseline_days=float(b["mjd"] - a["mjd"]), measured_displacement_E=float(mE), measured_displacement_N=float(mN),
+                   measured_displacement_arcsec=float(np.hypot(mE, mN)), predicted_displacement_E=float(pE), predicted_displacement_N=float(pN),
+                   predicted_displacement_arcsec=float(np.hypot(pE, pN)), displacement_sigma_axis_arcsec=sig,
+                   residual_E=float(mE - pE), residual_N=float(mN - pN), residual_arcsec=float(np.hypot(mE - pE, mN - pN)),
+                   significance_of_motion_sigma=float(np.hypot(mE, mN) / sig),
+                   residual_chi2_2dof=float(((mE - pE) ** 2 + (mN - pN) ** 2) / sig ** 2),
+                   stationary_chi2_2dof=float((mE ** 2 + mN ** 2) / sig ** 2))
+        # all-visit offsets from the predicted track (chi2 against "moves as predicted")
+        out["track_chi2"] = float(sum((v["offset_from_pred_E"] ** 2 + v["offset_from_pred_N"] ** 2) / v["sigma_axis_arcsec"] ** 2 for v in vout))
+        out["track_dof"] = 2 * len(vout)
+    return out
+
+
 def photometry_analysis(ims, recs, gaia, det, tid):
     """Differential aperture photometry in one matched set on native grids with a common valid-pixel
     mask. Target vs an ensemble of isolated, non-variable Gaia reference stars measured identically."""
@@ -203,27 +344,40 @@ def photometry_analysis(ims, recs, gaia, det, tid):
         tx, ty = rec["predicted"]["x"], rec["predicted"]["y"]
         tgt = aperture(im, tx, ty, r_ap, bad, extra_bad=extra)
         refs = {}
+        why = defaultdict(int)
         for i in range(len(g)):
             sid = int(gaia["source_id"][i])
-            if sid in tid_ids or var_flag[i] == "VARIABLE" or g[i] > 15.5:
+            if sid in tid_ids or var_flag[i] == "VARIABLE" or g[i] > 16.5:
+                why["catalogue"] += 1
                 continue
             if not in_bounds(im, gx[i], gy[i], 12) or np.hypot(gx[i] - tx, gy[i] - ty) < 10:
+                why["position"] += 1
                 continue
-            if not isolated(gaia, gx, gy, i, rad_px=r_ap + 4, dmag=4.0):
+            # a constant neighbour cancels in a same-wavelength ratio; only reject comparably bright close pairs
+            if not isolated(gaia, gx, gy, i, rad_px=r_ap + 1.5, dmag=2.0):
+                why["blended"] += 1
                 continue
             a = aperture(im, gx[i], gy[i], r_ap, bad, extra_bad=extra)
-            if a is None or a["n_missing"] > 0 or a["flux"] <= 0 or a["flux"] / a["err"] < 30:
+            if a is None or a["n_missing"] > 0:
+                why["masked"] += 1
+                continue
+            if a["flux"] <= 0 or a["flux"] / a["err"] < 30:
+                why["low_snr"] += 1
                 continue
             if set(flags_in(im, gx[i], gy[i], r_ap)) & SAT_FLAG_NAMES:
+                why["saturated"] += 1
                 continue
             refs[sid] = a
-        per_frame.append(dict(target=tgt, refs=refs))
+        per_frame.append(dict(target=tgt, refs=refs, why=dict(why)))
     common = set.intersection(*[set(p["refs"]) for p in per_frame]) if per_frame else set()
     out = dict(aperture_radius_px=r_ap, n_reference_stars=len(common), common_mask="pixel used in any epoch must be valid in every epoch (mapped through each frame's WCS)")
     tflux = [p["target"] for p in per_frame]
     complete = all(t is not None and t["n_missing"] == 0 for t in tflux)
     out["target_aperture_complete_all_epochs"] = bool(complete)
     out["target_missing_px"] = [None if t is None else t["n_missing"] for t in tflux]
+    out["reference_rejections_per_frame"] = [p["why"] for p in per_frame]
+    out["reference_candidates_per_frame"] = [len(p["refs"]) for p in per_frame]
+    out["common_mask_fraction_masked"] = [float(e.mean()) for e in extras]
     if len(common) < 3:
         out["ok"] = False
         out["reason"] = f"only {len(common)} usable reference stars"
@@ -307,6 +461,11 @@ def run_target(tid, cat, frames):
                 chosen.append(dict(by_span, selection="longest_baseline"))
             else:
                 chosen[-1]["selection"] = "most_visits_and_longest_baseline"
+            if ttype == "variability" and det == 1:
+                # bright targets saturate; their faintest light is usually at the shortest wavelengths
+                short = min(ss, key=lambda s: s["lam_ref"])
+                if all(short is not c_ for c_ in (ss[0], by_span)):
+                    chosen.append(dict(short, selection="shortest_wavelength"))
     obs["matched_set_candidates"] = all_sets_summary
     ra_c, dec_c = target_position(cat, Time("2025-11-01"))
     gaia = load_gaia(tid, ra_c, dec_c)
@@ -333,13 +492,28 @@ def run_target(tid, cat, frames):
         ok_match = bool(len(lam) >= 2 and (lam.max() - lam.min()) <= 0.5 * bwm)
         for i in keep:
             recs[i]["astrometry"] = astrometry_from(recs[i])
+            recs[i]["astrometry_saturated_supplementary"] = astrometry_from(recs[i], saturated=True) if recs[i].get("saturated_core") else None
         rr = [recs[i] for i in keep]
         ii = [ims[i] for i in keep]
         res = dict(set_id=sid, selection=s["selection"], detector=f"D{det}", lambda_ref_um=float(np.mean(lam)) if len(lam) else None, bandwidth_um=float(bwm),
                    wavelength_spread_um=float(lam.max() - lam.min()) if len(lam) else None, matched_within_half_bandwidth=ok_match,
                    n_visits=len(visits(rr)), span_days=float(max(r["mjd"] for r in rr) - min(r["mjd"] for r in rr)) if rr else 0)
         res["motion"] = motion_analysis(cat, rr) if ok_match else None
+        if ok_match and any(r.get("astrometry_saturated_supplementary") for r in rr):
+            res["motion_saturated_supplementary"] = motion_analysis(cat, rr, key="astrometry_saturated_supplementary")
         res["photometry"] = photometry_analysis(ii, rr, gaia, det, tid) if ok_match and len(rr) >= 2 else None
+        fe = [r.get("forced_epsf") for r in rr]
+        if fe and all(x and x.get("err_empirical") for x in fe):
+            w = np.array([1 / x["err_empirical"] ** 2 for x in fe])
+            fl = np.array([x["flux"] for x in fe])
+            wn = np.array([1 / x["err_nominal"] ** 2 for x in fe])
+            res["forced_epsf_combined"] = dict(
+                n=len(fe), flux_wmean=float((fl * w).sum() / w.sum()), err_empirical=float(1 / np.sqrt(w.sum())),
+                snr_empirical=float((fl * w).sum() / w.sum() * np.sqrt(w.sum())),
+                snr_nominal=float((fl * wn).sum() / wn.sum() * np.sqrt(wn.sum())),
+                chi2_constant=float((((fl - (fl * w).sum() / w.sum()) ** 2) * w).sum()),
+                note="weighted mean of per-frame native-grid forced EPSF fluxes within one matched set (same detector, wavelengths within half a bandwidth)")
+            res["motion_free_epsf"] = epsf_motion(cat, rr) if ok_match else None
         set_results.append((res, rr))
         matched_out.append(dict(set_id=sid, selection=s["selection"], detector=f"D{det}", lambda_ref_um=res["lambda_ref_um"], bandwidth_um=res["bandwidth_um"],
                                 wavelength_spread_um=res["wavelength_spread_um"], matched_within_half_bandwidth=ok_match,
@@ -360,10 +534,13 @@ def run_target(tid, cat, frames):
                 set_id=sid, detector=f"D{det}", obsid=r["obsid"], date_avg=r["date_avg"], mjd=r["mjd"], wavelength_um=r.get("wavelength_um"),
                 predicted=r["predicted"], fit=dict((k, fit.get(k)) for k in ("x", "y", "x_err", "y_err", "sigma_x", "sigma_y", "chi2r", "ok", "n_bad_core", "psf_sigma_ratio_to_field_stars", "point_like", "offset_from_pred_px")) if fit else None,
                 measured=r.get("astrometry"),
+                saturated_core=r.get("saturated_core"),
+                measured_saturated_supplementary=r.get("astrometry_saturated_supplementary"),
                 flux=dict(aperture_radius_px=AP_R[det], flux_sum_mjysr_px=fa.get("flux"), err_nominal=fa.get("err"), err_empirical=fa.get("err_empirical"),
                           snr_nominal=fa.get("snr_nominal"), snr_empirical=fa.get("snr_empirical"), n_missing_px=fa.get("n_missing"),
                           flux_mJy_approx=(fa.get("flux") * (PIX_ARCSEC / 206265) ** 2 * 1e9) if fa.get("flux") is not None else None),
                 control_apertures=r.get("control"),
+                forced_epsf_deblended=r.get("forced_epsf"),
                 flags_at_target=r.get("flags_at_target"), saturation=r.get("saturation")))
     return dict(tid=tid, obs=obs, matched_out=matched_out, measurements=measurements, align_out=align_out,
                 set_results=[s for s, _ in set_results], chosen=chosen)

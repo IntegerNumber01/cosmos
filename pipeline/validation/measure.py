@@ -18,7 +18,7 @@ from scipy.optimize import least_squares
 
 from spherex_io import REJECT_FLAG_NAMES
 
-from .common import PIX_ARCSEC, offsets_arcsec, propagate
+from .common import PIX_ARCSEC, fcol, offsets_arcsec, propagate
 
 SAT_FLAG_NAMES = {"OVERFLOW", "NONLINEAR"}
 
@@ -55,7 +55,7 @@ def in_bounds(im, x, y, margin):
 
 # ------------------------------------------------------------------ PSF / centroid
 
-def psf_fit(im, x0, y0, bad, half=4, max_shift=3.0):
+def psf_fit(im, x0, y0, bad, half=4, max_shift=3.0, smax=4.0):
     """Weighted elliptical Gaussian (axis-aligned) + constant on a (2*half+1)^2 stamp.
     Returns dict or None."""
     xi, yi = int(round(x0)), int(round(y0))
@@ -81,7 +81,7 @@ def psf_fit(im, x0, y0, bad, half=4, max_shift=3.0):
 
     p0 = [amp0, x0, y0, 1.0, 1.0, b0]
     lb = [0, x0 - max_shift, y0 - max_shift, 0.3, 0.3, -np.inf]
-    ub = [np.inf, x0 + max_shift, y0 + max_shift, 4.0, 4.0, np.inf]
+    ub = [np.inf, x0 + max_shift, y0 + max_shift, smax, smax, np.inf]
     try:
         res = least_squares(lambda p: (model(p) - z) / sig, p0, bounds=(lb, ub), x_scale="jac")
     except Exception:  # noqa: BLE001
@@ -94,7 +94,7 @@ def psf_fit(im, x0, y0, bad, half=4, max_shift=3.0):
     except np.linalg.LinAlgError:
         return None
     a, xc, yc, sx, sy, b = (float(t) for t in res.x)
-    at_bound = abs(xc - x0) > max_shift - 0.05 or abs(yc - y0) > max_shift - 0.05 or sx > 3.95 or sy > 3.95 or sx < 0.31 or sy < 0.31
+    at_bound = abs(xc - x0) > max_shift - 0.05 or abs(yc - y0) > max_shift - 0.05 or sx > smax - 0.05 or sy > smax - 0.05 or sx < 0.31 or sy < 0.31
     return dict(x=xc, y=yc, x_err=ex, y_err=ey, amp=a, sigma_x=sx, sigma_y=sy, bkg=b, chi2r=chi2r, npix=int(len(z)),
                 n_bad_core=n_bad_core, ok=bool(res.success and np.isfinite(ex) and np.isfinite(ey) and not at_bound))
 
@@ -149,8 +149,8 @@ def control_apertures(im, r, bad, avoid_xy, n=80, rng_seed=0, avoid_r=4.0, margi
 # ------------------------------------------------------------------ Gaia field stars
 
 def gaia_pixels(im, gaia, t: Time):
-    ra, dec = propagate(np.array(gaia["ra"], float), np.array(gaia["dec"], float), np.array(gaia["pmra"].filled(0), float),
-                        np.array(gaia["pmdec"].filled(0), float), np.array(gaia["parallax"].filled(0), float), 2016.0, t)
+    ra, dec = propagate(np.array(gaia["ra"], float), np.array(gaia["dec"], float), fcol(gaia, "pmra"),
+                        fcol(gaia, "pmdec"), fcol(gaia, "parallax"), 2016.0, t)
     x, y = im.wcs.world_to_pixel_values(ra, dec)
     return np.asarray(ra), np.asarray(dec), np.asarray(x), np.asarray(y)
 
@@ -167,7 +167,7 @@ def field_star_astrometry(im, gaia, t: Time, bad, exclude_xy, gmax=16.5, min_snr
     Returns zero point (median E,N residual), robust scatter, and per-star residuals."""
     ra, dec, x, y = gaia_pixels(im, gaia, t)
     g = np.array(gaia["phot_g_mean_mag"], float)
-    has_pm = ~np.asarray(gaia["pmra"].mask) if hasattr(gaia["pmra"], "mask") else np.ones(len(g), bool)
+    has_pm = np.isfinite(fcol(gaia, "pmra", np.nan))
     order = np.argsort(g)
     rows = []
     for i in order:

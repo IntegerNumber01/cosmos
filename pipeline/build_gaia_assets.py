@@ -38,7 +38,9 @@ bprp = np.asarray(t["bp_rp"].filled(np.nan) if hasattr(t["bp_rp"], "filled") els
 good = np.isfinite(G)
 t, x, y, z, G, absG, bprp, plx, eplx, d = (a[good] for a in (t, x, y, z, G, absG, bprp, plx, eplx, d))
 n = len(t)
-arr = np.stack([x, y, z, absG, G, np.where(np.isfinite(bprp), bprp, -99), plx, eplx], axis=1).astype("<f4")
+pmra = np.nan_to_num(np.asarray(t["pmra"].filled(np.nan) if hasattr(t["pmra"], "filled") else t["pmra"], float))
+pmdec = np.nan_to_num(np.asarray(t["pmdec"].filled(np.nan) if hasattr(t["pmdec"], "filled") else t["pmdec"], float))
+arr = np.stack([x, y, z, absG, G, np.where(np.isfinite(bprp), bprp, -99), plx, eplx, pmra, pmdec], axis=1).astype("<f4")
 (OUT / "stars.f32").write_bytes(arr.tobytes())
 sid = np.asarray(t["SOURCE_ID"], dtype=np.uint64)
 ids = np.stack([(sid >> np.uint64(32)).astype(np.uint32), (sid & np.uint64(0xFFFFFFFF)).astype(np.uint32)], axis=1).astype("<u4")
@@ -90,8 +92,8 @@ for name, r0, d0, vmag, dist in FAMOUS:
 
 meta = dict(
     n=n,
-    stride=8,
-    fields=["x_pc", "y_pc", "z_pc", "abs_mag_g", "phot_g_mean_mag", "bp_rp", "parallax_mas", "parallax_error_mas"],
+    stride=10,
+    fields=["x_pc", "y_pc", "z_pc", "abs_mag_g", "phot_g_mean_mag", "bp_rp", "parallax_mas", "parallax_error_mas", "pmra_mas_yr", "pmdec_mas_yr"],
     frame="ICRS Cartesian, parsecs, origin = Sun; Gaia DR3 epoch J2016.0",
     selection=["parallax > 20 mas (d < 50 pc) AND parallax_over_error > 10",
                "phot_g_mean_mag < 6.5 AND parallax_over_error > 5"],
