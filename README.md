@@ -2,7 +2,7 @@
 
 **Google Earth for the infrared universe.** NASA Space Apps Challenge 2026, *Planet X and SPHEREx*.
 
-Enter any sky coordinates (or fly to a star) and COSMOS lists every NASA SPHEREx exposure of that patch of sky. It then plays the dates taken at a matched wavelength (one exposure per day, up to 12). Then it helps you find what changed and check whether it's already known.
+Enter any sky coordinates (or fly to a star) and COSMOS lists NASA SPHEREx exposures of that patch of sky. Play every compatible exposure or one per day, filter by date, and page through the sequence in groups of 12. Then find what changed and check whether it's already known.
 
 | Mode | What you do | Data |
 |---|---|---|
@@ -14,7 +14,7 @@ Enter any sky coordinates (or fly to a star) and COSMOS lists every NASA SPHEREx
 ## How Time Travel works
 
 1. `/api/observations` queries IRSA SIA2 (`spherex_dr1`) for every frame covering the position. It estimates the wavelength *at that position* on each frame from the footprint polygon and the detector's WCS-WAVE table. Validated against full WCS on 93 frames: median 3.3 px, max 7 px, which is about 0.001 µm.
-2. Frames are grouped into **matched sets**: same detector, and every pair of dates within half a channel in wavelength (members within ±¼ channel of the centre). One frame per day.
+2. Frames are grouped into **matched sets**: same detector, and every pair of dates within half a channel in wavelength. Choose every compatible exposure (including same-day observations) or one per day. Date filters use inclusive UTC days; paging exposes the entire selected sequence.
 3. `/api/cutout` fetches each IBE cutout server-side (IRSA sends no CORS headers), parses the FITS in TypeScript, and returns IMAGE/FLAGS/VARIANCE plus WCS (~60 kB instead of 4 MB). Exact wavelengths are recomputed from each header, and frames outside the tolerance are excluded and listed.
 4. The browser reprojects frames onto one north-up grid **for display**. Find changes uses a common valid-pixel mask, and its noise scale is the *measured* robust scatter of the difference image (labelled indicative, not a calibrated probability).
 5. Measurements (aperture photometry, centroids) run on each frame's **native pixels**. Errors are empirical, from blank-sky control apertures, plus a stated 0.5″ alignment allowance on positions. Apertures dominated by flagged pixels (e.g. saturation) report *no measurement*.
@@ -22,6 +22,24 @@ Enter any sky coordinates (or fly to a star) and COSMOS lists every NASA SPHEREx
 7. Find changes and every measurement re-check the wavelength match **at their own position**. The filter wavelength drifts across the field, so changes where the dates differ by more than half a channel get no temporal reading. Measurements follow the validation pipeline's rules: any flagged pixel in the core (r ≤ 1.5 px) means no measurement, and centroids come only from fully valid apertures. Cached catalogue answers are used only for the exact query they answer (position, radius, time, services).
 
 The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position and 4e-7 µm in wavelength (`web/scripts/check-wcs.ts`). Featured targets ship a prepared cache, byte-identical to the live API output (`web/scripts/build-cache.ts`), so demos work if the archive is unreachable.
+
+## Challenge considerations in the public tool
+
+- **Refresh and provenance:** “Check for newer observations” bypasses saved observation lists and HTTP caches. A failed refresh retains the previous investigation and reports the failure. DR1 remains the explicit baseline; rebuilt caches carry release/engine versions and a SHA-256 manifest. The archive search includes the selected square field's corners; frames that do not safely cover the centre are reported separately, not used for target measurements.
+- **Combine and subtract:** “Stack visits” forms sky-aligned means within 30-minute, 2-hour, or 24-hour windows. Both stacking and differences check wavelengths at each output pixel and exclude unusable samples. Fast sources may smear. These display means are separate from native-pixel photometry and the offline WISE 0855 deblended PSF analysis.
+- **102 channels:** the on-demand Wavelength lab samples up to one exposure per nominal channel and generates six detector-band previews. Channels receive equal weight; missing channels remain missing. Spectral coverage is reported, and different dates are labelled. These are exploratory means of available surface brightness, not integrated filter fluxes.
+- **Spectrum:** select a source position in the field to plot native-pixel aperture flux against wavelength, with empirical errors, dates, flags, and downloadable CSV. No aperture/PSF correction or deblending is applied. Saturated or incomplete apertures report no measurement.
+- **Field, overlays, and links:** Time Travel offers 3′, 6′, 12′, and 18′ fields, Gaia predictions, and a quality overlay. Explore adds a WISE mosaic with adjustable opacity and epoch warnings. Investigation links preserve field, wavelength window, selected exposures, comparison mode, visit settings, and proper motion; “Copy embed code” provides an iframe presentation.
+
+Details, limitations, and acceptance checks: [docs/CHALLENGE_COVERAGE.md](docs/CHALLENGE_COVERAGE.md).
+
+```bash
+cd web
+npm test             # offline engine and cache regressions using prepared target data
+npm run build
+# With the app running (from the repository root):
+pipeline/.venv/Scripts/python pipeline/tools/challenge_ui.py http://localhost:3011
+```
 
 ## Comet SWAN case file (verified, reproducible)
 

@@ -1,0 +1,39 @@
+# Challenge coverage and verification
+
+The public tool centres on RA/Dec → real dated SPHEREx DR1 images → wavelength-matched playback and comparisons. All five requested test targets retain their existing validation records in `VALIDATION.md`; adding display features does not upgrade those scientific verdicts.
+
+| Consideration | Implemented public behaviour | Limits |
+|---|---|---|
+| New releases / updates | Explicit archive refresh, query timestamp, central release configuration, versioned prepared-cache metadata and SHA-256 manifest builder | DR1 remains the project baseline. QR3 is not silently mixed in. Refresh does not mean a new observation exists. |
+| 102 bands | Explore's channel dial; Wavelength lab's six detector-band previews and aperture spectrum | Bounded sampling: at most one representative exposure per nominal channel. Missing channels are not interpolated. Images can mix dates and have incomplete spatial/spectral coverage. |
+| Add / subtract | Individual-date differences, visit means, and differences of visit means | Mean images use sky alignment, not object-tracking alignment. Motion can smear and variability can average away. These are display products, not stacked PSF photometry. |
+| Field of view | 3′, 6′, 12′, 18′ fields, full-field archive search radius, transfer-cost explanation | Only exposures safely covering the target centre enter target comparisons. Partial edge-only footprints are counted separately. This does not stitch a full mosaic from edge-only frames. |
+| Telescope context | Epoch-propagated Gaia markers; WISE image layer in Explore, with opacity and provenance | WISE is a historical mosaic at different wavelengths. It is excluded from SPHEREx measurements. |
+| Coordinate URLs / embedding | Full investigation state, exact selection window, proper motion, selected exposure IDs, stack settings, iframe presentation | If an upstream exposure becomes unavailable, the loader reports it. Links do not archive or freeze the external archive. |
+| Quality metadata | QA, OBSID, time, detector, exposure, FITS links, readable header flag definitions, quality overlay, spectral flags/errors | Quality overlay uses nearest native pixels; display interpolation uses a more conservative validity mask. Outlier flags remain visible without discarding moving/variable signals. |
+| Astronomy tooling | Existing Aladin Lite, Astropy, reproject, and validated TypeScript FITS/WCS engine retained | IRSA's calibrated spectrophotometry workflow is linked separately from the exploratory aperture spectrum. |
+
+## Scientific rules for the additions
+
+- **Cadence:** the default viewer retains every wavelength-compatible exposure, including multiple exposures on one UTC day. Daily mode still selects the exposure nearest the window centre and preserves a specifically selected reference frame. Loading is paged in groups of 12 rather than truncating the sequence.
+- **Selection:** same detector and a total wavelength span of at most half a channel. Cutout headers re-check the estimates used for discovery. Shared URLs preserve the original selection window and preferred reference, avoiding a different window being chosen on reload.
+- **Visits:** grouping bounds the total elapsed time from the first contributing exposure, rather than allowing a chain of nearby observations to bridge a longer interval. Available windows are 30 minutes, 2 hours, and 24 hours.
+- **Stacking:** locally background-subtracted, equal-exposure means in MJy/sr. Invalid samples never enter the mean. The wavelength is evaluated at each output pixel; pixels whose contributing wavelengths span more than half the smallest local channel width are masked. Comparing visits applies the same rule across both stacks. Coverage and source exposures are visible. The difference colour scale uses measured field scatter, not a calibrated detection probability.
+- **Detector-band previews:** repeated samples first share one nominal-channel weight. The final preview averages available channels equally; it does not sum varying numbers of exposures into a misleading brightness scale. Actual channel assignment is evaluated across the field. Per-pixel channel counts determine the reported incomplete-coverage fraction. Each card has its own image stretch. No integrated detector passband flux or time variation is inferred.
+- **Aperture spectra:** native-grid photometry, radius 2 pixels, background annulus, empirical blank-sky controls, local TAN-SIP WCS solid angle. MJy/sr × solid angle × 10⁹ gives mJy. Partial apertures, unusable cores, unsupported units, and missing empirical errors report no flux. No aperture correction, PSF fitting, source deblending, or annual parallax correction is performed here. Dates and negative measured fluxes are retained; points are not connected across missing channels. WISE 0855's offline deblended-PSF detection remains a separate analysis.
+
+## Release and cache maintenance
+
+`web/src/lib/engine/releases.ts` defines the collection, release, engine version and cache schema. Adding a future release requires verifying its calibration and WCS compatibility before changing this configuration and rebuilding the cache. The cube viewer's HiPS release and wavelength table must also remain consistent. Do not repurpose an old cache under a new release name.
+
+`web/scripts/build-cache.ts` writes release/engine/field provenance into observation lists, rebuilds obsolete cutouts, and creates a manifest of source URLs and SHA-256 checksums. The client checks cutout source URL and target position; failed requests are evicted from its bounded in-memory cache. Existing legacy 6′ demo caches are explicitly labelled as centre searches, and remain useful offline. Other field sizes use a matching prepared cache or live discovery. The refresh path uses `no-store`, bypasses saved observation lists, and never falls back silently to an old answer.
+
+IRSA documents the current DR1/QR3 collections and weekly ingestion at https://irsa.ipac.caltech.edu/spherex-archive-documentation/spherex-data-access/. DR1 is deliberately retained for reproducibility here; full current-release coverage would require an explicit QR3 integration and validation.
+
+## Verification
+
+- `cd web && npm test`: offline Node regression suite using synthetic control images and real prepared target metadata. Covers same-day cadence, exact selection-window restoration on all five challenge targets plus SWAN, inclusive UTC ranges, URL state, bounded visits, invalid-pixel rejection, per-pixel wavelength matching, equal channel weights, spectral flags/units/CSV, refresh failures, cache provenance, and full-field discovery radius.
+- `cd web && npm run build`: production compilation, TypeScript, and framework checks.
+- `pipeline/.venv/Scripts/python pipeline/tools/challenge_ui.py http://localhost:3011`: browser regression against a running app. Uses real prepared cutouts and controlled archive responses to verify share/reload, visit comparisons, refresh success/failure, band previews, spectra/error bars, CSV export, mobile layout, embedding, and runtime errors. Artifacts go to ignored `web/.qa/`.
+
+These checks validate feature behaviour. They do not repeat the independent astrophysical validation or establish new discoveries.

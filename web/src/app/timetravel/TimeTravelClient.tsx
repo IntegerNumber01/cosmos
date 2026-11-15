@@ -6,6 +6,13 @@ import NavBar from "@/components/NavBar";
 import GridCanvas from "@/components/timetravel/GridCanvas";
 import ObsTimeline from "@/components/timetravel/ObsTimeline";
 import MeasurePanel from "@/components/timetravel/MeasurePanel";
+import VisitStacks from "@/components/timetravel/VisitStacks";
+import QualityOverlay from "@/components/timetravel/QualityOverlay";
+import SpectralLab from "@/components/timetravel/SpectralLab";
+import { inDateRange, observationKey, readViewState, viewQuery, ViewMode } from "@/lib/engine/viewState";
+import type { Cadence } from "@/lib/engine/sequence";
+import { validCoordinates } from "@/lib/engine/releases";
+import { temporalInputs } from "@/lib/engine/combine";
 import { getFrame, getKnown, getObservations, GaiaRow, parseCoords, Source } from "@/lib/engine/client";
 import {
   Candidate,
@@ -18,6 +25,7 @@ import {
   MatchedSet,
   matchedSets,
   setContaining,
+  restoreMatchedSet,
   exactWindow,
   Observation,
   reproject,
@@ -64,12 +72,13 @@ const fmtDate = (iso: string) =>
   new Date(iso.endsWith("Z") ? iso : iso + "Z").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const fmtDateTime = (iso: string) => `${fmtDate(iso)} ${iso.slice(11, 16)} UTC`;
 
-function pickSet(obs: Observation[], ref: Observation): MatchedSet {
-  return setContaining(obs, ref);
+function pickSet(obs: Observation[], ref: Observation, cadence: Cadence): MatchedSet {
+  return setContaining(obs, ref, cadence);
 }
 
 export default function TimeTravelClient() {
   const sp = useSearchParams();
+  const [shared] = useState(() => readViewState(sp));
   const reduced = usePrefersReducedMotion();
   const initial: Target | null = useMemo(() => {
     const slug = sp.get("target");
@@ -82,7 +91,7 @@ export default function TimeTravelClient() {
     const pmra = parseFloat(sp.get("pmra") ?? "");
     const pmdec = parseFloat(sp.get("pmdec") ?? "");
     const epoch = parseFloat(sp.get("epoch") ?? "");
-    if (Number.isFinite(ra) && Number.isFinite(dec))
+    if (validCoordinates(ra, dec))
       return {
         ra,
         dec,
@@ -97,8 +106,12 @@ export default function TimeTravelClient() {
   const [fromGaia] = useState(() => sp.get("from") === "gaia");
   const [input, setInput] = useState(initial ? `${initial.ra.toFixed(5)} ${initial.dec.toFixed(5)}` : "");
   const [inputErr, setInputErr] = useState("");
-  const [size, setSize] = useState(0.1);
-  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string }>({
+  const [size, setSize] = useState(shared.size);
+  const [cadence, setCadence] = useState<Cadence>(shared.cadence);
+  const [start, setStart] = useState(shared.start);
+  const [end, setEnd] = useState(shared.end);
+  const [page, setPage] = useState(shared.page);
+  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string; legacy?: boolean }>({
     status: "idle",
   });
   const [set, setSet] = useState<MatchedSet | null>(null);
@@ -106,9 +119,10 @@ export default function TimeTravelClient() {
   const [progress, setProgress] = useState<{ done: number; total: number; error?: string } | null>(null);
   const [idx, setIdx] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [view, setView] = useState<"frames" | "swipe" | "changes">("frames");
+  const [view, setView] = useState<ViewMode>("frames");
   const [pair, setPair] = useState<[number, number]>([0, 1]);
-  const [split, setSplit] = useState(0.5);
+  const [split, setSplit] = useState(shared.split);
+  const [stackSettings, setStackSettings] = useState(shared.stack);
   const [change, setChange] = useState<ChangeMap | null>(null);
   const [cand, setCand] = useState<Candidate | null>(null);
   const [measureAt, setMeasureAt] = useState<{
@@ -122,18 +136,27 @@ export default function TimeTravelClient() {
     epochYear?: number;
   } | null>(null);
   const [gaia, setGaia] = useState<{ rows: GaiaRow[]; mjd: number } | null>(null);
-  const [showGaia, setShowGaia] = useState(true);
+  const [showGaia, setShowGaia] = useState(shared.gaia);
+  const [showQuality, setShowQuality] = useState(shared.quality);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState("");
+  const [shareStatus, setShareStatus] = useState("");
+  const [frameWarnings, setFrameWarnings] = useState<string[]>([]);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const restoring = useRef(true);
+  const sharedAnchor = useRef(shared.anchor);
   const loadToken = useRef(0);
   const searchToken = useRef(0);
 
-  const obs = useMemo(() => obsState.obs ?? [], [obsState.obs]);
-  const sets = useMemo(() => matchedSets(obs), [obs]);
+  const obs = useMemo(() => (obsState.obs ?? []).filter((o) => inDateRange(o.mjd, start, end)), [obsState.obs, start, end]);
+  const sets = useMemo(() => matchedSets(obs, 8, cadence), [obs, cadence]);
   const nInside = obs.filter((o) => o.inside).length;
   const nDays = new Set(obs.filter((o) => o.inside).map((o) => Math.floor(o.mjd))).size;
 
   // 1) find observations
   const search = useCallback(
-    (t: Target) => {
+    (t: Target, field = size, restore = false) => {
+      if (!restore) { restoring.current = false; sharedAnchor.current = ""; setPage(0); }
       setTarget(t);
       setSet(null);
       setLoaded(null);
@@ -141,43 +164,69 @@ export default function TimeTravelClient() {
       setCand(null);
       setMeasureAt(null);
       setGaia(null);
+      setProgress(null);
+      setPlaying(false);
+      setRefreshError("");
+      setFrameWarnings([]);
       setObsState({ status: "loading" });
       const token = ++searchToken.current;
       loadToken.current++; // cancel any frame loading from the previous search
-      const q = new URLSearchParams(t.slug ? { target: t.slug } : { ra: t.ra.toFixed(5), dec: t.dec.toFixed(5) });
-      window.history.replaceState(null, "", `/timetravel?${q.toString()}`);
-      getObservations(t.ra, t.dec, t.slug)
-        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried }))
+      getObservations(t.ra, t.dec, t.slug, true, field)
+        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy }))
         .catch((e) => token === searchToken.current && setObsState({ status: "error", error: String(e.message ?? e) }));
     },
-    [],
+    [size],
   );
 
   useEffect(() => {
-    if (initial) search(initial);
+    if (initial) search(initial, shared.size, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // default: the matched set with the most distinct dates
   useEffect(() => {
     if (obsState.status !== "ready" || set) return;
+    const restored = restoring.current && shared.window ? restoreMatchedSet(obs, shared.window, shared.anchor, cadence) : null;
+    if (restored) { setSet(restored); return; }
+    const saved = sharedAnchor.current && obs.find((o) => o.inside && observationKey(o) === sharedAnchor.current);
     const pref = target?.slug ? TT_BY_SLUG[target.slug]?.prefer : undefined;
-    const po = pref && obs.find((o) => o.obsid === pref.obsid && o.detector === pref.detector);
-    if (po) setSet(pickSet(obs, po));
+    const po = saved || (pref && obs.find((o) => o.inside && o.obsid === pref.obsid && o.detector === pref.detector));
+    if (po) setSet(pickSet(obs, po, cadence));
     else if (sets.length) setSet(sets[0]);
-  }, [obsState.status, sets, set, obs, target]);
+    else if (obs.some((o) => o.inside)) setSet(pickSet(obs, obs.find((o) => o.inside)!, cadence));
+  }, [obsState.status, sets, set, obs, target, cadence, shared]);
+
+  const chooseSet = (s: MatchedSet) => { restoring.current = false; sharedAnchor.current = ""; setPage(0); setSet(s); };
+  const resetSelection = () => { restoring.current = false; sharedAnchor.current = ""; loadToken.current++; setPlaying(false); setLoaded(null); setSet(null); setPage(0); };
+
+  const refresh = async () => {
+    if (!target) return;
+    const token = ++searchToken.current;
+    setRefreshing(true); setRefreshError("");
+    try {
+      const d = await getObservations(target.ra, target.dec, target.slug, false, size, true);
+      if (token !== searchToken.current) return;
+      sharedAnchor.current = set?.frames[0] ? observationKey(set.frames[0]) : "";
+      loadToken.current++; setLoaded(null); setSet(null); setPage(0); restoring.current = false;
+      setObsState({ status: "ready", obs: d.frames, source: d.source, queried: d.queried, legacy: false });
+    } catch (e) { if (token === searchToken.current) setRefreshError(`Refresh failed; the previous result is still shown. ${String((e as Error).message)}`); }
+    finally { setRefreshing(false); }
+  };
 
   // 2) load the frames of the chosen set
   useEffect(() => {
     if (!set || !target || set.frames.length < 1) return;
     const token = ++loadToken.current;
+    let alive = true;
     setLoaded(null);
     setChange(null);
     setCand(null);
     setMeasureAt(null);
-    setView("frames");
+    setView("frames"); setPlaying(false);
     setIdx(0);
-    const todo = set.frames.slice(0, 12);
+    const actualPage = Math.min(page, Math.max(0, Math.ceil(set.frames.length / 12) - 1));
+    if (actualPage !== page) { setPage(actualPage); return; }
+    const todo = set.frames.slice(page * 12, (page + 1) * 12);
     setProgress({ done: 0, total: todo.length });
     const results: ({ frame: Frame; source: Source } | null)[] = new Array(todo.length).fill(null);
     let next = 0;
@@ -185,6 +234,7 @@ export default function TimeTravelClient() {
     let lastErr = "";
     const worker = async () => {
       while (next < todo.length) {
+        if (!alive || token !== loadToken.current) return;
         const k = next++;
         try {
           results[k] = await getFrame(todo[k], target.ra, target.dec, size, target.slug);
@@ -192,11 +242,11 @@ export default function TimeTravelClient() {
           lastErr = String((e as Error).message ?? e);
         }
         done++;
-        if (token === loadToken.current) setProgress({ done, total: todo.length, error: lastErr || undefined });
+        if (alive && token === loadToken.current) setProgress({ done, total: todo.length, error: lastErr || undefined });
       }
     };
     Promise.all([worker(), worker(), worker()]).then(() => {
-      if (token !== loadToken.current) return;
+      if (!alive || token !== loadToken.current) return;
       const ok = results.filter(Boolean) as { frame: Frame; source: Source }[];
       // exact wavelengths (from each cutout header) must agree pairwise within half a bandwidth:
       // keep the largest subset that fits in a 0.5·bw window
@@ -205,6 +255,8 @@ export default function TimeTravelClient() {
         obsid: r.frame.meta.obsid,
         reason: `exact λ ${r.frame.meta.target.wl.toFixed(4)} µm doesn't fit within half a channel of the other dates`,
       }));
+      const failures = todo.filter((_, i) => !results[i]).map((o) => `Could not load ${observationKey(o)}. Try this page again.`);
+      setFrameWarnings(failures);
       if (!keep.length) {
         setProgress({ done, total: todo.length, error: lastErr || "No frames could be loaded." });
         return;
@@ -244,11 +296,16 @@ export default function TimeTravelClient() {
         excluded,
         lambdaSpread: { centre: Math.max(...cw) - Math.min(...cw), corners: cornerSpread, bw: set.bandwidth },
       });
-      setPair([0, keep.length - 1]);
-      setPlaying(!reduced && keep.length > 1);
+      const lookup = (key: string, fallback: number) => { const i = keep.findIndex((r) => observationKey(r.frame.meta) === key); return i < 0 ? fallback : i; };
+      setPair(restoring.current ? [lookup(shared.before, 0), lookup(shared.after, keep.length - 1)] : [0, keep.length - 1]);
+      setIdx(restoring.current ? lookup(shared.frame, 0) : 0);
+      setView(restoring.current ? shared.mode : "frames");
+      setPlaying(!restoring.current && !reduced && keep.length > 1);
+      restoring.current = false;
       setProgress(null);
     });
-  }, [set, target, size, reduced]);
+    return () => { alive = false; };
+  }, [set, target, size, reduced, page, shared, loadAttempt]);
 
   // Gaia overlay (positions propagated to each frame's date)
   useEffect(() => {
@@ -270,9 +327,9 @@ export default function TimeTravelClient() {
     return () => clearInterval(id);
   }, [playing, loaded, view]);
 
-  const runChanges = () => {
+  const runChanges = useCallback(() => {
     if (!loaded) return;
-    const cm = findChanges(loaded.grids[pair[0]], loaded.grids[pair[1]], loaded.grid);
+    const cm = findChanges(...temporalInputs(loaded.frames[pair[0]], loaded.frames[pair[1]], loaded.grids[pair[0]], loaded.grids[pair[1]], loaded.grid), loaded.grid);
     // the set is matched at the search target; the filter wavelength drifts across the field, so check each
     // candidate's own position on both dates and refuse a temporal reading where they differ > half a channel
     const fa = loaded.frames[pair[0]];
@@ -302,6 +359,28 @@ export default function TimeTravelClient() {
     setView("changes");
     setPlaying(false);
     setCand(null);
+  }, [loaded, pair]);
+
+  useEffect(() => { if (loaded && view === "changes" && !change) runChanges(); }, [loaded, view, change, runChanges]);
+
+  useEffect(() => {
+    if (!target || !loaded || restoring.current) return;
+    const q = viewQuery(target, {
+      size, cadence, start, end, page, anchor: set!.anchor ?? "", window: `${set!.detector}:${set!.windowLo}:${set!.bandwidth}`,
+      frame: observationKey(loaded.frames[Math.min(idx, loaded.frames.length - 1)].meta),
+      before: observationKey(loaded.frames[pair[0]].meta), after: observationKey(loaded.frames[pair[1]].meta),
+      mode: view, split, gaia: showGaia, quality: showQuality, embed: shared.embed, stack: stackSettings,
+    }, fromGaia);
+    window.history.replaceState(null, "", `/timetravel?${q.toString()}`);
+  }, [target, loaded, set, size, cadence, start, end, page, idx, pair, view, split, showGaia, showQuality, shared.embed, fromGaia, stackSettings]);
+
+  const share = async (embed = false) => {
+    setPlaying(false);
+    const url = new URL(window.location.href);
+    if (embed) url.searchParams.set("embed", "1");
+    const text = embed ? `<iframe src="${url.href.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}" title="COSMOS SPHEREx sky comparison" width="100%" height="900" loading="lazy"></iframe>` : url.href;
+    try { await navigator.clipboard.writeText(text); setShareStatus(embed ? "Embed code copied" : "Link copied"); }
+    catch { setShareStatus(text); }
   };
 
   const submit = (e: React.FormEvent) => {
@@ -335,13 +414,13 @@ export default function TimeTravelClient() {
   return (
     <main className="relative min-h-screen bg-bg pb-20">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
-      <NavBar />
+      {!shared.embed && <NavBar />}
       <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
         <div className="label text-accent">Time Travel</div>
         <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">Pick any spot in the sky. See how it looked on different dates.</h1>
         <p className="mt-1 max-w-3xl text-[14px] text-muted">
           Enter coordinates or pick a target. COSMOS asks NASA/IPAC IRSA for every SPHEREx DR1 exposure covering that position. It then picks out the
-          dates you can fairly compare (same detector, same wavelength), lines up one exposure per day (up to 12 dates), and helps you find what changed.
+          exposures you can fairly compare (same detector, same wavelength), lines them up, and helps you find what changed. Browse every exposure or one per day.
         </p>
 
         {/* search */}
@@ -357,19 +436,29 @@ export default function TimeTravelClient() {
             Field
             <select
               value={size}
-              onChange={(e) => setSize(parseFloat(e.target.value))}
+              onChange={(e) => { const field = Number(e.target.value); resetSelection(); setSize(field); if (target) search(target, field); }}
               className="rounded-lg border border-line bg-black/40 px-2 py-2 text-text"
               aria-label="Field of view"
             >
               <option value={0.05}>3′</option>
               <option value={0.1}>6′</option>
               <option value={0.2}>12′</option>
+              <option value={0.3}>18′</option>
             </select>
           </label>
           <button className="btn btn-primary" type="submit">
             Find observations
           </button>
           {inputErr && <div className="w-full text-[12px] text-warn">{inputErr}</div>}
+          <div className="flex w-full flex-wrap items-center gap-3 text-[12px] text-muted">
+            <label>Playback <select aria-label="Playback cadence" value={cadence} onChange={(e) => { resetSelection(); setCadence(e.target.value as Cadence); }} className="rounded-lg border border-line bg-bg p-2">
+              <option value="exposures">Every compatible exposure</option><option value="daily">One exposure per day</option>
+            </select></label>
+            <label>From (UTC) <input type="date" aria-label="Start date" value={start} max={end || undefined} onChange={(e) => { resetSelection(); setStart(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
+            <label>Through (UTC) <input type="date" aria-label="End date" value={end} min={start || undefined} onChange={(e) => { resetSelection(); setEnd(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
+            {(start || end) && <button type="button" className="btn" onClick={() => { resetSelection(); setStart(""); setEnd(""); }}>All dates</button>}
+            <span>Larger fields take longer to load; image area grows with the square of the width.</span>
+          </div>
           <div className="flex w-full flex-wrap gap-1.5 pt-1">
             {TT_TARGETS.map((t) => (
               <button
@@ -431,7 +520,7 @@ export default function TimeTravelClient() {
                     SPHEREx imaged this spot <span className="text-accent">{nInside}</span> times on <span className="text-accent">{nDays}</span> different days
                   </>
                 ) : (
-                  "No SPHEREx DR1 exposure covers this position"
+                  "No usable SPHEREx DR1 exposure at this position in the selected date range"
                 )}
               </h2>
               <span className="text-[11px] text-dim">
@@ -439,6 +528,15 @@ export default function TimeTravelClient() {
                 {target && `${target.ra.toFixed(4)}°, ${target.dec.toFixed(4)}°`}
               </span>
             </div>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-muted">
+              <span>DR1 · Archive checked {obsState.queried ? fmtDateTime(obsState.queried) : "at an unknown time"}.</span>
+              <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
+              {loaded && <><button type="button" className="btn" onClick={() => share()}>Share investigation</button><button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button></>}
+            </div>
+            {shareStatus && <p role="status" className="mt-2 break-all text-[12px] text-accent">{shareStatus}</p>}
+            {refreshError && <p role="alert" className="mt-2 text-[12px] text-warn">{refreshError}</p>}
+            {obsState.legacy && <p className="mt-2 text-[11px] text-dim">Prepared demo searches cover the centre. Check the archive to include exposures overlapping the full field.</p>}
+            {obs.length > nInside && <p className="mt-2 text-[11px] text-dim">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its centre; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
             {nInside > 0 && (
               <>
                 <p className="mt-1 text-[12.5px] text-muted">
@@ -446,7 +544,7 @@ export default function TimeTravelClient() {
                   the detector, so a fair &quot;before and after&quot; needs two dots on the same detector at the same height.
                 </p>
                 <div className="mt-3">
-                  <ObsTimeline obs={obs} selected={set} onPick={(o) => setSet(pickSet(obs, o))} />
+                  <ObsTimeline obs={obs} selected={set} onPick={(o) => chooseSet(pickSet(obs, o, cadence))} />
                 </div>
                 <div className="mt-3">
                   <div className="label mb-1.5">Comparable sets (same detector; every pair of dates within half a channel in wavelength)</div>
@@ -459,14 +557,14 @@ export default function TimeTravelClient() {
                       {sets.map((s) => (
                         <button
                           key={s.key}
-                          onClick={() => setSet(s)}
+                          onClick={() => chooseSet(s)}
                           className={`rounded-xl border px-3 py-1.5 text-left transition ${set?.key === s.key ? "border-white/50 bg-white/10" : "border-line hover:bg-white/5"}`}
                         >
                           <div className="data text-[12.5px]" style={{ color: wavelengthColor(s.lambdaRef) }}>
                             {s.lambdaRef.toFixed(3)} µm · D{s.detector}
                           </div>
                           <div className="text-[11px] text-muted">
-                            {s.nDays} dates · {Math.round(s.spanDays)} days apart
+                            {s.frames.length} exposures · {s.nDays} days · {Math.round(s.spanDays)} days apart
                           </div>
                         </button>
                       ))}
@@ -482,6 +580,12 @@ export default function TimeTravelClient() {
         {set && (
           <section className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
             <div className="min-w-0">
+              <div className="glass mb-3 flex flex-wrap items-center gap-2 rounded-xl p-3 text-[12px]">
+                <button className="btn" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous exposures</button>
+                <span>Page {page + 1} of {Math.ceil(set.frames.length / 12)} · {set.frames.length} compatible exposures</span>
+                <button className="btn" disabled={(page + 1) * 12 >= set.frames.length} onClick={() => setPage((p) => p + 1)}>Next exposures</button>
+                <span className="text-dim">Loads up to 12 at a time.</span>
+              </div>
               {progress && (
                 <div className="glass rounded-2xl p-5 text-[13px] text-muted">
                   Fetching and aligning SPHEREx frames… {progress.done}/{progress.total}
@@ -489,14 +593,26 @@ export default function TimeTravelClient() {
                     <div className="h-full bg-accent transition-all" style={{ width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }} />
                   </div>
                   {progress.error && <div className="mt-2 text-warn">Some frames failed: {progress.error}</div>}
+                  {progress.error && progress.done === progress.total && <button className="btn mt-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry these exposures</button>}
                 </div>
               )}
               {loaded && cur && (
                 <>
-                  <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line bg-black">
+                  {frameWarnings.map((warning) => <p key={warning} role="alert" className="mb-2 text-[12px] text-warn">{warning}</p>)}
+                  {!!frameWarnings.length && <button className="btn mb-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry failed exposures</button>}
+                  {view === "stacks" ? <VisitStacks frames={loaded.frames} grid={loaded.grid} lo={loaded.lo} hi={loaded.hi} settings={stackSettings} onSettings={setStackSettings} /> : <div
+                    className="relative aspect-square w-full cursor-crosshair overflow-hidden rounded-2xl border border-line bg-black"
+                    title="Click a source to measure its position and inspect its spectrum below"
+                    onClick={(e) => {
+                      if (view === "changes") return;
+                      const bounds = e.currentTarget.getBoundingClientRect();
+                      const [ra, dec] = gridToSky(loaded.grid, (e.clientX - bounds.left) / bounds.width * n - 0.5, (1 - (e.clientY - bounds.top) / bounds.height) * n - 0.5);
+                      setMeasureAt({ ra, dec, label: "Selected sky position", mjd: cur.meta.mjdAvg }); setCand(null);
+                    }}
+                  >
                     {view === "frames" && (
                       <GridCanvas
-                        data={loaded.grids[idx]}
+                        data={loaded.grids[Math.min(idx, loaded.grids.length - 1)]}
                         n={n}
                         mode="image"
                         lo={loaded.lo}
@@ -524,6 +640,7 @@ export default function TimeTravelClient() {
                     {view === "changes" && change && (
                       <GridCanvas data={change.z} n={n} mode="diverging" lo={0} hi={8} className="absolute inset-0 h-full w-full" label="Change map" />
                     )}
+                    {showQuality && <QualityOverlay frames={view === "frames" ? [cur] : [loaded.frames[pair[0]], loaded.frames[pair[1]]]} grid={loaded.grid} />}
                     <svg viewBox={`0 0 ${n} ${n}`} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden>
                       <g stroke="rgba(255,255,255,0.75)" strokeWidth={n / 400} fill="none">
                         <line x1={sx(tgt[0]) - n * 0.06} y1={sy(tgt[1])} x2={sx(tgt[0]) - n * 0.025} y2={sy(tgt[1])} />
@@ -559,7 +676,7 @@ export default function TimeTravelClient() {
                         {fmtDate(loaded.frames[pair[1]].meta.dateAvg)} ▶
                       </div>
                     )}
-                  </div>
+                  </div>}
 
                   {/* controls */}
                   <div className="glass mt-3 rounded-2xl p-3">
@@ -569,6 +686,7 @@ export default function TimeTravelClient() {
                           ["frames", "Play dates"],
                           ["swipe", "Swipe"],
                           ["changes", "Find changes"],
+                          ["stacks", "Stack visits"],
                         ] as const
                       ).map(([v, l]) => (
                         <button
@@ -589,8 +707,10 @@ export default function TimeTravelClient() {
                         <input type="checkbox" checked={showGaia} onChange={(e) => setShowGaia(e.target.checked)} className="accent-cyan-300" />
                         Gaia stars <span className="text-dim">(G &lt; 17, moved to each date; <span className="text-warn">○</span> fast movers)</span>
                       </label>
+                      <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-muted"><input type="checkbox" checked={showQuality} onChange={(e) => setShowQuality(e.target.checked)} /> Quality overlay</label>
                       <div className="w-full text-[11px] text-dim">
                         Dark grey pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
+                        {showQuality && " Overlay: amber = unusable or outside coverage; purple = outlier (retained for moving/variable sources); cyan = other flags."}
                       </div>
                     </div>
                     {view === "frames" && (
@@ -604,7 +724,7 @@ export default function TimeTravelClient() {
                             }}
                             className={`min-w-[92px] flex-1 rounded-lg border px-2 py-1.5 text-left ${i === idx ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"}`}
                           >
-                            <div className="data text-[11.5px]">{fmtDate(f.meta.dateAvg)}</div>
+                            <div className="data text-[11.5px]">{fmtDateTime(f.meta.dateAvg)}</div>
                             <div className="data text-[10.5px]" style={{ color: wavelengthColor(f.meta.target.wl) }}>
                               {f.meta.target.wl.toFixed(4)} µm
                             </div>
@@ -612,31 +732,31 @@ export default function TimeTravelClient() {
                         ))}
                       </div>
                     )}
-                    {view !== "frames" && (
+                    {(view === "swipe" || view === "changes") && (
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-[12px]">
                         <span className="text-muted">Compare</span>
                         <select
                           value={pair[0]}
-                          onChange={(e) => setPair([parseInt(e.target.value), pair[1]])}
+                          onChange={(e) => { setChange(null); setPair([parseInt(e.target.value), pair[1]]); }}
                           className="rounded-lg border border-line bg-black/40 px-2 py-1"
                           aria-label="Earlier date"
                         >
                           {loaded.frames.map((f, i) => (
                             <option key={i} value={i}>
-                              {fmtDate(f.meta.dateAvg)}
+                              {fmtDateTime(f.meta.dateAvg)}
                             </option>
                           ))}
                         </select>
                         <span className="text-muted">with</span>
                         <select
                           value={pair[1]}
-                          onChange={(e) => setPair([pair[0], parseInt(e.target.value)])}
+                          onChange={(e) => { setChange(null); setPair([pair[0], parseInt(e.target.value)]); }}
                           className="rounded-lg border border-line bg-black/40 px-2 py-1"
                           aria-label="Later date"
                         >
                           {loaded.frames.map((f, i) => (
                             <option key={i} value={i}>
-                              {fmtDate(f.meta.dateAvg)}
+                              {fmtDateTime(f.meta.dateAvg)}
                             </option>
                           ))}
                         </select>
@@ -674,7 +794,7 @@ export default function TimeTravelClient() {
                       {set.lambdaRef.toFixed(3)} µm
                     </span>{" "}
                     · {loaded.frames.length} dates
-                    <span className="text-dim"> · one exposure per day{set.frames.length > 12 ? `, first 12 of ${set.frames.length} dates` : ""}</span>
+                    <span className="text-dim"> · {cadence === "daily" ? "one exposure per day" : "every compatible exposure"} · page {page + 1}</span>
                   </div>
                   <ul className="mt-2 space-y-1 text-[12px]">
                     <li>
@@ -700,6 +820,9 @@ export default function TimeTravelClient() {
                           : "Frames fetched live from IRSA."}
                     </li>
                   </ul>
+                  {cur && <details className="mt-3 text-[12px] text-muted"><summary className="cursor-pointer">Flag definitions for this exposure</summary>
+                    {cur.meta.flags.map((flag) => <p className="mt-1" key={flag.name}><b>{flag.name}</b>: {flag.desc || "No description supplied by the archive."}</p>)}
+                  </details>}
                   {cur && view === "frames" && (
                     <div className="mt-3 rounded-xl bg-white/5 p-3 text-[12px]">
                       <div className="data">
@@ -716,6 +839,7 @@ export default function TimeTravelClient() {
                     </div>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
+                    <Link className="btn" href={`/explore?ra=${target!.ra}&dec=${target!.dec}&fov=${size}&wise=0.5`}>Overlay WISE at this position ↗</Link>
                     <button
                       className="btn"
                       onClick={() => {
@@ -739,10 +863,12 @@ export default function TimeTravelClient() {
                   <div className="label">What changed between {fmtDate(loaded.frames[pair[0]].meta.dateAvg)} and {fmtDate(loaded.frames[pair[1]].meta.dateAvg)}</div>
                   <p className="mt-1 text-[12px] leading-relaxed text-muted">
                     Blue: fainter later. Red: brighter later. Significance is scaled by the <b className="text-text">measured</b> scatter of this difference image
-                    (σ = {change.sigma.toPrecision(3)} MJy/sr), over pixels valid on both dates ({Math.round(change.validFrac * 100)}% of the field). Treat it as an
-                    indicator, not a calibrated probability.
+                    (σ = {Number.isFinite(change.sigma) ? change.sigma.toPrecision(3) : "unavailable"} MJy/sr), over pixels valid on both dates ({Math.round(change.validFrac * 100)}% of the field). Treat it as an
+                    indicator, not a calibrated probability. Pixels that differ by more than half a channel at their own position are excluded.
                   </p>
-                  {change.candidates.length === 0 ? (
+                  {!Number.isFinite(change.sigma) || change.validFrac < 0.05 ? (
+                    <p className="mt-3 text-[13px] text-warn">Insufficient usable, wavelength-matched overlap to evaluate changes. Try another pair of exposures or a smaller field.</p>
+                  ) : change.candidates.length === 0 ? (
                     <p className="mt-3 text-[13px] text-text">No coherent change above 5σ. The sky looks the same on both dates at this wavelength.</p>
                   ) : (
                     <ul className="scrollbar-thin mt-3 max-h-[320px] space-y-1 overflow-y-auto">
@@ -803,6 +929,12 @@ export default function TimeTravelClient() {
             </div>
           </section>
         )}
+
+        {target && obsState.status === "ready" && obs.some((o) => o.inside) && <SpectralLab
+          key={`${target.ra}_${target.dec}_${size}_${start}_${end}_${obsState.queried}`}
+          observations={obs} target={target} size={size}
+          selected={measureAt ? { ra: measureAt.ra, dec: measureAt.dec, pm: measureAt.pm, epochYear: measureAt.epochYear } : undefined}
+        />}
 
         {!target && obsState.status === "idle" && (
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

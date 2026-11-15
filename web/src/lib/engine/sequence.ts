@@ -26,9 +26,11 @@ export type MatchedSet = {
   detector: number;
   lambdaRef: number;
   bandwidth: number;
-  frames: Observation[]; // one per visit (distinct day), closest wavelength to the reference
+  frames: Observation[];
   nDays: number;
   spanDays: number;
+  windowLo: number;
+  anchor?: string;
 };
 
 export type Frame = {
@@ -61,11 +63,13 @@ export function decodeFrame(buf: ArrayBuffer): Frame {
 /** Wavelength-matched sets: same detector, all members within ±0.25·bw of the reference (so any two
  * frames differ by ≤ 0.5·bw), one frame per day. */
 export const MATCH_TOL = 0.25; // half-width of the allowed window, in channel bandwidths (window = 0.5 bw)
+export type Cadence = "daily" | "exposures";
 
 /** One frame per day inside a wavelength window [lo, lo + 0.5·bw] on one detector. */
-function windowSet(frames: Observation[], det: number, lo: number, bw: number, prefer?: Observation): Observation[] {
+function windowSet(frames: Observation[], det: number, lo: number, bw: number, prefer?: Observation, cadence: Cadence = "daily"): Observation[] {
   const hi = lo + 2 * MATCH_TOL * bw;
   const c = (lo + hi) / 2;
+  if (cadence === "exposures") return frames.filter((m) => m.detector === det && m.wl >= lo - 1e-9 && m.wl <= hi + 1e-9).sort((a, b) => a.mjd - b.mjd);
   const byDay = new Map<number, Observation>();
   for (const m of frames) {
     if (m.detector !== det || m.wl < lo - 1e-9 || m.wl > hi + 1e-9) continue;
@@ -78,46 +82,62 @@ function windowSet(frames: Observation[], det: number, lo: number, bw: number, p
 }
 
 /** Best matched set containing a given frame: the 0.5·bw window (containing it) with the most dates. */
-export function setContaining(obs: Observation[], ref: Observation): MatchedSet {
+export function setContaining(obs: Observation[], ref: Observation, cadence: Cadence = "daily"): MatchedSet {
   const inside = obs.filter((o) => o.inside);
   const bw = ref.bw;
   let best: Observation[] = [ref];
+  let bestLo = ref.wl;
   // candidate window lower edges: every frame wavelength within half a bandwidth below the reference
   const edges = inside.filter((o) => o.detector === ref.detector && o.wl <= ref.wl && o.wl >= ref.wl - 2 * MATCH_TOL * bw).map((o) => o.wl);
   for (const lo of edges) {
-    const f = windowSet(inside, ref.detector, lo, bw, ref);
-    if (f.includes(ref) && (f.length > best.length || (f.length === best.length && span(f) > span(best)))) best = f;
+    const f = windowSet(inside, ref.detector, lo, bw, ref, cadence);
+    if (f.includes(ref) && (f.length > best.length || (f.length === best.length && span(f) > span(best)))) { best = f; bestLo = lo; }
   }
-  return mk(ref.detector, best, bw, `pick:${ref.obsid}:${ref.detector}`);
+  return mk(ref.detector, best, bw, `pick:${ref.obsid}:${ref.detector}`, bestLo, `${ref.obsid}D${ref.detector}`);
 }
 
 const span = (f: Observation[]) => (f.length ? f[f.length - 1].mjd - f[0].mjd : 0);
-const mk = (det: number, frames: Observation[], bw: number, key: string): MatchedSet => ({
+const mk = (det: number, frames: Observation[], bw: number, key: string, windowLo: number, anchor?: string): MatchedSet => ({
   key,
   detector: det,
   lambdaRef: frames.reduce((a, f) => a + f.wl, 0) / Math.max(1, frames.length),
   bandwidth: bw,
   frames,
-  nDays: frames.length,
+  nDays: new Set(frames.map((f) => Math.floor(f.mjd))).size,
   spanDays: span(frames),
+  windowLo, anchor,
 });
+
+/** Recreate the exact selection window and preferred exposure from a shared investigation. */
+export function restoreMatchedSet(obs: Observation[], window: string, anchor: string, cadence: Cadence): MatchedSet | null {
+  const [det, lo, bw] = window.split(":").map(Number);
+  if (!Number.isInteger(det) || det < 1 || det > 6 || !Number.isFinite(lo) || !Number.isFinite(bw) || bw <= 0 || bw > 1 || lo < 0.7 || lo > 5.1) return null;
+  const inside = obs.filter((o) => o.inside);
+  const prefer = inside.find((o) => o.detector === det && `${o.obsid}D${o.detector}` === anchor);
+  // URL parameters select a window; they cannot invent a wider scientific tolerance. Recover its
+  // bandwidth from the archive reference that created it, not from the untrusted URL.
+  const reference = prefer ?? inside.find((o) => o.detector === det && Math.abs(o.wl - lo) < 1e-9);
+  if (!reference || Math.abs(reference.bw - bw) > 1e-9) return null;
+  const frames = windowSet(inside, det, lo, bw, prefer, cadence);
+  return frames.length ? mk(det, frames, bw, `shared:${window}`, lo, anchor || undefined) : null;
+}
 
 /** Wavelength-matched sets: same detector, every pair of frames within half a channel bandwidth (a 0.5·bw
  * window), one frame per day. Windows are tried at every frame's wavelength as the lower edge. */
-export function matchedSets(obs: Observation[], max = 8): MatchedSet[] {
+export function matchedSets(obs: Observation[], max = 8, cadence: Cadence = "daily"): MatchedSet[] {
   const inside = obs.filter((o) => o.inside);
   const sets: MatchedSet[] = [];
   const seen = new Set<string>();
   for (const ref of inside) {
-    const frames = windowSet(inside, ref.detector, ref.wl, ref.bw);
+    const frames = windowSet(inside, ref.detector, ref.wl, ref.bw, undefined, cadence);
     if (frames.length < 2) continue;
     const key = `D${ref.detector}:` + frames.map((f) => f.obsid).join(",");
     if (seen.has(key)) continue;
     seen.add(key);
-    sets.push(mk(ref.detector, frames, ref.bw, key));
+    sets.push(mk(ref.detector, frames, ref.bw, key, ref.wl));
   }
   // prefer more distinct dates, then a longer time baseline; drop overlapping windows
-  sets.sort((a, b) => b.nDays - a.nDays || b.spanDays - a.spanDays);
+  sets.sort((a, b) => b.nDays - a.nDays || b.spanDays - a.spanDays || b.frames.length - a.frames.length);
   const out: MatchedSet[] = [];
   for (const s of sets) {
     const dup = out.some((o) => o.detector === s.detector && Math.abs(o.lambdaRef - s.lambdaRef) < 0.5 * s.bandwidth);
@@ -269,6 +289,7 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
   for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) D[k] -= pa + pb * (k % n) + pc * ((k / n) | 0);
   const sigma = robustSigma(D);
   const z = new Float32Array(n * n).fill(NaN);
+  if (!(sigma > 0) || !Number.isFinite(sigma)) return { z, sigma: NaN, validFrac: nv / (n * n), candidates: [] };
   for (let k = 0; k < n * n; k++) if (Number.isFinite(D[k])) z[k] = D[k] / sigma;
   // pixels within 5 px of a pixel that is unusable on either date (e.g. a saturated core)
   const nearMask = new Uint8Array(n * n);

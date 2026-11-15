@@ -147,6 +147,27 @@ export default function About() {
           </Link>
         </p>
 
+        <h2 className="font-display mt-8 text-[22px] font-semibold">Combine, inspect wavelengths, and share</h2>
+        <p className="mt-3 text-[13.5px] leading-relaxed text-text/85">
+          Time Travel can play every compatible exposure, including observations on the same day, or one exposure per day. Date filters use UTC;
+          paging gives access to all selected exposures. Visit stacks are means on a common sky grid, with unusable and wavelength-mismatched pixels
+          excluded. A visit spans at most 30 minutes, 2 hours, or 24 hours; moving sources can still smear. Subtracting visits checks the combined
+          wavelength coverage at each pixel. Native-pixel measurements remain separate from these display means.
+        </p>
+        <p className="mt-3 text-[13.5px] leading-relaxed text-text/85">
+          The Wavelength lab samples up to one exposure per nominal channel and creates six detector-band previews from the available channels.
+          Channels receive equal weight; missing or flagged samples are excluded and coverage is reported. These previews may mix observing dates
+          and are not integrated filter fluxes. The aperture spectrum uses a 2-pixel radius, local background subtraction, empirical blank-sky errors,
+          and a local WCS solid angle to convert to mJy. It has no aperture correction, PSF fit, or deblending, so blended neighbours and changing
+          source brightness can distort its shape. Per-point dates, flags, errors and source FITS links are available in the table and CSV.
+        </p>
+        <p className="mt-3 text-[13.5px] leading-relaxed text-text/85">
+          Explicit refresh checks DR1 again and reports failure without substituting old data as a new archive answer. Prepared caches retain their
+          query timestamp; rebuilt caches carry an engine/release version and checksums. Shared investigation URLs preserve the field, date range,
+          exact wavelength window, exposure selections, display mode and visit settings. Explore can overlay WISE imagery at adjustable opacity:
+          it is a 2010-era mosaic at different wavelengths, useful for context rather than a matched SPHEREx epoch.
+        </p>
+
         <h2 className="font-display mt-12 text-[22px] font-semibold">The comet SWAN case file</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-[13.5px] leading-relaxed text-text/85">
           <li>

@@ -60,8 +60,10 @@ export default function ExploreClient() {
   const viewer = useRef<SkyViewerHandle>(null);
   const [clean] = useState(() => sp.get("clean") === "1"); // hide all UI (for recording / captures)
   const [frame, setFrame] = useState(init.frame);
-  const [cmap, setCmap] = useState("magma");
-  const [grid, setGrid] = useState(false);
+  const [cmap, setCmap] = useState(() => COLORMAPS.some((c) => c.id === sp.get("cmap")) ? sp.get("cmap")! : "magma");
+  const [grid, setGrid] = useState(() => sp.get("grid") === "1");
+  const [wiseOpacity, setWiseOpacity] = useState(() => Math.max(0, Math.min(1, num(sp.get("wise"), 0))));
+  const [wiseStatus, setWiseStatus] = useState("");
   const [view, setView] = useState({ ra: init.ra, dec: init.dec, fov: init.fov });
   const [pointer, setPointer] = useState<{ ra: number; dec: number } | null>(null);
   const [status, setStatus] = useState<{ s: "loading" | "ready" | "error"; msg?: string }>({ s: "loading" });
@@ -78,12 +80,13 @@ export default function ExploreClient() {
         dec: view.dec.toFixed(4),
         fov: view.fov.toPrecision(4),
         frame: String(frame),
+        cmap, grid: grid ? "1" : "0", wise: String(wiseOpacity),
       });
       if (clean) q.set("clean", "1");
       window.history.replaceState(null, "", `/explore?${q.toString()}`);
     }, 400);
     return () => clearTimeout(id);
-  }, [view, frame, clean]);
+  }, [view, frame, clean, cmap, grid, wiseOpacity]);
 
   // phones: start with the destinations panel tucked away so the sky is visible
   useEffect(() => {
@@ -131,6 +134,8 @@ export default function ExploreClient() {
         frame={frame}
         colormap={cmap}
         showGrid={grid}
+        wiseOpacity={wiseOpacity}
+        onWiseStatus={setWiseStatus}
         markers={clean ? [] : markers}
         onView={setView}
         onPointer={setPointer}
@@ -248,6 +253,10 @@ export default function ExploreClient() {
 
       {/* bottom: wavelength + readouts */}
       <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 px-3 pb-3 sm:px-5 sm:pb-4">
+        <div className="glass flex max-w-[980px] flex-wrap items-center justify-center gap-2 rounded-xl px-3 py-2 text-[12px] text-muted">
+          <label className="flex items-center gap-2"><input type="checkbox" checked={wiseOpacity > 0} onChange={(e) => setWiseOpacity(e.target.checked ? 0.5 : 0)} /> WISE context</label>
+          {wiseOpacity > 0 && <><label className="flex items-center gap-2">Opacity <input aria-label="WISE overlay opacity" type="range" min={0.05} max={1} step={0.05} value={wiseOpacity} onChange={(e) => setWiseOpacity(Number(e.target.value))} className="w-28 accent-cyan-300" /></label><span>{wiseStatus || "Loading WISE context…"}</span><span className="text-warn">Different epochs and wavelengths; visual context only.</span></>}
+        </div>
         <div className="flex w-full max-w-[980px] flex-wrap items-center justify-between gap-2">
           <div className="glass data hidden items-center gap-4 rounded-full px-4 py-1.5 text-[11.5px] text-muted sm:flex">
             <span>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchCutout } from "@/lib/engine/cutout";
+import { validCoordinates, validSize } from "@/lib/engine/releases";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -7,10 +8,10 @@ export const maxDuration = 60;
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
   const url = p.get("url") ?? "";
-  const ra = Number(p.get("ra"));
-  const dec = Number(p.get("dec"));
-  const size = Math.min(0.3, Math.max(0.02, Number(p.get("size") ?? 0.1)));
-  if (!Number.isFinite(ra) || !Number.isFinite(dec)) return NextResponse.json({ error: "bad coordinates" }, { status: 400 });
+  const ra = Number(p.get("ra") ?? NaN);
+  const dec = Number(p.get("dec") ?? NaN);
+  const size = Number(p.get("size") ?? 0.1);
+  if (!validCoordinates(ra, dec) || !validSize(size)) return NextResponse.json({ error: "Invalid coordinates or field size (0.02–0.3 degrees)." }, { status: 400 });
   try {
     const buf = await fetchCutout(url, ra, dec, size);
     return new NextResponse(buf, {

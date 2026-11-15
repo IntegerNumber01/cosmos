@@ -3,6 +3,7 @@
 // detector's WCS-WAVE table (validated: median 3.3 px, max 7 px position error over 93 frames).
 // The exact wavelength is recomputed from each cutout's own header when it is fetched.
 import { detectorWave, tanProject } from "./wcs";
+import { RELEASE } from "./releases";
 
 export type Observation = {
   obsid: string;
@@ -100,11 +101,13 @@ export function mjdToIso(mjd: number) {
   return new Date((mjd - 40587) * 86400000).toISOString().replace("Z", "");
 }
 
-export async function findObservations(ra: number, dec: number, margin = 30): Promise<Observation[]> {
-  const url = `https://irsa.ipac.caltech.edu/SIA?COLLECTION=spherex_dr1&POS=circle+${ra.toFixed(6)}+${dec.toFixed(6)}+0.002&RESPONSEFORMAT=csv`;
+export async function findObservations(ra: number, dec: number, margin = 30, size = 0.1): Promise<Observation[]> {
+  // Circumscribed circle includes the corners of the requested square field.
+  const radius = (size / Math.SQRT2).toFixed(6);
+  const url = `https://irsa.ipac.caltech.edu/SIA?COLLECTION=${RELEASE.collection}&POS=circle+${ra.toFixed(6)}+${dec.toFixed(6)}+${radius}&RESPONSEFORMAT=csv`;
   let text = "";
   for (let attempt = 0; attempt < 3; attempt++) {
-    const r = await fetch(url, { cache: "no-store" });
+    const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(15000) });
     if (r.ok) {
       text = await r.text();
       break;

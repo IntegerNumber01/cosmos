@@ -3,6 +3,7 @@
 // Binary layout: [u32 jsonLength][json utf-8][pad to 4][f32 image][i32 flags][f32 variance]
 import { flagDefs, parseFits, readImage, readInt32Image } from "./fits";
 import { sky2pix, waveAt, wcsFromHeader, WcsParams } from "./wcs";
+import { ENGINE_VERSION } from "./releases";
 
 export type CutoutMeta = {
   obsid: string;
@@ -22,6 +23,8 @@ export type CutoutMeta = {
   target: { ra: number; dec: number; x: number; y: number; wl: number; bw: number };
   sourceFits: string;
   cutoutUrl: string;
+  engine?: string;
+  release?: string;
 };
 
 export const IBE_PREFIX = "https://irsa.ipac.caltech.edu/ibe/data/spherex/";
@@ -34,16 +37,21 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
   if (!url.startsWith(IBE_PREFIX) || !url.endsWith(".fits")) throw new Error("not a SPHEREx IBE file");
   const cu = cutoutUrl(url, ra, dec, size);
   let buf: ArrayBuffer | null = null;
+  const deadline = Date.now() + 52000;
   for (let attempt = 0; attempt < 4; attempt++) {
-    const r = await fetch(cu, { cache: "no-store" });
-    if (r.ok) {
-      const b = await r.arrayBuffer();
-      if (new TextDecoder().decode(new Uint8Array(b, 0, 6)) === "SIMPLE") {
-        buf = b;
-        break;
+    const remaining = deadline - Date.now();
+    if (remaining < 1000) break;
+    try {
+      const r = await fetch(cu, { cache: "no-store", signal: AbortSignal.timeout(Math.min(12000, remaining)) });
+      if (r.ok) {
+        const b = await r.arrayBuffer();
+        if (b.byteLength >= 6 && new TextDecoder().decode(new Uint8Array(b, 0, 6)) === "SIMPLE") {
+          buf = b;
+          break;
+        }
       }
-    }
-    await new Promise((res) => setTimeout(res, 1200 * (attempt + 1)));
+    } catch { /* bounded retry for a busy archive */ }
+    if (attempt < 3 && Date.now() + 1200 * (attempt + 1) < deadline) await new Promise((res) => setTimeout(res, 1200 * (attempt + 1)));
   }
   if (!buf) throw new Error("IRSA cutout service did not return a FITS file");
   const hdus = parseFits(buf);
@@ -78,6 +86,8 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
     target: { ra, dec, x: tx, y: ty, wl: w.wl, bw: w.bw },
     sourceFits: url,
     cutoutUrl: cutoutUrl(url, ra, dec, size),
+    engine: ENGINE_VERSION,
+    release: url.slice(IBE_PREFIX.length).split("/")[0],
   };
   return pack(meta, data, flags, variance);
 }

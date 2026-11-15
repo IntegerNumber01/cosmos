@@ -9,14 +9,17 @@ NASA's SPHEREx images the whole sky in 102 infrared colours, again and again. Fi
 **Time Travel: enter coordinates and see a dated sequence.**
 - Type RA/Dec, pick a star while flying through Gaia's 3D map, or press "Time Travel here" on the all-sky map.
 - COSMOS finds every SPHEREx DR1 exposure of that position (IRSA SIA2) and computes the wavelength *at that exact spot* for each one.
-- It keeps only dates on the same detector whose wavelengths agree within half a channel, and plays one exposure per day (up to 12 dates). Every change and measurement is re-checked at its own position, because the filter wavelength drifts across the field. Every exclusion is listed, along with the exact wavelengths and how far they drift toward the field corners.
+- It keeps exposures on the same detector whose wavelengths agree within half a channel. Play every compatible exposure or one per day, filter UTC dates, and page through all results in groups of 12. Every change and measurement is re-checked at its own position, because the filter wavelength drifts across the field. Exclusions and wavelength drift are displayed.
 - The dates are aligned for playback, blink or swipe. Gaia stars are drawn where Gaia predicts they were on each date.
 - **Find changes:** the difference of two matched dates over pixels valid on both, scaled by its measured scatter. Changes are grouped as brightened, faded, moved, or residual around a saturated star.
 - **Investigate:** brightness and position are measured on each date's native pixels, with empirical errors. Flagged apertures report no value rather than a wrong one.
 - **Is it already known?** Gaia DR3 and SIMBAD, propagated to the date, plus NASA/JPL's list of known asteroids and comets at that moment. A failed lookup is shown as a failure, never as "nothing known". A JPL object counts as consistent only if our measured position matches its prediction.
 
 Around it:
-- **Explore:** the SPHEREx all-sky map in all 102 wavelengths.
+- **Stack visits:** combine compatible exposures within bounded observing windows, inspect contributors and coverage, and subtract visit means with local wavelength masking. These are exploratory display images, separate from native-pixel measurements.
+- **Wavelength lab:** generate six detector-band previews from sampled available channels, plus a source-position aperture spectrum with empirical errors, per-point dates/flags, and CSV export. Missing channels remain missing; previews can span different dates and are labelled accordingly. No calibrated spectrophotometry or deblending is claimed.
+- **Refresh and share:** explicitly refresh the DR1 archive, preserve an investigation's field, wavelength window, exposures, overlays and visit settings in its URL, or embed it in an iframe.
+- **Explore:** the SPHEREx all-sky map in all 102 wavelengths, with a WISE context overlay and adjustable opacity. WISE is a separately labelled historical mosaic, never part of a SPHEREx temporal measurement.
 - **Fly:** 59,218 stars placed by Gaia parallaxes.
 - **Investigate:** case files, including comet C/2025 R2 (SWAN).
 

@@ -19,6 +19,8 @@ type Props = {
   frame: number;
   colormap: string;
   showGrid?: boolean;
+  wiseOpacity?: number;
+  onWiseStatus?: (message: string) => void;
   markers?: SkyMarker[];
   lines?: SkyLine[];
   interactive?: boolean;
@@ -35,13 +37,16 @@ type Props = {
  * of flashing to black.
  */
 const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
-  { ra, dec, fov, frame, colormap, showGrid = false, markers = [], lines = [], onView, onMarkerClick, onStatus, onPointer },
+  { ra, dec, fov, frame, colormap, showGrid = false, wiseOpacity = 0, onWiseStatus, markers = [], lines = [], onView, onMarkerClick, onStatus, onPointer },
   ref,
 ) {
   const divRef = useRef<HTMLDivElement>(null);
   const aladinRef = useRef<any>(null);
   const baseRef = useRef<any>(null);
   const topRef = useRef<any>(null);
+  const wiseRef = useRef<any>(null);
+  const wiseStatusRef = useRef(onWiseStatus);
+  wiseStatusRef.current = onWiseStatus;
   const catsRef = useRef<Map<string, any>>(new Map());
   const lineOverlayRef = useRef<any>(null);
   const followTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -172,6 +177,23 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
       aladinRef.current?.setCooGrid?.({ enabled: showGrid });
     } catch {}
   }, [showGrid, ready]);
+
+  useEffect(() => {
+    if (!ready || !aladinRef.current) return;
+    const opacity = Math.max(0, Math.min(1, wiseOpacity));
+    if (!wiseRef.current && opacity > 0) {
+      const A = window.__AladinA;
+      wiseStatusRef.current?.("Loading WISE context…");
+      const layer = A.imageHiPS("https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1", {
+        name: "WISE context (2010-era mosaic)", imgFormat: "jpeg", opacity,
+        successCallback: () => wiseStatusRef.current?.("WISE context: 2010-era mosaic · W4/W2/W1 false colour · NASA/IPAC, CDS"),
+        errorCallback: () => wiseStatusRef.current?.("WISE context is unavailable; SPHEREx remains visible."),
+      });
+      wiseRef.current = layer;
+      aladinRef.current.setOverlayImageLayer(layer, "wise-context");
+    }
+    wiseRef.current?.setOpacity(opacity);
+  }, [ready, wiseOpacity]);
 
   useEffect(() => {
     if (!ready || !aladinRef.current) return;

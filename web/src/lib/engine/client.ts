@@ -1,11 +1,12 @@
 // Browser data layer: live IRSA access through our /api routes, with a prepared cache for featured
 // targets (same bytes the live route returns) so demos keep working if the archive is unreachable.
 import { decodeFrame, Frame, Observation } from "./sequence";
+import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE } from "./releases";
 
 export type Source = "live" | "cache";
 
-async function getJSON(url: string, timeoutMs: number) {
-  const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
+async function getJSON(url: string, timeoutMs: number, fresh = false) {
+  const r = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), ...(fresh ? { cache: "no-store" as const } : {}) });
   if (!r.ok) {
     let msg = `HTTP ${r.status}`;
     try {
@@ -16,9 +17,20 @@ async function getJSON(url: string, timeoutMs: number) {
   return r.json();
 }
 
-export async function getObservations(ra: number, dec: number, slug?: string, preferCache = true) {
-  const live = () => getJSON(`/api/observations?ra=${ra}&dec=${dec}`, 60000).then((d) => ({ ...d, source: "live" as Source }));
-  const cache = () => getJSON(`/cache/${slug}/observations.json`, 15000).then((d) => ({ ...d, source: "cache" as Source }));
+export async function getObservations(ra: number, dec: number, slug?: string, preferCache = true, size = 0.1, refresh = false) {
+  const live = () => getJSON(`/api/observations?ra=${ra}&dec=${dec}&size=${size}${refresh ? "&refresh=1" : ""}`, 60000, refresh).then((d) => ({ ...d, source: "live" as Source }));
+  const cache = async () => {
+    const d = await getJSON(`/cache/${slug}/observations.json`, 15000);
+    // Legacy centre searches remain useful for the original 6′ demo, but cannot claim full-field coverage.
+    const legacy = d.schema === undefined;
+    if ((!legacy && (d.schema !== CACHE_SCHEMA || d.engine !== ENGINE_VERSION || d.release !== RELEASE.id)) ||
+      !Number.isFinite(d.target?.ra) || !Number.isFinite(d.target?.dec) ||
+      Math.abs(d.target?.ra - ra) > 1e-5 || Math.abs(d.target?.dec - dec) > 1e-5 ||
+      (legacy ? size !== 0.1 : d.fieldSize !== size)) throw new Error("Prepared observations do not match this field/release.");
+    return { ...d, legacy, source: "cache" as Source };
+  };
+  // A refresh must either return a new archive answer or report failure, never silently return old data.
+  if (refresh) return live();
   if (slug && preferCache) return cache().catch(live);
   try {
     return await live();
@@ -32,13 +44,17 @@ export function frameKey(o: Observation, size: number) {
   return `${o.obsid}D${o.detector}_${size}`;
 }
 
-export async function getFrame(o: Observation, ra: number, dec: number, size: number, slug?: string, preferCache = true) {
+async function loadFrame(o: Observation, ra: number, dec: number, size: number, slug?: string, preferCache = true) {
   const liveUrl = `/api/cutout?url=${encodeURIComponent(o.url)}&ra=${ra}&dec=${dec}&size=${size}`;
   const cacheUrl = `/cache/${slug}/frames/${frameKey(o, size)}.bin`;
   const get = async (u: string, ms: number) => {
     const r = await fetch(u, { signal: AbortSignal.timeout(ms) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.arrayBuffer();
+    const buf = await r.arrayBuffer();
+    const meta = decodeFrame(buf).meta;
+    if (meta.sourceFits !== o.url || !Number.isFinite(meta.target.ra) || !Number.isFinite(meta.target.dec) || Math.abs(meta.target.ra - ra) > 1e-5 || Math.abs(meta.target.dec - dec) > 1e-5 || (meta.engine && meta.engine !== ENGINE_VERSION))
+      throw new Error("Cutout provenance does not match the requested exposure/position/engine.");
+    return buf;
   };
   let buf: ArrayBuffer;
   let source: Source = "live";
@@ -58,7 +74,21 @@ export async function getFrame(o: Observation, ra: number, dec: number, size: nu
       source = "cache";
     }
   }
-  return { frame: decodeFrame(buf), source } as { frame: Frame; source: Source };
+  const frame = decodeFrame(buf);
+  return { frame, source } as { frame: Frame; source: Source };
+}
+
+// Share validated cutouts between playback and the wavelength lab. Bounded to avoid retaining an
+// unbounded sky survey in browser memory; failed requests never poison a later retry.
+const frameRequests = new Map<string, ReturnType<typeof loadFrame>>();
+export function getFrame(o: Observation, ra: number, dec: number, size: number, slug?: string, preferCache = true) {
+  const key = `${ENGINE_VERSION}|${o.url}|${ra}|${dec}|${size}|${preferCache}`;
+  const old = frameRequests.get(key);
+  if (old) return old;
+  const promise = loadFrame(o, ra, dec, size, slug, preferCache).catch((e) => { frameRequests.delete(key); throw e; });
+  frameRequests.set(key, promise);
+  if (frameRequests.size > 96) frameRequests.delete(frameRequests.keys().next().value!);
+  return promise;
 }
 
 export type Known = {
@@ -127,6 +157,7 @@ export function parseCoords(s: string): { ra: number; dec: number } | null {
   }
   const m = t.match(/^(\d{1,2})[h: ]\s*(\d{1,2})[m: ]\s*(\d{1,2}(?:\.\d+)?)s?\s+([+-−]?)(\d{1,2})[d°: ]\s*(\d{1,2})['′m: ]\s*(\d{1,2}(?:\.\d+)?)["″s]?$/);
   if (!m) return null;
+  if (Number(m[1]) >= 24 || Number(m[2]) >= 60 || Number(m[3]) >= 60 || Number(m[6]) >= 60 || Number(m[7]) >= 60) return null;
   const ra = (parseInt(m[1]) + parseInt(m[2]) / 60 + parseFloat(m[3]) / 3600) * 15;
   const sign = m[4] === "-" || m[4] === "−" ? -1 : 1;
   const d = sign * (parseInt(m[5]) + parseInt(m[6]) / 60 + parseFloat(m[7]) / 3600);

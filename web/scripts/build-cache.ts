@@ -6,6 +6,8 @@ import { findObservations } from "../src/lib/engine/observations";
 import { fetchCutout, unpack } from "../src/lib/engine/cutout";
 import { matchedSets, Observation, setContaining } from "../src/lib/engine/sequence";
 import { TT_TARGETS } from "../src/lib/ttTargets";
+import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE } from "../src/lib/engine/releases";
+import { createHash } from "node:crypto";
 
 const SIZE = 0.1;
 const OUT = new URL("../public/cache/", import.meta.url);
@@ -24,15 +26,16 @@ async function main() {
       new URL(`${t.slug}/observations.json`, OUT),
       JSON.stringify({
         target: { ra: t.ra, dec: t.dec },
-        source: "IRSA SIA2, collection spherex_dr1",
+        schema: CACHE_SCHEMA, engine: ENGINE_VERSION, release: RELEASE.id, fieldSize: SIZE,
+        source: `IRSA SIA2, collection ${RELEASE.collection}`,
         queried: new Date().toISOString(),
         note: "Prepared copy of the live /api/observations response.",
         frames: obs,
       }),
     );
-    const sets = matchedSets(obs, 3);
+    const sets = matchedSets(obs, 3, "exposures");
     const pref = t.prefer && obs.find((o) => o.obsid === t.prefer!.obsid && o.detector === t.prefer!.detector);
-    if (pref) sets.unshift(pick(obs, pref));
+    if (pref) sets.unshift(pick(obs, pref, "exposures"));
     const todo = new Map<string, Observation>();
     for (const s of sets.slice(0, 3)) for (const f of s.frames.slice(0, 12)) todo.set(`${f.obsid}D${f.detector}`, f);
     console.log(`${t.slug}: ${obs.length} frames, ${sets.length} sets, caching ${todo.size} cutouts`);
@@ -42,7 +45,13 @@ async function main() {
       while (i < list.length) {
         const [k, f] = list[i++];
         const dest = new URL(`${k}_${SIZE}.bin`, dir);
-        if (existsSync(dest)) continue;
+        if (existsSync(dest)) {
+          try {
+            const old = readFileSync(dest);
+            const meta = unpack(old.buffer.slice(old.byteOffset, old.byteOffset + old.byteLength)).meta;
+            if (meta.sourceFits === f.url && meta.engine === ENGINE_VERSION) continue;
+          } catch { /* rebuild corrupt or obsolete cache entries */ }
+        }
         try {
           const buf = await fetchCutout(f.url, t.ra, t.dec, SIZE);
           writeFileSync(dest, Buffer.from(buf));
@@ -52,9 +61,17 @@ async function main() {
       }
     };
     await Promise.all([worker(), worker(), worker()]);
+    const entries = list.flatMap(([k, f]) => {
+      const file = `${k}_${SIZE}.bin`, dest = new URL(file, dir);
+      if (!existsSync(dest)) return [];
+      const bytes = readFileSync(dest);
+      const meta = unpack(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength)).meta;
+      return meta.sourceFits === f.url && meta.engine === ENGINE_VERSION ? [{ file: `frames/${file}`, source: f.url, sha256: createHash("sha256").update(bytes).digest("hex") }] : [];
+    });
+    writeFileSync(new URL(`${t.slug}/manifest.json`, OUT), JSON.stringify({ schema: CACHE_SCHEMA, engine: ENGINE_VERSION, release: RELEASE.id, collection: RELEASE.collection, fieldSize: SIZE, generated: new Date().toISOString(), complete: entries.length === list.length, requested: list.length, frames: entries }, null, 2));
     // Catalogue responses for the requests the page makes by default, stored with their full query so the
     // client only uses them for exactly that question (position, radius, time, services).
-    const def = pref ? pick(obs, pref) : sets[0];
+    const def = pref ? pick(obs, pref, "exposures") : sets[0];
     if (def) {
       const metas = def.frames
         .slice(0, 12)
