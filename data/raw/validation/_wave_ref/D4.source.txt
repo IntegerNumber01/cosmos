@@ -1,0 +1,1 @@
+https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/4/level2_2025W35_1A_0432_4D4_spx_l2b-v27-2026-230.fits?center=268.51946,6.32189d&size=0.05

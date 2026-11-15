@@ -1,0 +1,60 @@
+{
+ "name": "R Draconis",
+ "simbad": {
+  "main_id": "V* R Dra",
+  "ra": 248.16761083295,
+  "dec": 66.75497941722,
+  "coo_err_maj": 0.06689999997615814,
+  "coo_err_min": 0.06599999964237213,
+  "coo_bibcode": "2020yCat.1350....0G",
+  "pmra": -20.643,
+  "pmdec": 6.149,
+  "pm_err_maj": 0.08500000089406967,
+  "pm_err_min": 0.09099999815225601,
+  "pm_bibcode": "2020yCat.1350....0G",
+  "plx_value": 1.2509,
+  "plx_err": 0.06480000168085098,
+  "plx_bibcode": "2020yCat.1350....0G",
+  "rvz_radvel": -132.8,
+  "otype": "Mi*",
+  "tap": "https://simbad.harvard.edu/simbad/sim-tap/sync"
+ },
+ "gaia_dr3": {
+  "source_id": 1648328016354496384,
+  "ra": 248.1673783672889,
+  "dec": 66.75500674547219,
+  "ra_error": 0.06687162816524506,
+  "dec_error": 0.06601263582706451,
+  "ref_epoch": 2016.0,
+  "pmra": -20.642811719160797,
+  "pmra_error": 0.0851282924413681,
+  "pmdec": 6.148818852711324,
+  "pmdec_error": 0.09132147580385208,
+  "parallax": 1.2509180143740992,
+  "parallax_error": 0.06478790193796158,
+  "radial_velocity": null,
+  "phot_g_mean_mag": 6.3743791580200195,
+  "phot_bp_mean_mag": 9.502541542053223,
+  "phot_rp_mean_mag": 6.220059394836426,
+  "ruwe": 1.2979819774627686,
+  "phot_variable_flag": "VARIABLE"
+ },
+ "astrometry": {
+  "source": "Gaia DR3 1648328016354496384",
+  "ra": 248.1673783672889,
+  "dec": 66.75500674547219,
+  "epoch_jyear": 2016.0,
+  "pmra": -20.642811719160797,
+  "pmra_err": 0.0851282924413681,
+  "pmdec": 6.148818852711324,
+  "pmdec_err": 0.09132147580385208,
+  "parallax": 1.2509180143740992,
+  "parallax_err": 0.06478790193796158,
+  "rv": null,
+  "pos_err_mas": [
+   0.06687162816524506,
+   0.06601263582706451
+  ],
+  "ref": "Gaia Collaboration 2023, A&A 674, A1 (Gaia DR3), via ESA Gaia TAP"
+ }
+}

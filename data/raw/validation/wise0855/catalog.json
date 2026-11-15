@@ -1,0 +1,40 @@
+{
+ "name": "WISE J085510.83-071442.5 (WISE 0855-0714)",
+ "simbad": {
+  "main_id": "WISEA J085510.74-071442.5",
+  "ra": 133.81890825,
+  "dec": -7.247048000000001,
+  "coo_err_maj": null,
+  "coo_err_min": null,
+  "coo_bibcode": "2021ApJS..253....7K",
+  "pmra": -8123.7,
+  "pmdec": 673.2,
+  "pm_err_maj": 1.2999999523162842,
+  "pm_err_min": 1.2999999523162842,
+  "pm_bibcode": "2021ApJS..253....7K",
+  "plx_value": 439.0,
+  "plx_err": 2.4000000953674316,
+  "plx_bibcode": "2021ApJS..253....7K",
+  "rvz_radvel": null,
+  "otype": "BD*",
+  "tap": "https://simbad.harvard.edu/simbad/sim-tap/sync"
+ },
+ "astrometry": {
+  "source": "SIMBAD WISEA J085510.74-071442.5",
+  "ra": 133.81890825,
+  "dec": -7.247048000000001,
+  "epoch_jyear": 2000.0,
+  "pmra": -8123.7,
+  "pmra_err": 1.2999999523162842,
+  "pmdec": 673.2,
+  "pmdec_err": 1.2999999523162842,
+  "parallax": 439.0,
+  "parallax_err": 2.4000000953674316,
+  "rv": null,
+  "pos_err_mas": [
+   null,
+   null
+  ],
+  "ref": "SIMBAD basic table (coords 2021ApJS..253....7K, pm 2021ApJS..253....7K, plx 2021ApJS..253....7K)"
+ }
+}

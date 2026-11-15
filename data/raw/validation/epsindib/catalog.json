@@ -1,0 +1,83 @@
+{
+ "name": "Epsilon Indi B (Ba+Bb, unresolved)",
+ "simbad": {
+  "main_id": "* eps Ind B",
+  "ra": 331.04414658852124,
+  "dec": -56.782844195116105,
+  "coo_err_maj": 0.504800021648407,
+  "coo_err_min": 0.4675999879837036,
+  "coo_bibcode": "2020yCat.1350....0G",
+  "pmra": 3981.977,
+  "pmdec": -2466.832,
+  "pm_err_maj": 0.6019999980926514,
+  "pm_err_min": 0.6259999871253967,
+  "pm_bibcode": "2020yCat.1350....0G",
+  "plx_value": 270.658,
+  "plx_err": 0.6895999908447266,
+  "plx_bibcode": "2020yCat.1350....0G",
+  "rvz_radvel": null,
+  "otype": "BD*",
+  "tap": "https://simbad.harvard.edu/simbad/sim-tap/sync"
+ },
+ "gaia_dr3": {
+  "source_id": 6412596012146801152,
+  "ra": 331.07645259656397,
+  "dec": -56.79381206688221,
+  "ra_error": 0.5048008561134338,
+  "dec_error": 0.46758729219436646,
+  "ref_epoch": 2016.0,
+  "pmra": 3981.97666296105,
+  "pmra_error": 0.6016567945480347,
+  "pmdec": -2466.8318147663504,
+  "pmdec_error": 0.6256827116012573,
+  "parallax": 270.6580324694526,
+  "parallax_error": 0.6895573139190674,
+  "radial_velocity": null,
+  "phot_g_mean_mag": 18.030664443969727,
+  "phot_bp_mean_mag": 21.142072677612305,
+  "phot_rp_mean_mag": 16.060108184814453,
+  "ruwe": 4.295541286468506,
+  "phot_variable_flag": "NOT_AVAILABLE"
+ },
+ "neighbour": {
+  "name": "eps Ind A",
+  "gaia_dr3": {
+   "source_id": 6412595290592307840,
+   "ra": 330.8724078795965,
+   "dec": -56.79725466122902,
+   "ra_error": 0.0686945989727974,
+   "dec_error": 0.0654660016298294,
+   "ref_epoch": 2016.0,
+   "pmra": 3966.6605387484133,
+   "pmra_error": 0.08557087928056717,
+   "pmdec": -2536.1919868044724,
+   "pmdec_error": 0.09221276640892029,
+   "parallax": 274.8431415216296,
+   "parallax_error": 0.09561499208211899,
+   "radial_velocity": -40.426700592041016,
+   "phot_g_mean_mag": 4.322904109954834,
+   "phot_bp_mean_mag": 4.9079766273498535,
+   "phot_rp_mean_mag": 3.6105570793151855,
+   "ruwe": 1.1482685804367065,
+   "phot_variable_flag": "NOT_AVAILABLE"
+  }
+ },
+ "astrometry": {
+  "source": "Gaia DR3 6412596012146801152",
+  "ra": 331.07645259656397,
+  "dec": -56.79381206688221,
+  "epoch_jyear": 2016.0,
+  "pmra": 3981.97666296105,
+  "pmra_err": 0.6016567945480347,
+  "pmdec": -2466.8318147663504,
+  "pmdec_err": 0.6256827116012573,
+  "parallax": 270.6580324694526,
+  "parallax_err": 0.6895573139190674,
+  "rv": null,
+  "pos_err_mas": [
+   0.5048008561134338,
+   0.46758729219436646
+  ],
+  "ref": "Gaia Collaboration 2023, A&A 674, A1 (Gaia DR3), via ESA Gaia TAP"
+ }
+}

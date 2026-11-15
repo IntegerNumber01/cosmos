@@ -1,0 +1,83 @@
+{
+ "name": "RW Aurigae (A+B, unresolved)",
+ "simbad": {
+  "main_id": "V* RW Aur",
+  "ra": 76.95652603458333,
+  "dec": 30.401438173888888,
+  "coo_err_maj": 3.309999942779541,
+  "coo_err_min": 2.0,
+  "coo_bibcode": "2007A&A...474..653V",
+  "pmra": 7.23,
+  "pmdec": -20.33,
+  "pm_err_maj": 3.809999942779541,
+  "pm_err_min": 2.2300000190734863,
+  "pm_bibcode": "2007A&A...474..653V",
+  "plx_value": 15.42,
+  "plx_err": 3.690000057220459,
+  "plx_bibcode": "2007A&A...474..653V",
+  "rvz_radvel": 15.0,
+  "otype": "TT*",
+  "tap": "https://simbad.harvard.edu/simbad/sim-tap/sync"
+ },
+ "gaia_dr3": {
+  "source_id": 156430822114424576,
+  "ra": 76.95608119552952,
+  "dec": 30.401204589097233,
+  "ra_error": 0.03650693967938423,
+  "dec_error": 0.025246022269129753,
+  "ref_epoch": 2016.0,
+  "pmra": 2.6406431770317083,
+  "pmra_error": 0.04894876480102539,
+  "pmdec": -27.397582540455325,
+  "pmdec_error": 0.035927459597587585,
+  "parallax": 6.406249329219477,
+  "parallax_error": 0.044122789055109024,
+  "radial_velocity": -20.937068939208984,
+  "phot_g_mean_mag": 12.18407154083252,
+  "phot_bp_mean_mag": 12.818873405456543,
+  "phot_rp_mean_mag": 11.044842720031738,
+  "ruwe": 1.5003727674484253,
+  "phot_variable_flag": "NOT_AVAILABLE"
+ },
+ "companion": {
+  "name": "RW Aur B",
+  "gaia_dr3": {
+   "source_id": 156430817820015232,
+   "ra": 76.9565443110343,
+   "dec": 30.401316149887936,
+   "ra_error": 0.28157705068588257,
+   "dec_error": 0.17749708890914917,
+   "ref_epoch": 2016.0,
+   "pmra": 4.90603392110511,
+   "pmra_error": 0.32915833592414856,
+   "pmdec": -24.577534567492915,
+   "pmdec_error": 0.2546490728855133,
+   "parallax": 5.454096456582266,
+   "parallax_error": 0.3324495553970337,
+   "radial_velocity": null,
+   "phot_g_mean_mag": 13.035076141357422,
+   "phot_bp_mean_mag": 11.959858894348145,
+   "phot_rp_mean_mag": 10.731155395507812,
+   "ruwe": 16.42213249206543,
+   "phot_variable_flag": "NOT_AVAILABLE"
+  }
+ },
+ "astrometry": {
+  "source": "Gaia DR3 156430822114424576",
+  "ra": 76.95608119552952,
+  "dec": 30.401204589097233,
+  "epoch_jyear": 2016.0,
+  "pmra": 2.6406431770317083,
+  "pmra_err": 0.04894876480102539,
+  "pmdec": -27.397582540455325,
+  "pmdec_err": 0.035927459597587585,
+  "parallax": 6.406249329219477,
+  "parallax_err": 0.044122789055109024,
+  "rv": -20.937068939208984,
+  "pos_err_mas": [
+   0.03650693967938423,
+   0.025246022269129753
+  ],
+  "ref": "Gaia Collaboration 2023, A&A 674, A1 (Gaia DR3), via ESA Gaia TAP"
+ }
+}
