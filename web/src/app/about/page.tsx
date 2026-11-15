@@ -25,8 +25,14 @@ const SOURCES = [
     link: "https://irsa.ipac.caltech.edu/applications/MOST/",
   },
   {
+    name: "SIMBAD and NASA/JPL Small-Body Identification",
+    use: "Time Travel: \"is it already known?\"",
+    detail: "SIMBAD TAP (Harvard mirror, CDS fallback): named objects near a position, propagated from J2000 with proper motion. JPL sb_ident: known asteroids (V ≤ 21) and comets at the exact time of an exposure, queried separately to keep each lookup under a minute.",
+    link: "https://ssd-api.jpl.nasa.gov/doc/sb_ident.html",
+  },
+  {
     name: "ESA Gaia DR3",
-    use: "Fly: 3D positions of 59,218 stars",
+    use: "Fly: 3D positions of 59,218 stars · Time Travel: star overlay and known-object check",
     detail: "gaiadr3.gaia_source via the ESA Gaia Archive TAP. Two samples: parallax > 20 mas with parallax/error > 10 (within 50 pc), and G < 6.5 with parallax/error > 5. Distance = 1/parallax. Epoch J2016.0.",
     link: "https://gea.esac.esa.int/archive/",
   },
@@ -38,6 +44,10 @@ const TRUTH = [
   ["Wavelength of each exposure at the comet", "Measured (WCS-WAVE lookup)", "Each SPHEREx exposure is a different wavelength"],
   ["Comet positions and motion", "Measured by us from the pixels", "Gaussian photocentre fit, compared with the MOST prediction"],
   ["Comet's predicted path", "Calculated (MOST ephemeris)", "Always labelled as a prediction"],
+  ["Which dates are compared", "Measured (WCS-WAVE at the target)", "Same detector; every pair within half a channel"],
+  ["Change maps (Find changes)", "Derived, empirically scaled", "Indicator only; scaled by the measured scatter of the difference"],
+  ["Brightness and position on each date", "Measured on native pixels", "Empirical errors; flagged apertures report no value"],
+  ["Gaia stars drawn on dated frames", "Calculated (Gaia DR3 proper motion)", "A prediction for each date"],
   ["Star positions in 3D", "Measured (Gaia DR3 parallax)", "Uncertainty shown for every star"],
   ["Star colours in 3D", "Approximated from Gaia BP−RP", "Display only"],
   ["Depth in SPHEREx images", "Not available", "SPHEREx records no distance per pixel; COSMOS adds none"],
@@ -101,7 +111,43 @@ export default function About() {
           </table>
         </div>
 
-        <h2 className="font-display mt-12 text-[22px] font-semibold">The investigation pipeline</h2>
+        <h2 className="font-display mt-12 text-[22px] font-semibold">Time Travel: any coordinates to a dated sequence</h2>
+        <ol className="mt-4 list-decimal space-y-2 pl-5 text-[13.5px] leading-relaxed text-text/85">
+          <li>
+            <b>Find.</b> The server asks IRSA SIA2 for every SPHEREx DR1 frame covering the position. For each frame it estimates the wavelength at that exact
+            spot from the footprint polygon and the detector&apos;s WCS-WAVE table. Checked against the full WCS on 93 frames: within 7 px, or about 0.001 µm.
+          </li>
+          <li>
+            <b>Match.</b> Dates are grouped by detector so that every pair agrees within half a channel in wavelength. Each cutout&apos;s header is then used to
+            recompute the exact wavelength, and frames outside the tolerance are excluded and listed. The page also shows how far the wavelengths drift at the
+            field corners, because the filter gradient differs between visits.
+          </li>
+          <li>
+            <b>Align.</b> Cutouts are fetched and parsed on the server (IRSA sends no CORS headers) and reprojected in the browser onto one north-up grid. That
+            reprojection is for display only.
+          </li>
+          <li>
+            <b>Find changes.</b> We subtract two matched dates over pixels valid on both. The result is scaled by its own robust scatter and split into
+            brightened, faded, moved (two spots of similar size and strength) and likely-residual regions.
+          </li>
+          <li>
+            <b>Measure.</b> Brightness and centroid come from each frame&apos;s native pixels, with errors from blank-sky control apertures. Positions also carry a
+            stated 0.5″ alignment allowance.
+          </li>
+          <li>
+            <b>Is it known?</b> Gaia DR3 and SIMBAD positions are propagated to the date. NASA/JPL lists the known asteroids and comets in the field at the time
+            the object was visible. &quot;No match&quot; is never presented as a discovery.
+          </li>
+        </ol>
+        <p className="mt-3 text-[12.5px] text-muted">
+          The TypeScript FITS, WCS and wavelength code matches astropy to 4×10⁻¹⁰″ and 4×10⁻⁷ µm. Featured targets ship a prepared copy of the same responses,
+          so they still work if the archive is down.{" "}
+          <Link href="/validation" className="text-accent hover:underline">
+            Validation on the five challenge targets →
+          </Link>
+        </p>
+
+        <h2 className="font-display mt-12 text-[22px] font-semibold">The comet SWAN case file</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-5 text-[13.5px] leading-relaxed text-text/85">
           <li>
             <b>Predict.</b> MOST lists the SPHEREx frames that should contain comet C/2025 R2 (SWAN): 205 frames. The 20 brightest are
@@ -121,10 +167,10 @@ export default function About() {
             test checks that the comet&apos;s first position empties out.
           </li>
           <li>
-            <b>Time Travel.</b> SIA2 finds every SPHEREx visit to the comet&apos;s 27 Oct position. For each candidate we read only the
-            image header (HTTP range request), compute where the position lands on the detector, and look up its wavelength there. A
-            pair is accepted only when both frames come from the same detector and the wavelengths agree within half a channel
-            bandwidth. Both frames are reprojected onto one grid, and we compute D = after − before and Z = D / √(σ²before + σ²after).
+            <b>Time Travel.</b> We paired each 27 Oct frame with the 1 May 2026 frame of the same detector whose wavelength at the position matches within
+            a quarter channel (0.004–0.014 µm apart). The change in the comet&apos;s aperture is measured on native pixels, with errors from 48 blank-sky
+            apertures per frame. The &quot;what changed&quot; map uses a common valid-pixel mask and is rescaled by its measured field scatter, because the nominal
+            variance understates it by 1.3–3.3× after resampling.
           </li>
           <li>
             <b>Publish.</b> PNG/JSON assets carry their OBSID, detector, wavelength, timestamp and links to the original FITS and the
@@ -151,8 +197,20 @@ export default function About() {
             don&apos;t explain it away.
           </li>
           <li>
-            In Time Travel difference maps, some field stars leave residuals (6–22% of field pixels exceed |Z| &gt; 5) from resampling
-            and point-spread differences. The comet is the only large, coherent change.
+            The archive&apos;s nominal noise, carried through resampling, understates the real scatter of difference maps by 1.3–3.3×. We rescale by the
+            measured scatter. Even then, 0.2–3% of field pixels exceed 5 from star residuals. We call these maps indicators, not probabilities.
+          </li>
+          <li>
+            Within one SWAN sequence, the first and last exposures are 3–4 channel widths apart in wavelength. Those difference images mix time and colour, so
+            we use them only to show <i>where</i> the comet moved.
+          </li>
+          <li>
+            Motion was measured in 6 detector sequences from 3 observation blocks; detector pairs share exposures. One of the six speeds differs from the
+            prediction by 2.4σ, which we report as unexplained.
+          </li>
+          <li>
+            Bright stars (e.g. Barnard&apos;s Star, R Draconis) are saturated in many SPHEREx channels. Their apertures are flagged, so COSMOS reports no
+            measurement rather than a wrong one.
           </li>
           <li>
             Very bright stars (Sirius A, Vega, Betelgeuse…) aren&apos;t in our Gaia sample. A star gets a name only when a Gaia source
@@ -168,7 +226,11 @@ pipeline/build_swan_assets.py   # aligned frames, difference images, case.json
 pipeline/timetravel_select.py   # wavelength at the target for every SIA2 visit
 pipeline/build_timetravel.py    # matched-wavelength pairs, D and Z maps
 pipeline/fetch_gaia.py          # Gaia DR3 TAP queries
-pipeline/build_gaia_assets.py   # 3D star binary + verified labels`}
+pipeline/build_gaia_assets.py   # 3D star binary + verified labels
+pipeline/export_wave_tables.py  # WCS-WAVE tables for the TypeScript engine
+pipeline/validate_targets.py    # validation records for the five challenge targets
+web/scripts/check-wcs.ts        # TypeScript FITS/WCS/wavelength vs astropy
+web/scripts/build-cache.ts      # prepared cache = same bytes as the live API`}
         </pre>
 
         <h2 className="font-display mt-12 text-[22px] font-semibold">Acknowledgements</h2>

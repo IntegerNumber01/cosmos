@@ -29,8 +29,8 @@ We fit each frame's coma photocentre on its own: a peak search within 8 px of th
 | 0313 D4 (3.30–3.58 µm) | 9.71 / 9.21 | 63.2° / 62.7° | 2.9″ | 0.28″ | 8% |
 
 - The comet moves 65–86″ (11–14 SPHEREx pixels) within each 6.5-minute, 4-exposure sequence. Over Oct 27 04:53 → Oct 28 10:21 UTC it moves about 4°.
-- Field stars stay put to < 1″ (0.1 px) across the same frames, so the motion is not a registration artifact.
-- The difference images (`docs/figures/proof_*.png`) show the classic dipole: stars cancel, the comet leaves a negative imprint at its old position and a positive one at its new position.
+- The median field-star shift per sequence is 0.25–0.78″, against 65–86″ of comet motion, so the motion is not a registration artifact. Individual stars can shift more (up to 12.6″), most likely blends or saturated stars.
+- The difference images (`docs/figures/proof_*.png`) show the dipole: a negative imprint where the comet was and a positive one where it went. **Caveat (corrected 2026-11-14):** first and last exposures in a sequence are 3–4 channel widths apart in wavelength, so these differences mix time and colour. Stars cancel only approximately, and the images are used for position only.
 - Measured position and time agree with the predicted location in every frame. Median offsets are 2.3–2.9″ (< 0.5 px) in detectors 1, 2 and 4; every frame there is within 0.85 px. Detector 5 sits at 8.5″ (1.4 px). **This meets the brief's "confirmed known-object match" bar. It is a recovery of a known comet, not a discovery.**
 
 ## 3. Scientific caveats we found (and how the app handles them)
@@ -57,3 +57,10 @@ python pipeline/swan_measure.py    # -> data/work/swan_measurements.json
 python pipeline/proof_figure.py 2025W44_1A_0045_D1
 python pipeline/fetch_gaia.py
 ```
+
+
+## 6. Corrections after review (2026-11-14, evening)
+
+- Motion fits now carry uncertainties (weighted fits; 0.5″ alignment allowance per point). Five of six detector sequences agree with the predicted speed within 2σ. The 28 Oct D4 sequence (3.30–3.58 µm) differs by 2.4σ (9.69 ± 0.20 vs 9.21″/min). This is reported, not explained. The six sequences come from 3 observation blocks, so they aren't independent.
+- The Oct 2025 vs May 2026 comparison is now measured on native pixels, with empirical errors from 48 blank-sky apertures per frame: a change of 125–585× the empirical noise. The earlier "245σ" used resampled variance and is withdrawn. Nominal variance understated the difference-map scatter by 1.28–3.33×, so maps are rescaled by measured scatter and treated as indicators.
+- Matched pairs differ by 0.004–0.014 µm (≤ 21% of a channel), not "within 0.004 µm".
