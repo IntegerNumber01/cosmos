@@ -33,7 +33,15 @@ The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position 
 
 ## Validation on the challenge targets
 
-Barnard's Star, WISE 0855−0714, Epsilon Indi B, RW Aurigae and R Draconis each have a validation record: observations examined, matched sets, native-pixel measurements, verdict, and limitations. See [docs/VALIDATION.md](docs/VALIDATION.md), `/validation`, and `pipeline/validate_targets.py`.
+| Target | Verdict | Key result |
+|---|---|---|
+| Epsilon Indi B | **confirmed** | 4.42–4.86″ of proper motion in a year against 4.68–4.77″ predicted (13.9–15.6σ), in 3 wavelength sets |
+| RW Aurigae | **confirmed** | Brightened by Δm = −0.53 ± 0.06 mag at 0.744 µm (2025-09-02 → 2026-03-08) |
+| WISE 0855−0714 | **consistent** | Detected only by stacking (S/N 8.1 at 4.22 and 4.37 µm); motion matches but only ~2σ |
+| Barnard's Star | **unreliable** | Saturated in every channel (a halo-only fit shows the expected motion; not counted) |
+| R Draconis | **unreliable** | Saturated in every channel |
+
+Thresholds were fixed before looking at results. Details: [docs/VALIDATION.md](docs/VALIDATION.md), `/validation`, `pipeline/validate_targets.py`. The live Time Travel tool independently reproduces the Epsilon Indi B motion (4.7″ ± 0.7″ against 4.7″) and the RW Aur brightening (+62%). Regression script: `pipeline/tools/e2e.py`.
 
 ## Run locally
 
