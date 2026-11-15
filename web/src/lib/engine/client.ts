@@ -90,16 +90,28 @@ export type SimbadRow = {
 };
 export type SmallBodyRow = { name: string; ra_hms: string; dec_dms: string; sep_arcsec: number; vmag: string; ra_rate_arcsec_h: number; dec_rate_arcsec_h: number };
 
+export type KnownIndexEntry = { file: string; ra: number; dec: number; r: number; mjd: number; services: string };
+
+/** A cached catalogue answer is usable only if it answers exactly this question: same services, radius,
+ * position (< 1") and observation time (< 2 minutes). Checked against the index AND the stored response. */
+function sameQuery(q: { ra: number; dec: number; r: number; mjd: number; services: string }, ra: number, dec: number, r: number, mjd: number, services: string) {
+  const sep = Math.hypot((q.ra - ra) * Math.cos((dec * Math.PI) / 180), q.dec - dec) * 3600;
+  return q.services === services && Math.abs(q.r - r) < 1e-6 && Math.abs(q.mjd - mjd) < 1.5e-3 && sep < 1;
+}
+
 export async function getKnown(ra: number, dec: number, r: number, mjd: number, services: string, slug?: string): Promise<Known> {
   const url = `/api/known?ra=${ra.toFixed(6)}&dec=${dec.toFixed(6)}&r=${r}&mjd=${mjd.toFixed(5)}&services=${services}`;
   try {
     return await getJSON(url, 62000);
   } catch (e) {
-    if (slug) {
-      const key = `${ra.toFixed(4)}_${dec.toFixed(4)}_${services}`;
-      return getJSON(`/cache/${slug}/known_${key}.json`, 15000);
-    }
-    throw e;
+    if (!slug) throw e;
+    const index: KnownIndexEntry[] = await getJSON(`/cache/${slug}/known_index.json`, 15000).catch(() => []);
+    const hit = index.find((x) => sameQuery(x, ra, dec, r, mjd, services));
+    if (!hit) throw e;
+    const k: Known = await getJSON(`/cache/${slug}/${hit.file}`, 15000);
+    const q = k.query as Known["query"] & { services?: string[] };
+    if (!sameQuery({ ra: q.ra, dec: q.dec, r: q.radius_deg, mjd: q.mjd, services: (q.services ?? []).join(",") }, ra, dec, r, mjd, services)) throw e;
+    return k;
   }
 }
 

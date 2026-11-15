@@ -1,7 +1,21 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { getKnown, Known } from "@/lib/engine/client";
-import { Frame, measure, Measurement } from "@/lib/engine/sequence";
+import { exactWindow, Frame, measure, Measurement } from "@/lib/engine/sequence";
+
+type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
+
+/** "20:56:58.19" / "-05 41'18.5\"" -> degrees */
+function hmsToDeg(h: string) {
+  const [a, b, c] = h.split(/[: ]/).map(Number);
+  return (a + b / 60 + c / 3600) * 15;
+}
+function dmsToDeg(d: string) {
+  const m = d.match(/([+-]?)(\d+)\D+(\d+)\D+([\d.]+)/);
+  if (!m) return NaN;
+  const v = Number(m[2]) + Number(m[3]) / 60 + Number(m[4]) / 3600;
+  return m[1] === "-" ? -v : v;
+}
 
 type Props = {
   frames: Frame[];
@@ -86,7 +100,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   const whenIso = new Date((lastMjd - 40587) * 86400000).toISOString();
   const [known, setKnown] = useState<Known | null>(null);
   const [knownErr, setKnownErr] = useState("");
-  const [sb, setSb] = useState<Known | null | "loading">(null);
+  const [sb, setSb] = useState<{ comets: SbPart; asteroids: SbPart } | null | "loading">(null);
 
   useEffect(() => {
     setKnown(null);
@@ -100,20 +114,15 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
 
   const checkSmallBodies = () => {
     setSb("loading");
-    Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug), getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]).then(([c, a]) => {
-      const parts = [c, a].filter((x): x is PromiseFulfilledResult<Known> => x.status === "fulfilled").map((x) => x.value);
-      if (!parts.length) {
-        setSb(null);
-        return;
-      }
-      const ok = parts.filter((k) => k.small_bodies.ok);
-      setSb({
-        ...parts[0],
-        small_bodies: ok.length
-          ? { service: parts[0].small_bodies.service, ok: true, rows: ok.flatMap((k) => k.small_bodies.rows ?? []) }
-          : parts[0].small_bodies,
-      });
-    });
+    const part = (x: PromiseSettledResult<Known>): SbPart =>
+      x.status === "rejected"
+        ? { ok: false, error: String((x.reason as Error)?.message ?? x.reason) }
+        : x.value.small_bodies.ok
+          ? { ok: true, rows: x.value.small_bodies.rows ?? [] }
+          : { ok: false, error: x.value.small_bodies.error ?? "lookup failed" };
+    Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug), getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]).then(([c, a]) =>
+      setSb({ comets: part(c), asteroids: part(a) }),
+    );
   };
 
   const gaiaMatch = known?.gaia.ok ? known.gaia.rows?.find((r) => r.sep_arcsec < 6) : undefined;
@@ -132,11 +141,15 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   // the Gaia source is the target only if its proper motion matches what we know about the target
   const gaiaIsTarget = !!gaiaMatch && (!targetPm || pmAgree(targetPm, [gaiaMatch.pmra, gaiaMatch.pmdec]));
   const predPm: [number, number] | null = targetPm ?? (gaiaMatch ? [gaiaMatch.pmra, gaiaMatch.pmdec] : null);
-  // position track relative to the first good centroid, with the target's predicted motion
-  const firstC = rows.find((r) => r.centroid)?.centroid;
+  // the sequence is matched at the search target; re-check the wavelengths at THIS position
+  const bwHere = rows.map((r) => r.bw).sort((a, b) => a - b)[rows.length >> 1];
+  const cmp = exactWindow(rows, (r) => r.wl, bwHere);
+  const cmpIds = new Set(cmp.keep.map((r) => r.obsid));
+  // position track relative to the first good centroid (comparable dates only), with the target's predicted motion
+  const firstC = rows.find((r) => r.centroid && cmpIds.has(r.obsid))?.centroid;
   const cosd = Math.cos((at.dec * Math.PI) / 180);
-  const t0 = rows.find((r) => r.centroid)?.mjd ?? rows[0].mjd;
-  const track = rows.map((r) => ({
+  const t0 = rows.find((r) => r.centroid && cmpIds.has(r.obsid))?.mjd ?? rows[0].mjd;
+  const track = rows.filter((r) => cmpIds.has(r.obsid)).map((r) => ({
     t: r.mjd,
     label: fmtDate(r.date),
     dN: r.centroid && firstC ? (r.centroid.dec - firstC.dec) * 3600 : NaN,
@@ -161,8 +174,8 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   const predShift = lastT && predPm ? Math.hypot(lastT.predN!, lastT.predE!) : NaN;
   const shiftErr = lastT ? Math.hypot(lastT.e, withC[0].e) : NaN;
 
-  // photometric variation (same wavelength): max-min relative to combined empirical errors
-  const good = rows.filter((r) => Number.isFinite(r.flux) && Number.isFinite(r.fluxErrEmp) && !r.partial);
+  // photometric variation: only dates whose wavelengths match AT THIS POSITION, with clean apertures
+  const good = cmp.keep.filter((r) => Number.isFinite(r.flux) && Number.isFinite(r.fluxErrEmp) && !r.partial);
   let varText = "";
   if (good.length >= 2) {
     const hi = good.reduce((a, b) => (b.flux > a.flux ? b : a));
@@ -181,10 +194,39 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   const saturated = rows.some((r) => r.flagsHere.some((f) => ["OVERFLOW", "NONLINEAR", "SUR_ERROR"].includes(f)));
 
 
-  const sbRows = sb && sb !== "loading" && sb.small_bodies.ok ? sb.small_bodies.rows ?? [] : [];
+  const sbRows = sb && sb !== "loading" ? [...(sb.comets.ok ? sb.comets.rows : []), ...(sb.asteroids.ok ? sb.asteroids.rows : [])].sort((a, b) => a.sep_arcsec - b.sep_arcsec) : [];
+  // compare JPL's predicted position with OUR measured centroid on the date the object was visible
+  const visibleRow = rows.find((r) => Math.abs(r.mjd - lastMjd) < 1e-3);
+  let assoc: { level: "consistent" | "possible"; text: string } | null = null;
+  if (sbRows.length) {
+    const b = sbRows[0];
+    const bra = hmsToDeg(b.ra_hms);
+    const bdec = dmsToDeg(b.dec_dms);
+    const c = visibleRow?.centroid;
+    if (c && Number.isFinite(bra) && Number.isFinite(bdec)) {
+      const off = Math.hypot((c.ra - bra) * Math.cos((bdec * Math.PI) / 180), c.dec - bdec) * 3600;
+      const tol = Math.max(3 * c.errArcsec, 6.15);
+      assoc =
+        off <= tol
+          ? {
+              level: "consistent",
+              text: `Consistent with known object ${b.name}: our measured position on ${fmtDate(whenIso)} is ${off.toFixed(1)}″ from NASA/JPL's prediction (tolerance ${tol.toFixed(1)}″). Its motion isn't checked here. Treat this as an association with a known object, not a discovery.`,
+            }
+          : {
+              level: "possible",
+              text: `Possible association with ${b.name}: JPL predicts it ${b.sep_arcsec.toFixed(0)}″ from this spot, but our measured position is ${off.toFixed(1)}″ from the prediction (tolerance ${tol.toFixed(1)}″). Not confirmed.`,
+            };
+    } else {
+      assoc = {
+        level: "possible",
+        text: `Possible association with ${b.name}: JPL predicts it ${b.sep_arcsec.toFixed(0)}″ from this spot at that time. There's no reliable measured position to compare, so this isn't confirmed.`,
+      };
+    }
+  }
+  const catalogueGaps = [!known?.gaia.ok && "Gaia", !known?.simbad.ok && "SIMBAD"].filter(Boolean) as string[];
   let verdict = "";
-  if (known && sbRows.length) {
-    verdict = `Known solar-system object: ${sbRows[0].name}, predicted by NASA/JPL ${sbRows[0].sep_arcsec.toFixed(0)}″ from this position at that time. A recovery of a known object, not a discovery.`;
+  if (known && assoc) {
+    verdict = assoc.text;
   } else if (known) {
     if (simbadTop || gaiaMatch) {
       const sName = simbadTop ? `${simbadTop.main_id.replace(/^NAME /, "")}${simbadTop.otype_label ? ` (${simbadTop.otype_label})` : ""}` : "";
@@ -196,8 +238,9 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         }`;
       else verdict = `Known star: Gaia DR3 ${gaiaMatch!.source_id}, ${gaiaMatch!.sep_arcsec.toFixed(1)}″ away at this date.`;
     } else {
-      verdict =
-        "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artefacts (flags below), confirm on more dates, and check known solar-system objects.";
+      verdict = catalogueGaps.length
+        ? `${catalogueGaps.join(" and ")} could not be checked, so we can't say whether this is known.`
+        : "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artefacts (flags below), confirm on more dates, and check known solar-system objects.";
     }
   }
 
@@ -215,7 +258,13 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         {knownErr && <div className="text-[12.5px] text-warn">Catalogue lookup failed ({knownErr}).</div>}
         {known && (
           <>
-            <p className={`text-[13px] ${simbadTop || gaiaMatch || sbRows.length ? "text-good" : "text-text"}`}>{verdict}</p>
+            <p
+              className={`text-[13px] ${
+                assoc ? (assoc.level === "consistent" ? "text-good" : "text-warn") : simbadTop || gaiaMatch ? "text-good" : catalogueGaps.length ? "text-warn" : "text-text"
+              }`}
+            >
+              {verdict}
+            </p>
             <ul className="mt-1.5 space-y-0.5 text-[11.5px] text-muted">
               {!known.gaia.ok && <li className="text-warn">Gaia unavailable: {known.gaia.error}</li>}
               {!known.simbad.ok && <li className="text-warn">SIMBAD unavailable: {known.simbad.error}</li>}
@@ -248,17 +297,25 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
               )}
               {sb === "loading" && <span className="text-[12px] text-muted">Asking NASA/JPL which small bodies were here on {fmtDate(whenIso)}… (up to a minute)</span>}
               {sb && sb !== "loading" && (
-                <div className="text-[12px]">
-                  {!sb.small_bodies.ok ? (
-                    <span className="text-warn">JPL lookup failed: {sb.small_bodies.error}</span>
-                  ) : (sb.small_bodies.rows ?? []).length === 0 ? (
-                    <span className="text-muted">JPL: no known asteroid or comet within 72″ of this position at that time.</span>
-                  ) : (
-                    (sb.small_bodies.rows ?? []).slice(0, 4).map((r) => (
-                      <div key={r.name} className="text-good">
-                        JPL: {r.name} predicted {r.sep_arcsec.toFixed(0)}″ away (V {r.vmag}), moving {Math.hypot(r.ra_rate_arcsec_h, r.dec_rate_arcsec_h).toFixed(0)}″/h
+                <div className="space-y-0.5 text-[12px]">
+                  {sbRows.slice(0, 4).map((r) => (
+                    <div key={r.name} className="text-text/85">
+                      JPL: {r.name} predicted {r.sep_arcsec.toFixed(0)}″ from this spot (V {r.vmag}), moving{" "}
+                      {Math.hypot(r.ra_rate_arcsec_h, r.dec_rate_arcsec_h).toFixed(0)}″/h
+                    </div>
+                  ))}
+                  {(["comets", "asteroids"] as const).map((k) =>
+                    sb[k].ok ? (
+                      sb[k].rows.length === 0 && (
+                        <div key={k} className="text-muted">
+                          JPL: no known {k === "comets" ? "comet" : "asteroid (V ≤ 21)"} within 72″ at that time.
+                        </div>
+                      )
+                    ) : (
+                      <div key={k} className="text-warn">
+                        JPL {k} lookup failed ({sb[k].error}). We can&apos;t tell whether a known {k === "comets" ? "comet" : "asteroid"} was here.
                       </div>
-                    ))
+                    ),
                   )}
                 </div>
               )}
@@ -269,15 +326,24 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
 
       <div className="mt-3">
         <div className="label mb-1">Brightness on each date (same wavelength, native pixels)</div>
+        {cmp.drop.length > 0 && (
+          <p className="text-[12px] text-warn">
+            Left out at this position: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}. The filter wavelength here differs from the other dates by more than half a
+            channel. (The sequence was matched at the search target, not at this spot.)
+          </p>
+        )}
         <Chart
           unit="flux (MJy/sr · px)"
           label="Aperture brightness on each date"
-          pts={rows.map((r) => ({ t: r.mjd, v: r.flux, e: r.fluxErrEmp, label: fmtDate(r.date) }))}
+          pts={cmp.keep.map((r) => ({ t: r.mjd, v: r.flux, e: r.fluxErrEmp, label: fmtDate(r.date) }))}
         />
         {nUnusable > 0 && (
           <p className="text-[12px] text-warn">
-            {nUnusable === rows.length ? "No date" : `${nUnusable} of ${rows.length} dates`} had a usable aperture: most pixels at this position are flagged
-            (often saturation of a bright star). No brightness or position is reported for {nUnusable === rows.length ? "any date" : "those dates"}.
+            {nUnusable === rows.length
+              ? "No date had a usable aperture."
+              : `${nUnusable} of ${rows.length} dates ${nUnusable === 1 ? "has" : "have"} no usable aperture.`}{" "}
+            Pixels in the core are flagged (often saturation of a bright star, or a bad pixel or cosmic-ray hit), so no brightness or position is reported for{" "}
+            {nUnusable === rows.length ? "any date" : nUnusable === 1 ? "that date" : "those dates"}.
           </p>
         )}
         {varText && <p className="text-[12px] text-text/85">{varText}</p>}
@@ -341,7 +407,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           <thead className="text-dim">
             <tr>
               <th className="text-left font-normal">date</th>
-              <th className="text-right font-normal">λ µm</th>
+              <th className="text-right font-normal">λ here µm</th>
               <th className="text-right font-normal">S/N</th>
               <th className="text-left font-normal pl-2">flags</th>
             </tr>

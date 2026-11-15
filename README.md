@@ -2,7 +2,7 @@
 
 **Google Earth for the infrared universe.** NASA Space Apps Challenge 2026, *Planet X and SPHEREx*.
 
-Enter any sky coordinates (or fly to a star) and COSMOS shows that patch of sky on every date NASA's SPHEREx imaged it, at a matched wavelength. Then it helps you find what changed and check whether it's already known.
+Enter any sky coordinates (or fly to a star) and COSMOS lists every NASA SPHEREx exposure of that patch of sky. It then plays the dates taken at a matched wavelength (one exposure per day, up to 12). Then it helps you find what changed and check whether it's already known.
 
 | Mode | What you do | Data |
 |---|---|---|
@@ -18,7 +18,8 @@ Enter any sky coordinates (or fly to a star) and COSMOS shows that patch of sky 
 3. `/api/cutout` fetches each IBE cutout server-side (IRSA sends no CORS headers), parses the FITS in TypeScript, and returns IMAGE/FLAGS/VARIANCE plus WCS (~60 kB instead of 4 MB). Exact wavelengths are recomputed from each header, and frames outside the tolerance are excluded and listed.
 4. The browser reprojects frames onto one north-up grid **for display**. Find changes uses a common valid-pixel mask, and its noise scale is the *measured* robust scatter of the difference image (labelled indicative, not a calibrated probability).
 5. Measurements (aperture photometry, centroids) run on each frame's **native pixels**. Errors are empirical, from blank-sky control apertures, plus a stated 0.5″ alignment allowance on positions. Apertures dominated by flagged pixels (e.g. saturation) report *no measurement*.
-6. `/api/known` checks Gaia DR3 (propagated to the epoch), SIMBAD (propagated from J2000), and NASA/JPL small bodies at the time the object was visible.
+6. `/api/known` checks Gaia DR3 (propagated to the epoch), SIMBAD (propagated from J2000), and NASA/JPL small bodies at the time the object was visible. Only requested services run. A failed or malformed response is reported as a failure, never as an empty result (`web/scripts/test-known.ts`). A SIMBAD object and a Gaia source are treated as the same only if their proper motions agree. A JPL object becomes "consistent" only if our measured position matches its prediction within tolerance; otherwise it's a "possible association".
+7. Find changes and every measurement re-check the wavelength match **at their own position**. The filter wavelength drifts across the field, so changes where the dates differ by more than half a channel get no temporal reading. Measurements follow the validation pipeline's rules: any flagged pixel in the core (r ≤ 1.5 px) means no measurement, and centroids come only from fully valid apertures. Cached catalogue answers are used only for the exact query they answer (position, radius, time, services).
 
 The TypeScript FITS/WCS/wavelength code matches astropy to 4e-10″ in position and 4e-7 µm in wavelength (`web/scripts/check-wcs.ts`). Featured targets ship a prepared cache, byte-identical to the live API output (`web/scripts/build-cache.ts`), so demos work if the archive is unreachable.
 

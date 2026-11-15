@@ -1,9 +1,9 @@
 // Builds the prepared cache for featured Time Travel targets by running the SAME engine code the live
 // /api routes use (SIA2 search, IBE cutout fetch + FITS parse + pack). Output: public/cache/<slug>/...
 // Usage: npx tsx scripts/build-cache.ts [slug ...]   (needs the dev server on :3001 for catalogue JSON)
-import { mkdirSync, writeFileSync, existsSync } from "node:fs";
+import { mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync, unlinkSync } from "node:fs";
 import { findObservations } from "../src/lib/engine/observations";
-import { fetchCutout } from "../src/lib/engine/cutout";
+import { fetchCutout, unpack } from "../src/lib/engine/cutout";
 import { matchedSets, Observation, setContaining } from "../src/lib/engine/sequence";
 import { TT_TARGETS } from "../src/lib/ttTargets";
 
@@ -17,6 +17,8 @@ async function main() {
   for (const t of TT_TARGETS.filter((x) => !only.length || only.includes(x.slug))) {
     const dir = new URL(`${t.slug}/frames/`, OUT);
     mkdirSync(dir, { recursive: true });
+    for (const fn of existsSync(new URL(`${t.slug}/`, OUT)) ? readdirSync(new URL(`${t.slug}/`, OUT)) : [])
+      if (fn.startsWith("known_")) unlinkSync(new URL(`${t.slug}/${fn}`, OUT));
     const obs = await findObservations(t.ra, t.dec);
     writeFileSync(
       new URL(`${t.slug}/observations.json`, OUT),
@@ -50,13 +52,44 @@ async function main() {
       }
     };
     await Promise.all([worker(), worker(), worker()]);
-    // Gaia overlay response (same request the page makes) via the local API route
-    for (const [services, r] of [["gaia", 0.05], ["gaia,simbad", 0.0028]] as const) {
-      const firstMjd = sets[0]?.frames[0]?.mjd ?? 61000;
-      try {
-        const res = await fetch(`http://localhost:3001/api/known?ra=${t.ra.toFixed(6)}&dec=${t.dec.toFixed(6)}&r=${r}&mjd=${firstMjd}&services=${services}`);
-        if (res.ok) writeFileSync(new URL(`${t.slug}/known_${t.ra.toFixed(4)}_${t.dec.toFixed(4)}_${services}.json`, OUT), await res.text());
-      } catch {}
+    // Catalogue responses for the requests the page makes by default, stored with their full query so the
+    // client only uses them for exactly that question (position, radius, time, services).
+    const def = pref ? pick(obs, pref) : sets[0];
+    if (def) {
+      const metas = def.frames
+        .slice(0, 12)
+        .map((f) => {
+          const fp = new URL(`${f.obsid}D${f.detector}_${SIZE}.bin`, dir);
+          return existsSync(fp) ? unpack(new Uint8Array(readFileSync(fp)).buffer).meta : null;
+        })
+        .filter(Boolean) as ReturnType<typeof unpack>["meta"][];
+      if (metas.length) {
+        const first = metas[0].mjdAvg;
+        const last = metas[metas.length - 1].mjdAvg;
+        const at = (mjd: number): [number, number] => {
+          if (!t.pm) return [t.ra, t.dec];
+          const dt = (mjd - (51544.5 + 25.9 * 365.25)) / 365.25;
+          return [t.ra + (t.pm[0] * dt) / 3.6e6 / Math.cos((t.dec * Math.PI) / 180), t.dec + (t.pm[1] * dt) / 3.6e6];
+        };
+        const reqs: { ra: number; dec: number; r: number; mjd: number; services: string }[] = [
+          { ra: t.ra, dec: t.dec, r: Math.min(0.05, SIZE * 0.75), mjd: first, services: "gaia" },
+          { ra: at(last)[0], dec: at(last)[1], r: 0.0028, mjd: last, services: "gaia,simbad" },
+        ];
+        const index: { file: string; ra: number; dec: number; r: number; mjd: number; services: string }[] = [];
+        for (const [k, q] of reqs.entries()) {
+          const res = await fetch(
+            `http://localhost:3001/api/known?ra=${q.ra.toFixed(6)}&dec=${q.dec.toFixed(6)}&r=${q.r}&mjd=${q.mjd.toFixed(5)}&services=${q.services}`,
+          ).catch(() => null);
+          if (!res || !res.ok) continue;
+          const body = await res.json();
+          const okAll = q.services.split(",").every((sv) => body[sv === "sbc" || sv === "sba" ? "small_bodies" : sv]?.ok);
+          if (!okAll) continue; // never cache a failed lookup
+          const file = `known_${k}.json`;
+          writeFileSync(new URL(`${t.slug}/${file}`, OUT), JSON.stringify(body));
+          index.push({ file, ...q, ra: Number(q.ra.toFixed(6)), dec: Number(q.dec.toFixed(6)), mjd: Number(q.mjd.toFixed(5)) });
+        }
+        writeFileSync(new URL(`${t.slug}/known_index.json`, OUT), JSON.stringify(index));
+      }
     }
   }
 }

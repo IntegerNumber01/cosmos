@@ -31,7 +31,7 @@ const MODES = [
     href: "/timetravel",
     k: "03",
     title: "Time Travel",
-    line: "Any coordinates, every date",
+    line: "Any coordinates, dated views",
     body: "Type a position or pick a star. COSMOS finds every SPHEREx exposure of that spot, keeps only dates at the same wavelength, lines them up and helps you find what changed.",
     img: "/img/timetravel.webp",
     alt: "Swipe comparison: comet SWAN present in October 2025, absent in May 2026",

@@ -95,7 +95,7 @@ export default function InvestigateHub() {
             <div className="label text-accent">Your own investigation</div>
             <div className="font-display mt-1 text-[19px] font-semibold">Any coordinates →</div>
             <p className="mt-1 text-[12.5px] text-muted">
-              Fly to a star, pick a spot on the infrared map, or type RA/Dec. Then watch every date SPHEREx looked and find what changed.
+              Fly to a star, pick a spot on the infrared map, or type RA/Dec. Then compare dates taken at the same wavelength, and find what changed.
             </p>
           </Link>
         </div>

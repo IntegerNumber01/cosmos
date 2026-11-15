@@ -7,8 +7,8 @@ Record the real app (`npm run build && npm start`), 1920×1080, on a machine wit
 | 0–4 s | `/` landing | The Gaia starfield drifts; the globe crossfades from 0.85 to 4.5 µm. | "Most of the universe is invisible to our eyes." |
 | 4–8 s | `/explore?target=orion` | Drag the wavelength ribbon across a few bands. | "NASA SPHEREx maps the whole sky in 102 infrared colours." |
 | 8–12 s | `/fly` | Click **Kapteyn's Star** in the tour, let the camera glide in, then press **Time Travel this star**. | "Fly to a star, then travel through time." |
-| 12–19 s | `/timetravel?target=epsindib` | The dates timeline appears; press ▶ to play six dates, a year apart. Then press **Measure the target on every date**. | "Every date SPHEREx looked, at the same wavelength. Epsilon Indi B moved 4.7 arcseconds, exactly as predicted." |
-| 19–26 s | `/timetravel?target=swan` | **Find changes** → click change #1 → **Check known asteroids & comets**. | "What changed? Something faded. Is it known? NASA's JPL says: comet C/2025 R2 SWAN. A recovery, not a discovery." |
+| 12–19 s | `/timetravel?target=epsindib` | The dates timeline appears; press ▶ to play six dates, a year apart. Then press **Measure the target on every date**. | "Six dates a year apart, all at the same wavelength. Epsilon Indi B moved 4.7 arcseconds, as predicted." |
+| 19–26 s | `/timetravel?target=swan` | **Find changes** → click change #1 → **Check known asteroids & comets**. | "What changed? Something faded. Is it known? NASA's JPL lists comet SWAN right there. A possible association, which our case file confirms with 20 frames. A recovery, not a discovery." |
 | 26–30 s | `/validation` | Scroll the results table. | "Tested on all five challenge targets, with honest answers. COSMOS: an infrared universe anyone can explore and investigate." |
 
 Notes

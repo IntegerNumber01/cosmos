@@ -124,6 +124,7 @@ export default function TimeTravelClient() {
   const [gaia, setGaia] = useState<{ rows: GaiaRow[]; mjd: number } | null>(null);
   const [showGaia, setShowGaia] = useState(true);
   const loadToken = useRef(0);
+  const searchToken = useRef(0);
 
   const obs = useMemo(() => obsState.obs ?? [], [obsState.obs]);
   const sets = useMemo(() => matchedSets(obs), [obs]);
@@ -141,11 +142,13 @@ export default function TimeTravelClient() {
       setMeasureAt(null);
       setGaia(null);
       setObsState({ status: "loading" });
+      const token = ++searchToken.current;
+      loadToken.current++; // cancel any frame loading from the previous search
       const q = new URLSearchParams(t.slug ? { target: t.slug } : { ra: t.ra.toFixed(5), dec: t.dec.toFixed(5) });
       window.history.replaceState(null, "", `/timetravel?${q.toString()}`);
       getObservations(t.ra, t.dec, t.slug)
-        .then((d) => setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried }))
-        .catch((e) => setObsState({ status: "error", error: String(e.message ?? e) }));
+        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried }))
+        .catch((e) => token === searchToken.current && setObsState({ status: "error", error: String(e.message ?? e) }));
     },
     [],
   );
@@ -251,9 +254,13 @@ export default function TimeTravelClient() {
   useEffect(() => {
     if (!loaded || !target) return;
     const mjd = loaded.frames[0].meta.mjdAvg;
+    let alive = true;
     getKnown(target.ra, target.dec, Math.min(0.05, size * 0.75), mjd, "gaia", target.slug)
-      .then((k) => k.gaia.ok && setGaia({ rows: (k.gaia.rows ?? []).filter((r) => r.g < 17 || Math.hypot(r.pmra, r.pmdec) > 300), mjd: k.query.mjd }))
-      .catch(() => setGaia(null));
+      .then((k) => alive && k.gaia.ok && setGaia({ rows: (k.gaia.rows ?? []).filter((r) => r.g < 17 || Math.hypot(r.pmra, r.pmdec) > 300), mjd: k.query.mjd }))
+      .catch(() => alive && setGaia(null));
+    return () => {
+      alive = false;
+    };
   }, [loaded, target, size]);
 
   // blink
@@ -266,6 +273,31 @@ export default function TimeTravelClient() {
   const runChanges = () => {
     if (!loaded) return;
     const cm = findChanges(loaded.grids[pair[0]], loaded.grids[pair[1]], loaded.grid);
+    // the set is matched at the search target; the filter wavelength drifts across the field, so check each
+    // candidate's own position on both dates and refuse a temporal reading where they differ > half a channel
+    const fa = loaded.frames[pair[0]];
+    const fb = loaded.frames[pair[1]];
+    const lamAt = (f: Frame, ra: number, dec: number) => {
+      const [x, y] = sky2pix(f.meta.wcs, ra, dec);
+      return waveAt(f.meta.detector, x, y, f.meta.crpixW);
+    };
+    for (const c of cm.candidates) {
+      const pts = [[c.ra, c.dec], ...(c.partner ? [[c.partner.ra, c.partner.dec]] : [])];
+      let worst = 0;
+      for (const [ra, dec] of pts) {
+        const a = lamAt(fa, ra, dec);
+        const b = lamAt(fb, ra, dec);
+        worst = Math.max(worst, Math.abs(a.wl - b.wl) / ((a.bw + b.bw) / 2));
+      }
+      c.dLambdaBw = worst;
+      if (worst > 0.5 && c.kind !== "residual") {
+        c.kind = "unmatched";
+        c.note = `At this spot the two dates differ by ${worst.toFixed(2)} channel widths in wavelength (more than half a channel), so this change may be spectral rather than temporal. No temporal claim.`;
+      }
+    }
+    const rank = (k: Candidate["kind"]) => (k === "residual" ? 2 : k === "unmatched" ? 1 : 0);
+    cm.candidates.sort((a, b) => rank(a.kind) - rank(b.kind) || b.peakZ * Math.sqrt(b.npix) - a.peakZ * Math.sqrt(a.npix));
+    cm.candidates.forEach((c, i) => (c.id = i + 1));
     setChange(cm);
     setView("changes");
     setPlaying(false);
@@ -306,10 +338,10 @@ export default function TimeTravelClient() {
       <NavBar />
       <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
         <div className="label text-accent">Time Travel</div>
-        <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">Pick any spot in the sky. See it on every date SPHEREx looked.</h1>
+        <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">Pick any spot in the sky. See how it looked on different dates.</h1>
         <p className="mt-1 max-w-3xl text-[14px] text-muted">
-          Enter coordinates or pick a target. COSMOS asks NASA/IPAC IRSA for every SPHEREx DR1 exposure covering that position, keeps only
-          dates you can fairly compare (same detector, same wavelength), lines them up, and helps you find what changed.
+          Enter coordinates or pick a target. COSMOS asks NASA/IPAC IRSA for every SPHEREx DR1 exposure covering that position. It then picks out the
+          dates you can fairly compare (same detector, same wavelength), lines up one exposure per day (up to 12 dates), and helps you find what changed.
         </p>
 
         {/* search */}
@@ -506,7 +538,7 @@ export default function TimeTravelClient() {
                       {view === "changes" &&
                         change?.candidates.map((c) => (
                           <g key={c.id} className="pointer-events-auto cursor-pointer" onClick={() => setCand(c)}>
-                            <circle cx={sx(c.x)} cy={sy(c.y)} r={n * 0.035} fill="none" stroke={cand?.id === c.id ? "white" : c.kind === "residual" ? "rgba(255,255,255,0.35)" : "#ffc857"} strokeWidth={n / 300} />
+                            <circle cx={sx(c.x)} cy={sy(c.y)} r={n * 0.035} fill="none" stroke={cand?.id === c.id ? "white" : c.kind === "residual" || c.kind === "unmatched" ? "rgba(255,255,255,0.35)" : "#ffc857"} strokeWidth={n / 300} />
                             <text x={sx(c.x) + n * 0.04} y={sy(c.y) - n * 0.03} fontSize={n * 0.04} fill="#ffe7a8">
                               {c.id}
                             </text>
@@ -642,7 +674,7 @@ export default function TimeTravelClient() {
                       {set.lambdaRef.toFixed(3)} µm
                     </span>{" "}
                     · {loaded.frames.length} dates
-                    {set.frames.length > 12 && <span className="text-dim"> (first 12 shown)</span>}
+                    <span className="text-dim"> · one exposure per day{set.frames.length > 12 ? `, first 12 of ${set.frames.length} dates` : ""}</span>
                   </div>
                   <ul className="mt-2 space-y-1 text-[12px]">
                     <li>
@@ -734,8 +766,18 @@ export default function TimeTravelClient() {
                             <div className="flex items-baseline justify-between gap-2">
                               <span className="text-[13px]">
                                 #{c.id}{" "}
-                                <span className={c.kind === "residual" ? "text-dim" : c.kind === "moved" ? "text-warn" : c.kind === "brightened" ? "text-[#ff8f7a]" : "text-[#8fb8ff]"}>
-                                  {c.kind === "residual" ? "likely subtraction residual" : c.kind}
+                                <span
+                                  className={
+                                    c.kind === "residual" || c.kind === "unmatched"
+                                      ? "text-dim"
+                                      : c.kind === "moved"
+                                        ? "text-warn"
+                                        : c.kind === "brightened"
+                                          ? "text-[#ff8f7a]"
+                                          : "text-[#8fb8ff]"
+                                  }
+                                >
+                                  {c.kind === "residual" ? "likely subtraction residual" : c.kind === "unmatched" ? "different wavelength here" : c.kind}
                                 </span>
                               </span>
                               <span className="data text-[11px] text-muted">{c.peakZ.toFixed(0)}σ (empirical)</span>

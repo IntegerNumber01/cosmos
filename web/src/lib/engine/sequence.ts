@@ -7,7 +7,7 @@
 //    difference image), because resampling correlates noise and nominal variances are not calibrated.
 import { REJECT_FLAGS } from "./fits";
 import { CutoutMeta, unpack } from "./cutout";
-import { pix2sky, sky2pix, tanDeproject, tanProject } from "./wcs";
+import { pix2sky, sky2pix, tanDeproject, tanProject, waveAt } from "./wcs";
 
 export type Observation = {
   obsid: string;
@@ -200,7 +200,8 @@ export function skyLevel(f: Frame) {
 
 export type Candidate = {
   id: number;
-  kind: "brightened" | "faded" | "moved" | "residual";
+  kind: "brightened" | "faded" | "moved" | "residual" | "unmatched";
+  dLambdaBw?: number; // |Δλ| between the two dates AT this position, in channel bandwidths
   x: number;
   y: number;
   ra: number;
@@ -448,6 +449,8 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
 }
 
 export type Measurement = {
+  bw: number; // channel bandwidth at the measured position (µm)
+  coreFlagged: boolean; // a rejected pixel within r <= 1.5 px (same rule as the validation pipeline)
   obsid: string;
   date: string;
   mjd: number;
@@ -486,8 +489,18 @@ export function measure(f: Frame, ra: number, dec: number, r = 2.0): Measurement
     return { flux: s - bg * (n - nbad), nbad, n };
   };
   const main = ap(x, y);
+  // validation-pipeline rule: any rejected pixel in the core (r <= 1.5 px) -> no measurement
+  let coreBad = 0;
+  for (let j = Math.floor(y - 2); j <= Math.ceil(y + 2); j++)
+    for (let i = Math.floor(x - 2); i <= Math.ceil(x + 2); i++) {
+      if (i < 0 || j < 0 || i >= nx || j >= ny) {
+        if (Math.hypot(i - x, j - y) <= 1.5) coreBad++;
+        continue;
+      }
+      if (Math.hypot(i - x, j - y) <= 1.5 && !f.valid[j * nx + i]) coreBad++;
+    }
   // too many rejected pixels (saturation, bad pixels): no trustworthy measurement at all
-  const unusable = main.n === 0 || main.nbad > 0.3 * main.n;
+  const unusable = main.n === 0 || coreBad > 0 || main.nbad > 0.3 * main.n;
   // empirical error: blank apertures on a ring of positions away from the target
   const ctrl: number[] = [];
   for (let k = 0; k < 48; k++) {
@@ -503,7 +516,8 @@ export function measure(f: Frame, ra: number, dec: number, r = 2.0): Measurement
   // centroid (flux-weighted, background-subtracted, r = 2.5 px) when the source is significant
   let centroid: Measurement["centroid"] = null;
   const snr = unusable ? NaN : main.flux / fluxErrEmp;
-  if (Number.isFinite(snr) && snr > 8) {
+  // centroids only from a fully valid aperture (no rejected pixels at all), as in the validation pipeline
+  if (Number.isFinite(snr) && snr > 8 && main.nbad === 0) {
     let cx = x,
       cy = y;
     for (let it = 0; it < 5; it++) {
@@ -532,10 +546,14 @@ export function measure(f: Frame, ra: number, dec: number, r = 2.0): Measurement
       cx = sxx / sw;
       cy = syy / sw;
     }
+    let badNearCentre = 0;
+    for (let j = Math.floor(cy - 3); j <= Math.ceil(cy + 3); j++)
+      for (let i = Math.floor(cx - 3); i <= Math.ceil(cx + 3); i++)
+        if (i >= 0 && j >= 0 && i < nx && j < ny && Math.hypot(i - cx, j - cy) <= 2.5 && !f.valid[j * nx + i]) badNearCentre++;
     const [cra, cdec] = pix2sky(wcs, cx, cy);
     // precision: S/N term (PSF sigma ~1.2 px / S/N) plus a 0.5" allowance for date-to-date alignment
     // (field-star shifts between SPHEREx dates measured at 0.25-0.8" in our SWAN analysis)
-    centroid = { ra: cra, dec: cdec, errArcsec: Math.hypot((1.2 * 6.15) / snr, 0.5) };
+    centroid = badNearCentre ? null : { ra: cra, dec: cdec, errArcsec: Math.hypot((1.2 * 6.15) / snr, 0.5) };
   }
   const xi = Math.round(x),
     yi = Math.round(y);
@@ -546,7 +564,10 @@ export function measure(f: Frame, ra: number, dec: number, r = 2.0): Measurement
     obsid: f.meta.obsid,
     date: f.meta.dateAvg,
     mjd: f.meta.mjdAvg,
-    wl: f.meta.target.wl,
+    // wavelength at THIS position (the filter changes across the detector, so it differs from the target's)
+    wl: waveAt(f.meta.detector, x, y, f.meta.crpixW).wl,
+    bw: waveAt(f.meta.detector, x, y, f.meta.crpixW).bw,
+    coreFlagged: coreBad > 0,
     x,
     y,
     flux: unusable ? NaN : main.flux,

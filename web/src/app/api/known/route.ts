@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
     "SELECT TOP 200 source_id, ra, dec, pmra, pmdec, parallax, parallax_error, phot_g_mean_mag FROM gaiadr3.gaia_source " +
     `WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.04})) ORDER BY phot_g_mean_mag`;
   // CSV keeps the 64-bit Gaia source_id exact (JSON numbers would round it)
-  const gaia = fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
+  const gaia = () => fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
     method: "POST",
     body: new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: gaiaQ }),
     signal: AbortSignal.timeout(25000),
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     `DISTANCE(POINT('ICRS', b.ra, b.dec), POINT('ICRS', ${ra}, ${dec})) * 3600 AS sep_arcsec ` +
     "FROM basic AS b LEFT JOIN otypedef AS o ON b.otype = o.otype " +
     `WHERE CONTAINS(POINT('ICRS', b.ra, b.dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.1})) = 1 ORDER BY sep_arcsec`;
-  const simbad = tap("https://simbad.harvard.edu/simbad/sim-tap/sync", simbadQ)
+  const simbad = () => tap("https://simbad.harvard.edu/simbad/sim-tap/sync", simbadQ)
     .catch(() => tap("https://simbad.cds.unistra.fr/simbad/sim-tap/sync", simbadQ))
     .then((j) =>
       rowsOf(j)
@@ -125,12 +125,30 @@ export async function GET(req: NextRequest) {
     // comets (often no magnitude model) and asteroids (V <= 21, beyond SPHEREx's reach) as separate,
     // faster queries; each stays inside a 60 s serverless limit
     (services.includes("sbc") ? "&sb-kind=c&mag-required=false" : "&sb-kind=a&vmag-lim=21");
-  const sb = !services.some((x) => x === "sbc" || x === "sba")
-    ? Promise.reject(new Error("not requested"))
-    : fetch(sbUrl, { signal: AbortSignal.timeout(57000), cache: "no-store" })
-    .then((x) => x.json())
-    .then((j: { data_second_pass?: string[][] }) =>
-      (j.data_second_pass ?? []).map((row) => ({
+  // A JPL answer counts only if it is HTTP 200 AND structurally valid. "No matching records" is the only
+  // empty result accepted as a successful search; anything else is an error, never "nothing known".
+  const sb = () =>
+    fetch(sbUrl, { signal: AbortSignal.timeout(57000), cache: "no-store" })
+      .then(async (x) => {
+        if (!x.ok) throw new Error(`JPL HTTP ${x.status}`);
+        const j = (await x.json()) as {
+          signature?: { source?: string };
+          data_second_pass?: string[][];
+          n_second_pass?: number;
+          warning?: string;
+          message?: string;
+          code?: string | number;
+        };
+        if (!j.signature?.source?.includes("Small-Body Identification")) throw new Error("JPL returned an unexpected response");
+        if (Array.isArray(j.data_second_pass)) {
+          if (!j.data_second_pass.every((row) => Array.isArray(row) && row.length >= 9)) throw new Error("JPL rows malformed");
+          return j.data_second_pass;
+        }
+        if (typeof j.warning === "string" && /no matching records/i.test(j.warning)) return [];
+        throw new Error(`JPL: ${j.message ?? j.warning ?? "no result data"}`);
+      })
+      .then((rows) =>
+      rows.map((row) => ({
         name: row[0],
         ra_hms: row[1],
         dec_dms: row[2],
@@ -141,22 +159,30 @@ export async function GET(req: NextRequest) {
       })),
     );
 
-  const skip = Promise.reject(new Error("not requested"));
-  skip.catch(() => {});
+  const NOT_REQUESTED = Symbol("not requested");
+  const run = <T,>(want: boolean, f: () => Promise<T>): Promise<T | typeof NOT_REQUESTED> => (want ? f() : Promise.resolve(NOT_REQUESTED));
   const [g, s, b] = await Promise.allSettled([
-    services.includes("gaia") ? gaia : skip,
-    services.includes("simbad") ? simbad : skip,
-    sb,
+    run(services.includes("gaia"), gaia),
+    run(services.includes("simbad"), simbad),
+    run(services.some((x) => x === "sbc" || x === "sba"), sb),
   ]);
-  const wrap = <T,>(x: PromiseSettledResult<T>) =>
-    x.status === "fulfilled" ? { ok: true as const, rows: x.value } : { ok: false as const, error: String(x.reason) };
+  const wrap = <T,>(x: PromiseSettledResult<T | typeof NOT_REQUESTED>) =>
+    x.status === "rejected"
+      ? { ok: false as const, error: String((x.reason as Error)?.message ?? x.reason) }
+      : x.value === NOT_REQUESTED
+        ? { ok: false as const, requested: false as const, error: "not requested" }
+        : { ok: true as const, rows: x.value as T };
   return NextResponse.json(
     {
-      query: { ra, dec, radius_deg: r, mjd, epoch_year: Number(yr.toFixed(4)), time_utc: t },
+      query: { ra, dec, radius_deg: r, mjd, services, epoch_year: Number(yr.toFixed(4)), time_utc: t },
       gaia: { service: "ESA Gaia DR3 (positions propagated to the epoch)", ...wrap(g) },
       simbad: { service: "SIMBAD (Harvard mirror, CDS fallback)", ...wrap(s) },
       small_bodies: { service: "NASA/JPL Small-Body Identification (geocentric; SPHEREx orbits the Earth)", ...wrap(b) },
     },
-    { headers: { "Cache-Control": "public, s-maxage=86400" } },
+    {
+      headers: {
+        "Cache-Control": [g, s, b].some((x) => x.status === "rejected") ? "no-store" : "public, s-maxage=86400",
+      },
+    },
   );
 }
