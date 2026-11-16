@@ -1,0 +1,514 @@
+{
+  "generated": "2026-11-16T01:42:19.075Z",
+  "defaults": {
+    "minRefs": 3,
+    "maxG": 16.5,
+    "minSnr": 10,
+    "minTargetSepPx": 10,
+    "edgePx": 12,
+    "isoDmag": 2,
+    "apR": 2,
+    "clip": 5,
+    "scatterFloorMag": 0.005
+  },
+  "cases": [
+    {
+      "case": "RW Aur D1 0.744 µm",
+      "expected": {
+        "dmag": -0.53,
+        "err": 0.064,
+        "source": "VALIDATION.md (aperture, 4 references)"
+      },
+      "default": {
+        "nRefs": 3,
+        "dmag": -0.52,
+        "err": 0.04,
+        "sigma": 13.035,
+        "changePct": 61.422,
+        "changePctErr": 5.93
+      },
+      "vsExpected": {
+        "difference": 0.01,
+        "combinedSigma": 0.134
+      },
+      "leaveOneOut": {
+        "maxShift": 0.023,
+        "dmags": [
+          -0.517,
+          -0.543,
+          -0.509
+        ]
+      },
+      "grid": {
+        "variants": 12,
+        "calibrated": 7,
+        "dmagRange": [
+          -0.547,
+          -0.512
+        ],
+        "maxShiftInDefaultErrors": 0.679,
+        "details": [
+          {
+            "param": "minSnr",
+            "value": 5,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.52,
+            "err": 0.04
+          },
+          {
+            "param": "minSnr",
+            "value": 15,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "minSnr",
+            "value": 20,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "minSnr",
+            "value": 30,
+            "ok": false,
+            "reason": "only 1 usable reference star in the field (needs 3)"
+          },
+          {
+            "param": "maxG",
+            "value": 15.5,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.52,
+            "err": 0.04
+          },
+          {
+            "param": "maxG",
+            "value": 17.5,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.52,
+            "err": 0.04
+          },
+          {
+            "param": "isoDmag",
+            "value": 1,
+            "ok": true,
+            "nRefs": 7,
+            "dmag": -0.512,
+            "err": 0.036
+          },
+          {
+            "param": "isoDmag",
+            "value": 3,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "apR",
+            "value": 1.5,
+            "ok": true,
+            "nRefs": 5,
+            "dmag": -0.547,
+            "err": 0.058
+          },
+          {
+            "param": "apR",
+            "value": 2.5,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "clip",
+            "value": 3,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.52,
+            "err": 0.04
+          },
+          {
+            "param": "clip",
+            "value": 1000000000,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.52,
+            "err": 0.04
+          }
+        ]
+      },
+      "fieldStarControls": {
+        "calibrated": 0,
+        "over3sigma": 0,
+        "over5sigma": 0,
+        "stars": []
+      }
+    },
+    {
+      "case": "Epsilon Indi B D2 1.108 µm",
+      "expected": {
+        "dmag": 0,
+        "err": null,
+        "source": "steady brown dwarf (control)"
+      },
+      "default": {
+        "nRefs": 11,
+        "dmag": 0.009,
+        "err": 0.059,
+        "sigma": 0.152,
+        "changePct": -0.831,
+        "changePctErr": 5.433
+      },
+      "vsExpected": {
+        "sigmaFromZero": 0.152
+      },
+      "leaveOneOut": {
+        "maxShift": 0.011,
+        "dmags": [
+          0.005,
+          -0.002,
+          0.008,
+          0.007,
+          0.016,
+          0.009,
+          0.01,
+          0.011,
+          0.012,
+          0.016,
+          0.007
+        ]
+      },
+      "grid": {
+        "variants": 12,
+        "calibrated": 12,
+        "dmagRange": [
+          -0.002,
+          0.024
+        ],
+        "maxShiftInDefaultErrors": 0.251,
+        "details": [
+          {
+            "param": "minSnr",
+            "value": 5,
+            "ok": true,
+            "nRefs": 15,
+            "dmag": 0.005,
+            "err": 0.061
+          },
+          {
+            "param": "minSnr",
+            "value": 15,
+            "ok": true,
+            "nRefs": 7,
+            "dmag": 0.019,
+            "err": 0.049
+          },
+          {
+            "param": "minSnr",
+            "value": 20,
+            "ok": true,
+            "nRefs": 6,
+            "dmag": 0.021,
+            "err": 0.035
+          },
+          {
+            "param": "minSnr",
+            "value": 30,
+            "ok": true,
+            "nRefs": 6,
+            "dmag": 0.021,
+            "err": 0.035
+          },
+          {
+            "param": "maxG",
+            "value": 15.5,
+            "ok": true,
+            "nRefs": 8,
+            "dmag": 0.015,
+            "err": 0.058
+          },
+          {
+            "param": "maxG",
+            "value": 17.5,
+            "ok": true,
+            "nRefs": 13,
+            "dmag": 0.011,
+            "err": 0.048
+          },
+          {
+            "param": "isoDmag",
+            "value": 1,
+            "ok": true,
+            "nRefs": 12,
+            "dmag": 0.012,
+            "err": 0.059
+          },
+          {
+            "param": "isoDmag",
+            "value": 3,
+            "ok": true,
+            "nRefs": 9,
+            "dmag": 0.011,
+            "err": 0.06
+          },
+          {
+            "param": "apR",
+            "value": 1.5,
+            "ok": true,
+            "nRefs": 14,
+            "dmag": -0.002,
+            "err": 0.072
+          },
+          {
+            "param": "apR",
+            "value": 2.5,
+            "ok": true,
+            "nRefs": 7,
+            "dmag": 0.024,
+            "err": 0.055
+          },
+          {
+            "param": "clip",
+            "value": 3,
+            "ok": true,
+            "nRefs": 10,
+            "dmag": 0.016,
+            "err": 0.057
+          },
+          {
+            "param": "clip",
+            "value": 1000000000,
+            "ok": true,
+            "nRefs": 11,
+            "dmag": 0.009,
+            "err": 0.059
+          }
+        ]
+      },
+      "fieldStarControls": {
+        "calibrated": 6,
+        "over3sigma": 0,
+        "over5sigma": 0,
+        "stars": [
+          {
+            "id": "6412592370014523776",
+            "g": 14.068265,
+            "dmag": -0.034,
+            "err": 0.073,
+            "sigma": 0.469
+          },
+          {
+            "id": "6412594259800093568",
+            "g": 12.961529,
+            "dmag": -0.049,
+            "err": 0.07,
+            "sigma": 0.696
+          },
+          {
+            "id": "6412596836780520448",
+            "g": 14.7989,
+            "dmag": -0.013,
+            "err": 0.081,
+            "sigma": 0.16
+          },
+          {
+            "id": "6412593435166417536",
+            "g": 13.931794,
+            "dmag": -0.005,
+            "err": 0.076,
+            "sigma": 0.069
+          },
+          {
+            "id": "6412595771628639616",
+            "g": 14.189459,
+            "dmag": 0.055,
+            "err": 0.185,
+            "sigma": 0.3
+          },
+          {
+            "id": "6412596458823395328",
+            "g": 12.953572,
+            "dmag": 0.026,
+            "err": 0.06,
+            "sigma": 0.441
+          }
+        ]
+      }
+    },
+    {
+      "case": "GP Mon D2 1.193 µm",
+      "expected": {
+        "dmag": -0.9038474281731976,
+        "err": 0.07603205741626795,
+        "source": "DISCOVERY_SEARCH.md (differential EPSF, 24 references)"
+      },
+      "default": {
+        "nRefs": 5,
+        "dmag": -0.906,
+        "err": 0.127,
+        "sigma": 7.126,
+        "changePct": 130.445,
+        "changePctErr": 26.998
+      },
+      "vsExpected": {
+        "difference": -0.003,
+        "combinedSigma": 0.017
+      },
+      "leaveOneOut": {
+        "maxShift": 0.012,
+        "dmags": [
+          -0.908,
+          -0.895,
+          -0.903,
+          -0.913,
+          -0.908
+        ]
+      },
+      "grid": {
+        "variants": 12,
+        "calibrated": 8,
+        "dmagRange": [
+          -0.922,
+          -0.872
+        ],
+        "maxShiftInDefaultErrors": 0.271,
+        "details": [
+          {
+            "param": "minSnr",
+            "value": 5,
+            "ok": true,
+            "nRefs": 10,
+            "dmag": -0.904,
+            "err": 0.128
+          },
+          {
+            "param": "minSnr",
+            "value": 15,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "minSnr",
+            "value": 20,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "minSnr",
+            "value": 30,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "maxG",
+            "value": 15.5,
+            "ok": true,
+            "nRefs": 3,
+            "dmag": -0.916,
+            "err": 0.124
+          },
+          {
+            "param": "maxG",
+            "value": 17.5,
+            "ok": true,
+            "nRefs": 6,
+            "dmag": -0.899,
+            "err": 0.138
+          },
+          {
+            "param": "isoDmag",
+            "value": 1,
+            "ok": true,
+            "nRefs": 9,
+            "dmag": -0.872,
+            "err": 0.136
+          },
+          {
+            "param": "isoDmag",
+            "value": 3,
+            "ok": true,
+            "nRefs": 5,
+            "dmag": -0.906,
+            "err": 0.127
+          },
+          {
+            "param": "apR",
+            "value": 1.5,
+            "ok": true,
+            "nRefs": 12,
+            "dmag": -0.922,
+            "err": 0.086
+          },
+          {
+            "param": "apR",
+            "value": 2.5,
+            "ok": false,
+            "reason": "only 2 usable reference stars in the field (needs 3)"
+          },
+          {
+            "param": "clip",
+            "value": 3,
+            "ok": true,
+            "nRefs": 5,
+            "dmag": -0.906,
+            "err": 0.127
+          },
+          {
+            "param": "clip",
+            "value": 1000000000,
+            "ok": true,
+            "nRefs": 5,
+            "dmag": -0.906,
+            "err": 0.127
+          }
+        ]
+      },
+      "fieldStarControls": {
+        "calibrated": 4,
+        "over3sigma": 0,
+        "over5sigma": 0,
+        "stars": [
+          {
+            "id": "3326716190983007104",
+            "g": 14.393726,
+            "dmag": 0.053,
+            "err": 0.206,
+            "sigma": 0.257
+          },
+          {
+            "id": "3326717019912569088",
+            "g": 13.79901,
+            "dmag": 0.035,
+            "err": 0.06,
+            "sigma": 0.588
+          },
+          {
+            "id": "3326740998714107008",
+            "g": 11.374605,
+            "dmag": 0.008,
+            "err": 0.063,
+            "sigma": 0.128
+          },
+          {
+            "id": "3326905173840508416",
+            "g": 14.867373,
+            "dmag": -0.022,
+            "err": 0.113,
+            "sigma": 0.193
+          }
+        ]
+      }
+    },
+    {
+      "case": "GP Mon D5 3.936 µm",
+      "expected": {
+        "dmag": -0.11428514735216902,
+        "err": 0.06742871287128714,
+        "source": "DISCOVERY_SEARCH.md (differential EPSF, 35 references)"
+      },
+      "default": {
+        "ok": false,
+        "reason": "only 2 usable reference stars in the field (needs 3)"
+      }
+    }
+  ]
+}

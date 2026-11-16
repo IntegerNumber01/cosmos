@@ -346,7 +346,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     nUnusable,
     saturated,
     cautionFlags: [...new Set(good.flatMap((r) => r.flagsHere).filter((f) => !["SOURCE", "OVERFLOW", "NONLINEAR", "SUR_ERROR"].includes(f)))],
-    calibrated: calOk ? { pct: calOk.changePct, pctErr: calOk.changePctErr, dmag: calOk.last.dmag, dmagErr: calOk.last.dmagErr, sigma: calOk.significance, nRefs: calOk.nRefs } : null,
+    calibrated: calOk ? { pct: calOk.changePct, pctErr: calOk.changePctErr, dmag: calOk.last.dmag, dmagErr: calOk.last.dmagErr, sigma: calOk.significance, nRefs: calOk.nRefs, looMaxShift: calOk.looMaxShift } : null,
     calFailure: calFail || null,
     calPending: !!calKey && (cal === null || cal === "loading"),
     rough: good.length > 1 ? { sigma: endpointStrength, vanished: [firstFlux, lastFlux].some((r) => r.flux < 3 * r.fluxErrEmp) } : null,
@@ -427,6 +427,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                     Uncertainty = blank-sky noise of target and references (±{calOk.last.dmagErrNominal.toFixed(3)} mag) combined with how much the reference stars disagree with each other
                     (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include colour differences between the target and the reference stars, overlapping sources or changes in image sharpness.
                   </p>
+                  <p>Leaving out any one reference star changes Δm by at most {calOk.looMaxShift.toFixed(3)} mag ({calOk.leaveOneOut.map((x) => (x.dmag >= 0 ? "+" : "−") + Math.abs(x.dmag).toFixed(3)).join(", ")}).</p>
                   {calOk.nRefs < 5 && <p className="text-warn">Only {calOk.nRefs} reference stars passed every check, so the disagreement estimate is itself uncertain.</p>}
                   {calOk.rejectedAsVariable.length > 0 && <p>{calOk.rejectedAsVariable.length} reference star(s) disagreed strongly with the others and were dropped as possible variables.</p>}
                   <p>

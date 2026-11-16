@@ -119,9 +119,32 @@ A frame whose target core (r ≤ 1.5 px) has saturation/nonlinearity flags or re
 - **Limitations**: measuring this Mira would need saturated-star (PSF-wing) photometry calibrated on comparably saturated stars, or
   the mission's bright-star products. The cadence itself would suit it well.
 
+## Public tool: robustness of the reference-star calibration
+
+The Time Travel brightness headline uses a port of this differential method (`web/src/lib/engine/photometry.ts`; rules in
+`CHALLENGE_COVERAGE.md`). It runs on 12′ re-cuts of the shipped exposures. Results from `node web/scripts/calibration-robustness.cjs`
+(full output: `docs/calibration_robustness.json`):
+
+| Case | Live calibration (Δm, mag) | Independent result | Max shift dropping one reference | Threshold grid (calibrated / 12 one-at-a-time variants) |
+|---|---|---|---|---|
+| RW Aur D1 0.744 µm | −0.520 ± 0.040, 3 references | −0.53 ± 0.064 (this record) | 0.023 | 7: −0.547 … −0.512 |
+| Epsilon Indi B D2 1.108 µm (steady control) | +0.009 ± 0.059, 11 references | no change expected | 0.011 | 12: −0.002 … +0.024 |
+| GP Mon D2 1.193 µm (**never used while developing the method**) | −0.906 ± 0.127, 5 references | −0.904 ± 0.076 (differential EPSF, `DISCOVERY_SEARCH.md`) | 0.012 | 8: −0.922 … −0.872 |
+| GP Mon D5 3.936 µm | refused: only 2 usable references | ×1.111 ± 0.069 | — | — |
+
+- Grid: S/N cut 5–30, reference G limit 15.5–17.5, neighbour ΔG 1–3, aperture radius 1.5–2.5 px, outlier clip 3/5/off, each varied
+  alone. Variants that do not calibrate fail with a stated reason, usually too few references.
+- False alarms: every non-variable Gaia star of G 11–15 in the same image pairs was measured as if it were the target. 10 passed every
+  target check, and none reached 3σ. This is a small sample. Most candidates are refused by the wavelength or neighbour rules.
+- Artifact control: before the neighbour rule existed, a steady G = 14.7 star 11″ from a G = 12.8 star read −54% at 18σ. That case is
+  now refused and is a regression test.
+- These checks test the encoded rules on four real pairs. They do not establish that the rules are sufficient everywhere: colour terms,
+  PSF changes and sources missing from Gaia are not modelled.
+
 ## Reproduce
 
 ```
 pipeline/.venv/Scripts/python pipeline/validate_targets.py                # catalog + scan + measure + JSON (all targets)
 pipeline/.venv/Scripts/python pipeline/validate_targets.py --stage report # re-derive verdicts from cached measurements
+node web/scripts/calibration-robustness.cjs docs/calibration_robustness.json  # public calibration robustness (shipped data)
 ```

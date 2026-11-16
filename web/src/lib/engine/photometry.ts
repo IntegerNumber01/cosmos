@@ -21,7 +21,8 @@ export type FieldStar = { source_id: string; g: number; pmra: number; pmdec: num
 /** Field size used for calibration: the offline validation's cutout size (12 arcmin). */
 export const CAL_FIELD_DEG = 0.2;
 
-export const CAL = { minRefs: 3, maxG: 16.5, minSnr: 10, minTargetSepPx: 10, edgePx: 12, isoDmag: 2, apR: 2, clip: 5, scatterFloorMag: 0.005 } as const;
+export type CalConfig = { minRefs: number; maxG: number; minSnr: number; minTargetSepPx: number; edgePx: number; isoDmag: number; apR: number; clip: number; scatterFloorMag: number };
+export const CAL: Readonly<CalConfig> = { minRefs: 3, maxG: 16.5, minSnr: 10, minTargetSepPx: 10, edgePx: 12, isoDmag: 2, apR: 2, clip: 5, scatterFloorMag: 0.005 };
 const SATURATION = ["OVERFLOW", "NONLINEAR", "SUR_ERROR"];
 
 export type CalibratedEpoch = { obsid: string; date: string; mjd: number; ratio: number; dmag: number; dmagErr: number; dmagErrNominal: number; refScatterMag: number };
@@ -31,6 +32,8 @@ export type Calibration =
       nRefs: number;
       refs: { source_id: string; g: number; medianSnr: number }[];
       rejectedAsVariable: string[];
+      leaveOneOut: { source_id: string; dmag: number }[]; // last-vs-first Δm with each reference removed
+      looMaxShift: number; // largest |Δm change| from removing a single reference
       epochs: CalibratedEpoch[]; // relative to the first epoch
       first: CalibratedEpoch;
       last: CalibratedEpoch;
@@ -56,7 +59,7 @@ const robustScatter = (v: number[]) => 1.4826 * median(v.map((x) => Math.abs(x -
  * @param target   the target measurement on each frame
  * @param stars    Gaia field stars, positions at `starsMjd`
  */
-export function calibrate(frames: Frame[], target: Measurement[], stars: FieldStar[], starsMjd: number): Calibration {
+export function calibrate(frames: Frame[], target: Measurement[], stars: FieldStar[], starsMjd: number, cfg: CalConfig = CAL): Calibration {
   const why: Record<string, number> = {};
   const no = (k: string) => (why[k] = (why[k] ?? 0) + 1);
   const fail = (reason: string, nRefs = 0, candidates = 0): Calibration => ({ ok: false, reason, nRefs, candidates, why });
@@ -75,7 +78,7 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
       return { s, d: Math.hypot(x - target[j].x, y - target[j].y) };
     });
     const tG = Math.min(...d.filter((o) => o.d < 0.5).map((o) => o.s.g));
-    const blend = d.filter((o) => o.d >= 0.5 && o.d < CAL.apR + 1.5 && o.s.g < (Number.isFinite(tG) ? tG + CAL.isoDmag : CAL.maxG)).sort((a, b) => a.d - b.d)[0];
+    const blend = d.filter((o) => o.d >= 0.5 && o.d < cfg.apR + 1.5 && o.s.g < (Number.isFinite(tG) ? tG + cfg.isoDmag : cfg.maxG)).sort((a, b) => a.d - b.d)[0];
     if (blend)
       return fail(`a neighbouring star (Gaia G = ${blend.s.g.toFixed(1)}, ${(blend.d * 6.15).toFixed(0)}″ away) partly overlaps the measurement, which can imitate a brightness change`);
   }
@@ -83,27 +86,27 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
   const per = new Map<string, Measurement[]>();
   let candidates = 0;
   for (const s of stars) {
-    if (!(s.g <= CAL.maxG) || s.variable) { no("catalogue"); continue; }
+    if (!(s.g <= cfg.maxG) || s.variable) { no("catalogue"); continue; }
     const ms: Measurement[] = [];
     let reject = "";
     for (let j = 0; j < frames.length && !reject; j++) {
       const f = frames[j];
       const [ra, dec] = at(s, starsMjd, f.meta.mjdAvg);
       const [x, y] = sky2pix(f.meta.wcs, ra, dec);
-      if (x < CAL.edgePx || y < CAL.edgePx || x > f.meta.nx - 1 - CAL.edgePx || y > f.meta.ny - 1 - CAL.edgePx) { reject = "position"; break; }
-      if (Math.hypot(x - target[j].x, y - target[j].y) < CAL.minTargetSepPx) { reject = "position"; break; }
+      if (x < cfg.edgePx || y < cfg.edgePx || x > f.meta.nx - 1 - cfg.edgePx || y > f.meta.ny - 1 - cfg.edgePx) { reject = "position"; break; }
+      if (Math.hypot(x - target[j].x, y - target[j].y) < cfg.minTargetSepPx) { reject = "position"; break; }
       if (j === 0) {
         // a constant neighbour cancels in a same-wavelength ratio; only reject comparably bright close pairs
         const blended = stars.some((o) => {
-          if (o === s || Math.abs(o.g - s.g) >= CAL.isoDmag) return false;
+          if (o === s || Math.abs(o.g - s.g) >= cfg.isoDmag) return false;
           const [ox, oy] = sky2pix(f.meta.wcs, ...at(o, starsMjd, f.meta.mjdAvg));
-          return Math.hypot(ox - x, oy - y) < CAL.apR + 1.5;
+          return Math.hypot(ox - x, oy - y) < cfg.apR + 1.5;
         });
         if (blended) { reject = "blended"; break; }
       }
-      const m = measure(f, ra, dec, CAL.apR);
+      const m = measure(f, ra, dec, cfg.apR);
       if (!usable(m)) reject = m.flagsHere.some((x) => SATURATION.includes(x)) ? "saturated" : "masked";
-      else if (m.flux <= 0 || m.snr < CAL.minSnr) reject = "low_snr";
+      else if (m.flux <= 0 || m.snr < cfg.minSnr) reject = "low_snr";
       else ms.push(m);
     }
     if (reject) { no(reject); continue; }
@@ -115,7 +118,7 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
   }
 
   let ids = [...per.keys()];
-  if (ids.length < CAL.minRefs) return fail(`only ${ids.length} usable reference star${ids.length === 1 ? "" : "s"} in the field (needs ${CAL.minRefs})`, ids.length, candidates);
+  if (ids.length < cfg.minRefs) return fail(`only ${ids.length} usable reference star${ids.length === 1 ? "" : "s"} in the field (needs ${cfg.minRefs})`, ids.length, candidates);
 
   const nF = frames.length;
   // leave-one-out differential magnitudes of each reference, relative to the first date
@@ -129,15 +132,15 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
   };
   let dm = looDm(ids);
   const rejectedAsVariable: string[] = [];
-  if (ids.length > CAL.minRefs) {
+  if (ids.length > cfg.minRefs) {
     const bad = new Set<string>();
     for (let j = 1; j < nF; j++) {
       const col = ids.map((id) => dm.get(id)![j]);
-      const s = Math.max(robustScatter(col), CAL.scatterFloorMag);
+      const s = Math.max(robustScatter(col), cfg.scatterFloorMag);
       const mid = median(col);
-      ids.forEach((id, k) => Math.abs(col[k] - mid) > CAL.clip * s && bad.add(id));
+      ids.forEach((id, k) => Math.abs(col[k] - mid) > cfg.clip * s && bad.add(id));
     }
-    if (bad.size && ids.length - bad.size >= CAL.minRefs) {
+    if (bad.size && ids.length - bad.size >= cfg.minRefs) {
       rejectedAsVariable.push(...bad);
       ids = ids.filter((id) => !bad.has(id));
       dm = looDm(ids);
@@ -164,10 +167,18 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
   const first = epochs[0];
   const last = epochs[nF - 1];
   const frac = 10 ** (-0.4 * last.dmag);
+  // reference-selection sensitivity: the last-vs-first Δm with each reference left out of the ensemble
+  const leaveOneOut = ids.map((id, k) => {
+    const e = (j: number) => ens[j] - F[k][j].flux;
+    return { source_id: id, dmag: -2.5 * Math.log10((target[nF - 1].flux / e(nF - 1)) / (target[0].flux / e(0))) };
+  });
+  const looMaxShift = Math.max(...leaveOneOut.map((x) => Math.abs(x.dmag - last.dmag)));
   return {
     ok: true,
     nRefs: ids.length,
     refs: ids.map((id) => ({ source_id: id, g: stars.find((s) => s.source_id === id)!.g, medianSnr: median(per.get(id)!.map((m) => m.snr)) })),
+    leaveOneOut,
+    looMaxShift,
     rejectedAsVariable,
     epochs, first, last,
     changePct: (frac - 1) * 100,

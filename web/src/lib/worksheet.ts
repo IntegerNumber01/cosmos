@@ -15,7 +15,7 @@ export type Evidence = {
   nUnusable: number;
   saturated: boolean;
   cautionFlags: string[]; // non-rejecting quality flags near the source on clean dates
-  calibrated: { pct: number; pctErr: number; dmag: number; dmagErr: number; sigma: number; nRefs: number } | null;
+  calibrated: { pct: number; pctErr: number; dmag: number; dmagErr: number; sigma: number; nRefs: number; looMaxShift?: number } | null;
   calFailure: string | null;
   calPending: boolean;
   /** uncalibrated endpoint comparison: strength vs blank-sky noise, and whether one date is consistent with nothing */
@@ -44,7 +44,7 @@ export function buildWorksheet(e: Evidence): Worksheet {
         : `Brightness: no clear change between ${d1} and ${d2} (${e.calibrated.pct >= 0 ? "+" : "−"}${pct(e.calibrated.pct)} ± ${pct(e.calibrated.pctErr)}).`,
     );
   else if (e.calPending) changed.push("Brightness: still being checked against reference stars.");
-  else if (vanished) changed.push(`Brightness: detected on one date and consistent with nothing on the other (${e.rough!.sigma.toFixed(0)}× the blank-sky noise; not calibrated).`);
+  else if (vanished) changed.push(`Brightness: possible disappearance. Detected on one date and not on the other (a ${e.rough!.sigma.toFixed(0)}× difference against blank-sky noise, not calibrated). Additional checks are needed.`);
   else if (e.nClean >= 2) changed.push(`Brightness: no calibrated comparison (${e.calFailure ?? "not available"}).`);
   else changed.push("Brightness: could not be measured cleanly on two matching dates.");
   if (e.position && e.position.n >= 2)
@@ -56,10 +56,13 @@ export function buildWorksheet(e: Evidence): Worksheet {
 
   // 2 · Which measurements support that interpretation?
   const support: string[] = [];
-  if (e.calibrated)
+  if (e.calibrated) {
     support.push(
       `Calibrated brightness ratio Δm = ${e.calibrated.dmag >= 0 ? "+" : "−"}${Math.abs(e.calibrated.dmag).toFixed(2)} ± ${e.calibrated.dmagErr.toFixed(2)} mag (${e.calibrated.sigma.toFixed(1)}× its uncertainty), against ${e.calibrated.nRefs} reference stars in the same images.`,
     );
+    if (e.calibrated.looMaxShift !== undefined)
+      support.push(`Leaving out any one reference star changes Δm by at most ${e.calibrated.looMaxShift.toFixed(2)} mag, so ${e.calibrated.looMaxShift < 0.5 * e.calibrated.dmagErr ? "no single reference star drives the result" : "the result depends noticeably on individual reference stars"}.`);
+  }
   support.push(`${e.nClean} of ${e.nDates} dates gave a clean measurement at a matching infrared colour.`);
   if (e.position && e.position.n >= 2) support.push(`Positions measured on ${e.position.n} dates; the uncertainty includes a 0.5″ allowance for aligning dates.`);
 
@@ -80,19 +83,23 @@ export function buildWorksheet(e: Evidence): Worksheet {
       : e.calPending
         ? "Reference-star check still running."
         : vanished
-          ? "Not corrected, because a brightness ratio needs the source on both dates. A whole-image drift could not make a source this strong disappear."
+          ? "Not corrected, because a brightness ratio needs the source on both dates. Calibration differences between the images are not ruled out."
           : `Not ruled out: ${e.calFailure ?? "no calibration"}.`,
   });
   const blend = e.calFailure?.includes("neighbouring star");
   checks.push({
     id: "blend", label: "Light from an overlapping neighbouring star",
     status: blend ? "fail" : e.calibrated ? "pass" : "open",
-    detail: blend ? e.calFailure! : e.calibrated ? "No comparably bright Gaia star partly overlaps the measurement." : "Not checked, because the calibration did not run.",
+    detail: blend
+      ? e.calFailure!
+      : e.calibrated
+        ? "Gaia neighbour screen passed: no comparably bright Gaia star partly overlaps the measurement. Unresolved or uncatalogued infrared neighbours remain possible."
+        : "Not checked, because the calibration did not run.",
   });
   checks.push({
     id: "saturation", label: "An overloaded (saturated) camera",
     status: e.saturated ? "fail" : "pass",
-    detail: e.saturated ? "Saturation flags are set at this spot on some dates; those dates are not trustworthy." : "No saturation flags at this spot.",
+    detail: e.saturated ? "Saturation flags are set at this spot on some dates; those dates are not trustworthy." : "Saturation flag screen passed: no saturation flags at this spot.",
   });
   checks.push({
     id: "artefact", label: "Image artefacts (cosmic rays, halos, crosstalk)",
@@ -100,7 +107,7 @@ export function buildWorksheet(e: Evidence): Worksheet {
     detail: [
       e.nUnusable ? `${e.nUnusable} date(s) had flagged pixels in the core and were not measured.` : "",
       e.cautionFlags.length ? `Quality flags near the source: ${e.cautionFlags.join(", ")}.` : "",
-    ].filter(Boolean).join(" ") || "No artefact flags near the source on the compared dates.",
+    ].filter(Boolean).join(" ") || "Quality-flag screen passed: no artefact flags near the source on the compared dates. Artefacts the pipeline did not flag remain possible.",
   });
   checks.push({
     id: "known", label: "An already catalogued star or object",
@@ -115,13 +122,14 @@ export function buildWorksheet(e: Evidence): Worksheet {
   checks.push({
     id: "spectral", label: "A change that exists at only one colour (a spectral feature)",
     status: "open",
-    detail: "Not compared here. An apparent change can come from a spectral feature rather than real variability, as in the ASR 7 case. Compare a different wavelength set.",
+    detail: "Not compared here. An apparent change can come from a narrow spectral feature rather than real variability, as in the ASR 7 case. Repeat observations at closely matched wavelengths test this best; other colours help describe the behaviour.",
   });
 
   // 4 · What remains unknown?
   const open = checks.filter((c) => c.status === "open" || c.status === "fail");
   const unknown = [
     ...open.map((c) => `Not ruled out: ${c.label.charAt(0).toLowerCase()}${c.label.slice(1)}.`),
+    "Artefacts that the quality flags did not mark, and neighbouring sources missing from Gaia (for example, faint or very red infrared sources).",
     "What physically caused any change. These measurements describe it; they do not explain it.",
     ...(e.calibrated ? ["Colour differences between the target and the reference stars, which the calibration does not model."] : []),
     ...(e.calibrated && e.calibrated.nRefs < 5 ? [`How reliable the uncertainty is: only ${e.calibrated.nRefs} reference stars were usable.`] : []),
@@ -130,13 +138,15 @@ export function buildWorksheet(e: Evidence): Worksheet {
   // 5 · What observation would resolve the uncertainty?
   const next: string[] = [];
   const st = (id: string) => checks.find((c) => c.id === id)!.status;
-  if (st("spectral") === "open") next.push("Compare dates in a different wavelength set: a real change in brightness should usually appear at more than one colour.");
+  if (vanished) next.push("Check independent exposures close to both dates: is the source consistently present on one and absent on the other?");
+  next.push("Get more independent observations at a closely matched wavelength, such as other exposures in this set or later visits. Repeats at the same colour test whether the change is real.");
+  if (st("spectral") === "open")
+    next.push("Compare other wavelengths to describe the change. A real change can be much weaker at another colour (GP Mon brightened ×2.3 at 1.19 µm but only about ×1.1 at 3.94 µm, a change that is not significant), so a missing change there does not disprove it.");
   if (blend) next.push("Use sharper images from another telescope to separate the neighbouring star.");
   else if (st("calibration") === "fail" && /reference star/.test(e.calFailure ?? "")) next.push("Use a larger field (12′ or more) so that more reference stars are available.");
   if (e.saturated) next.push("Choose a wavelength where the source is fainter and not saturated.");
   if (st("solar-system") === "open") next.push("Run the known asteroid and comet check.");
   if (st("known") === "open") next.push("Retry the catalogue check when the service is available.");
-  next.push("Add more dates: SPHEREx revisits each part of the sky about every six months.");
 
   // Verdict
   const fails = checks.filter((c) => c.status === "fail");
@@ -145,10 +155,12 @@ export function buildWorksheet(e: Evidence): Worksheet {
     verdict = { level: "unresolved", title: "Still checking", text: "Waiting for the reference-star check before judging the brightness." };
   else if (!e.calibrated && !moved && !e.calPending && e.nClean < 2)
     verdict = { level: "not-measurable", title: "Can't tell yet", text: "These images do not give clean measurements on two matching dates, so there is no evidence either way." };
+  else if (vanished && !moved)
+    verdict = { level: "unresolved", title: "Possible disappearance: additional checks needed", text: "The source is detected on one date but not on the other. That deserves investigation, but the comparison is not calibrated. Independent exposures or other controls are needed before relying on it." };
   else if (brightChange || moved) {
     verdict = fails.length
       ? { level: "unresolved", title: "A change, with an unresolved problem", text: `A change is measured, but a check failed: ${fails.map((c) => c.label.toLowerCase()).join("; ")}. Don't rely on it yet.` }
-      : { level: "supported", title: "Supported so far", text: "The measured change survived every check run here. It is not yet confirmed: the open questions below could still explain it." };
+      : { level: "supported", title: "Supported so far", text: "The measured change passed every screen run here. Screens can miss unflagged artefacts and neighbours not in Gaia, and the open questions below could still explain it, so it is not confirmed." };
   } else
     verdict = fails.some((c) => c.id === "calibration" || c.id === "blend") && !e.calibrated
       ? { level: "unresolved", title: "Can't tell yet", text: `The brightness could not be calibrated (${e.calFailure ?? "unknown reason"}), so a change can be neither shown nor ruled out.` }

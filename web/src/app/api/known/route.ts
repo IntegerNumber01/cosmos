@@ -57,18 +57,47 @@ export async function GET(req: NextRequest) {
     `SELECT TOP ${r > 0.05 ? 1500 : 200} source_id, ra, dec, pmra, pmdec, parallax, parallax_error, phot_g_mean_mag, phot_variable_flag FROM gaiadr3.gaia_source ` +
     `WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.04}))${r > 0.05 ? " AND phot_g_mean_mag < 18" : ""} ORDER BY phot_g_mean_mag`;
   // CSV keeps the 64-bit Gaia source_id exact (JSON numbers would round it)
-  const gaia = () => fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
+  const esa = () => fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
     method: "POST",
     body: new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: gaiaQ }),
-    signal: AbortSignal.timeout(25000),
+    signal: AbortSignal.timeout(20000),
     cache: "no-store",
   })
     .then((x) => {
       if (!x.ok) throw new Error(`HTTP ${x.status}`);
       return x.text();
     })
-    .then((text) =>
-    (parseCsv(text) as Record<string, unknown>[])
+    .then((text) => parseCsv(text) as Record<string, unknown>[]);
+  // Same Gaia DR3 table (I/355/gaiadr3) from the CDS VizieR mirror at Harvard, used when ESA is unreachable.
+  // Cross-checked on the RW Aur field: 758 common sources with identical positions and G magnitudes.
+  const vizier = () => {
+    const q = new URLSearchParams({
+      "-source": "I/355/gaiadr3", "-c": `${ra} ${dec >= 0 ? "+" : ""}${dec}`, "-c.rd": String(r + 0.04),
+      "-out": "Source,RA_ICRS,DE_ICRS,pmRA,pmDE,Plx,e_Plx,Gmag,VarFlag", "-sort": "Gmag", "-out.max": String(r > 0.05 ? 1500 : 200),
+      ...(r > 0.05 ? { Gmag: "<18" } : {}),
+    });
+    return fetch(`https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?${q}`, { signal: AbortSignal.timeout(25000), cache: "no-store" })
+      .then((x) => {
+        if (!x.ok) throw new Error(`HTTP ${x.status}`);
+        return x.text();
+      })
+      .then((text) => {
+        const lines = text.split(/\r?\n/).filter((l) => l && !l.startsWith("#"));
+        if (!lines[0]?.startsWith("Source")) throw new Error("unexpected VizieR response");
+        return lines.filter((l) => /^\s*\d/.test(l)).map((l) => {
+          const [source_id, ra0, dec0, pmra, pmdec, plx, eplx, g, vf] = l.split("\t").map((x) => x.trim());
+          return { source_id, ra: ra0, dec: dec0, pmra, pmdec, parallax: plx, parallax_error: eplx, phot_g_mean_mag: g, phot_variable_flag: vf } as Record<string, unknown>;
+        });
+      });
+  };
+  let gaiaService = "ESA Gaia DR3 (positions propagated to the epoch)";
+  const gaia = () => esa()
+    .catch((e) => vizier().catch(() => vizier()).then((rows) => {
+      gaiaService = `ESA Gaia DR3 via the CDS VizieR mirror (ESA unavailable: ${(e as Error)?.message ?? e}; positions propagated to the epoch)`;
+      return rows;
+    }, (e2) => { throw new Error(`ESA: ${(e as Error)?.message ?? e}; VizieR: ${(e2 as Error)?.message ?? e2}`); }))
+    .then((records) =>
+    records
       .map((s) => {
         const pmra = Number(s.pmra) || 0;
         const pmdec = Number(s.pmdec) || 0;
@@ -178,7 +207,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(
     {
       query: { ra, dec, radius_deg: r, mjd, services, epoch_year: Number(yr.toFixed(4)), time_utc: t },
-      gaia: { service: "ESA Gaia DR3 (positions propagated to the epoch)", ...wrap(g) },
+      gaia: { service: gaiaService, ...wrap(g) },
       simbad: { service: "SIMBAD (Harvard mirror, CDS fallback)", ...wrap(s) },
       small_bodies: { service: "NASA/JPL Small-Body Identification (geocentric; SPHEREx orbits the Earth)", ...wrap(b) },
     },

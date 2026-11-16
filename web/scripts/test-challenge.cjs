@@ -348,7 +348,9 @@ test("worksheet supports a calibrated change only 'so far' and keeps unrun check
   assert.equal(status(s, "spectral"), "open");
   assert.equal(status(s, "solar-system"), "open");
   assert(s.unknown.some((u) => /spectral feature/.test(u)) && s.unknown.some((u) => /only 3 reference stars/.test(u)));
-  assert(s.next.some((n) => /different wavelength set/.test(n)));
+  assert(s.next.some((n) => /closely matched wavelength/.test(n)) && s.next.some((n) => /does not disprove/.test(n)));
+  assert(s.unknown.some((u) => /did not mark/.test(u)));
+  assert.match(status(s, "blend") === "pass" && s.checks.find((c) => c.id === "blend").detail, /uncatalogued/);
   assert.equal(s.checks.length, 8);
 });
 
@@ -374,6 +376,27 @@ test("worksheet never upgrades a failed, pending or uncalibrated result", () => 
 test("worksheet treats a source that vanishes as a change without pretending it was calibrated", () => {
   const s = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "the source is too faint on one date for a brightness ratio", rough: { sigma: 125, vanished: true } });
   assert.equal(status(s, "calibration"), "warn");
-  assert.match(s.changed[0], /consistent with nothing/);
-  assert.notEqual(s.verdict.level, "no-change");
+  assert.match(s.changed[0], /possible disappearance/);
+  assert.equal(s.verdict.level, "unresolved");
+  assert.match(s.verdict.title, /Possible disappearance/);
+  assert.doesNotMatch(s.checks.find((c) => c.id === "calibration").detail, /could not/);
+});
+
+test("calibration agrees with an untouched independent result (GP Mon D2: offline differential EPSF ratio 2.299 ± 0.161)", () => {
+  const frames = ["2025W40_1A_0132_1D2", "2025W46_1A_0377_1D2"].map((k) => prepared("gpmon", `${k}_0.2`));
+  const { ra, dec } = frames[0].meta.target;
+  const c = calibStars("gpmon");
+  const r = calibrate(frames, frames.map((f) => seq.measure(f, ra, dec)), c.stars, c.query.epoch_mjd);
+  assert.equal(r.ok, true, r.reason);
+  const offline = -2.5 * Math.log10(2.299), offlineErr = 1.0857 * (0.161 / 2.299);
+  assert(Math.abs(r.last.dmag - offline) < 2 * Math.hypot(r.last.dmagErr, offlineErr), `Δm ${r.last.dmag} vs ${offline}`);
+});
+
+test("no single reference star drives the RW Aur result", () => {
+  const frames = RW_PAIR.map((k) => prepared("rwaur", `${k}_0.2`));
+  const { ra, dec } = frames[0].meta.target;
+  const c = calibStars("rwaur");
+  const r = calibrate(frames, frames.map((f) => seq.measure(f, ra, dec)), c.stars, c.query.epoch_mjd);
+  assert.equal(r.leaveOneOut.length, r.nRefs);
+  assert(r.looMaxShift < r.last.dmagErr, `leave-one-out shift ${r.looMaxShift}`);
 });
