@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-// 256-entry magma-like LUT (perceptual, dark -> bright) and a diverging blue-white-red LUT.
+// 256-entry magma-like LUT (perceptual, dark -> bright) and a diverging blue-black-red LUT.
 function lut(stops: [number, number, number, number][]) {
   const out = new Uint8ClampedArray(256 * 3);
   for (let i = 0; i < 256; i++) {
@@ -26,12 +26,14 @@ export const MAGMA = lut([
   [0.9, 253, 180, 115],
   [1, 252, 253, 191],
 ]);
+// Dark-centred diverging map: "no change" is near-black so overlaid circles and labels stay
+// visible; fainter-later ramps to bright blue, brighter-later ramps to bright red.
 export const DIVERGING = lut([
-  [0, 40, 90, 200],
-  [0.35, 120, 165, 230],
-  [0.5, 245, 245, 245],
-  [0.65, 235, 140, 120],
-  [1, 190, 30, 40],
+  [0, 150, 210, 255],
+  [0.25, 40, 110, 220],
+  [0.5, 10, 10, 14],
+  [0.75, 210, 50, 50],
+  [1, 255, 150, 120],
 ]);
 
 type Props = {

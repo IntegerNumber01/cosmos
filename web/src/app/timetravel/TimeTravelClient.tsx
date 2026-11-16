@@ -762,8 +762,9 @@ export default function TimeTravelClient() {
                       {view === "changes" &&
                         change?.candidates.map((c) => (
                           <g key={c.id} className="pointer-events-auto cursor-pointer" onClick={() => setCand(c)}>
-                            <circle cx={sx(c.x)} cy={sy(c.y)} r={n * 0.035} fill="none" stroke={cand?.id === c.id ? "white" : c.kind === "residual" || c.kind === "unmatched" ? "rgba(255,255,255,0.35)" : "#ffc857"} strokeWidth={n / 300} />
-                            <text x={sx(c.x) + n * 0.04} y={sy(c.y) - n * 0.03} fontSize={n * 0.04} fill="#ffe7a8">
+                            <circle cx={sx(c.x)} cy={sy(c.y)} r={n * 0.035} fill="none" stroke="rgba(0,0,0,0.75)" strokeWidth={n / 120} />
+                            <circle cx={sx(c.x)} cy={sy(c.y)} r={n * 0.035} fill="none" stroke={cand?.id === c.id ? "white" : c.kind === "residual" || c.kind === "unmatched" ? "rgba(255,255,255,0.55)" : "#ffc857"} strokeWidth={n / 300} />
+                            <text x={sx(c.x) + n * 0.04} y={sy(c.y) - n * 0.03} fontSize={n * 0.04} fill="#ffe7a8" stroke="rgba(0,0,0,0.8)" strokeWidth={n / 250} paintOrder="stroke">
                               {c.id}
                             </text>
                             {c.partner && <line x1={sx(c.partner.x)} y1={sy(c.partner.y)} x2={sx(c.x)} y2={sy(c.y)} stroke="#ffc857" strokeWidth={n / 400} strokeDasharray="1 1" />}
