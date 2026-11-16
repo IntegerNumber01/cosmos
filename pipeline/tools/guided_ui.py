@@ -55,11 +55,26 @@ with sync_playwright() as p:
     expect(page.get_by_text("We cannot tell whether this source is already known from this lookup", exact=False)).to_be_visible(timeout=30000)
     print("PASS: homepage starts a real guided brightness investigation; unavailable catalogues remain unavailable")
 
+    # evidence worksheet: filled from checks that ran; an unavailable catalogue stays "not checked"
+    sheet = page.get_by_role("region", name="Evidence worksheet")
+    expect(sheet.locator("[data-verdict]")).to_contain_text("Supported so far")
+    checks = sheet.get_by_role("list", name="Alternative explanations").locator("li")
+    expect(checks).to_have_count(8)
+    expect(checks.filter(has_text="whole image being brighter")).to_contain_text("Checked")
+    expect(checks.filter(has_text="already catalogued")).to_contain_text("Not checked")
+    expect(checks.filter(has_text="spectral feature")).to_contain_text("Not checked")
+    sheet.get_by_label("Your notes", exact=False).nth(4).fill("Compare a D2 set at 1.1 um.")
+    sheet.screenshot(path=str(ART / "worksheet.png"))
+    print("PASS: worksheet verdict, eight explanations with honest statuses, and notes")
+
     with page.expect_download() as downloaded:
         page.get_by_role("button", name="Download evidence JSON", exact=True).click()
     report_file = ART / "rwaur-evidence.json"
     downloaded.value.save_as(report_file)
     report = json.loads(report_file.read_text(encoding="utf-8"))
+    assert report["worksheet"]["verdict"]["level"] == "supported"
+    assert report["worksheet"]["notes"][4] == "Compare a D2 set at 1.1 um."
+    assert report["calibration"]["ok"] is True and abs(report["calibration"]["last"]["dmag"] + 0.53) < 0.1
     assert report["release"] == "SPHEREx DR1"
     rows = [r for r in report["measurements"] if r["usableForBrightness"]]
     assert len(rows) >= 2

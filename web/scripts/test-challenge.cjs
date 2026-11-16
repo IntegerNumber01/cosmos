@@ -329,3 +329,51 @@ test("calibration refuses instead of guessing: too few references, a blended nei
   const none = calibrate(empty, empty.map((f) => seq.measure(f, f.meta.target.ra, f.meta.target.dec)), c.stars, c.query.epoch_mjd);
   assert.equal(none.ok, false);
 });
+
+// Evidence worksheet: only checks that ran can pass; the strongest verdict is "supported so far".
+const { buildWorksheet } = require("../src/lib/worksheet.ts");
+const baseEvidence = () => ({
+  dates: ["2 Sept 25", "8 Mar 26"], nDates: 2, nClean: 2, nExcludedColour: 0, nUnusable: 0, saturated: false, cautionFlags: [],
+  calibrated: { pct: 61, pctErr: 6, dmag: -0.52, dmagErr: 0.04, sigma: 13, nRefs: 3 }, calFailure: null, calPending: false,
+  rough: { sigma: 90, vanished: false }, position: null,
+  catalogue: { status: "known", text: "Already known: RW Aur." }, smallBodies: { status: "not_checked", text: "Not run yet." },
+});
+const status = (s, id) => s.checks.find((c) => c.id === id).status;
+
+test("worksheet supports a calibrated change only 'so far' and keeps unrun checks open", () => {
+  const s = buildWorksheet(baseEvidence());
+  assert.equal(s.verdict.level, "supported");
+  assert.doesNotMatch(s.verdict.title, /confirm|discover/i);
+  assert.equal(status(s, "calibration"), "pass");
+  assert.equal(status(s, "spectral"), "open");
+  assert.equal(status(s, "solar-system"), "open");
+  assert(s.unknown.some((u) => /spectral feature/.test(u)) && s.unknown.some((u) => /only 3 reference stars/.test(u)));
+  assert(s.next.some((n) => /different wavelength set/.test(n)));
+  assert.equal(s.checks.length, 8);
+});
+
+test("worksheet never upgrades a failed, pending or uncalibrated result", () => {
+  const sat = buildWorksheet({ ...baseEvidence(), saturated: true });
+  assert.equal(sat.verdict.level, "unresolved");
+  assert.equal(status(sat, "saturation"), "fail");
+  const blend = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "a neighbouring star (Gaia G = 12.8, 11″ away) partly overlaps the measurement" });
+  assert.equal(blend.verdict.level, "unresolved");
+  assert.equal(status(blend, "blend"), "fail");
+  assert(blend.next.some((n) => /sharper images/.test(n)));
+  const pending = buildWorksheet({ ...baseEvidence(), calibrated: null, calPending: true });
+  assert.equal(pending.verdict.title, "Still checking");
+  assert.equal(status(pending, "calibration"), "open");
+  const flat = buildWorksheet({ ...baseEvidence(), calibrated: { pct: -1, pctErr: 5, dmag: 0.01, dmagErr: 0.06, sigma: 0.2, nRefs: 11 } });
+  assert.equal(flat.verdict.level, "no-change");
+  const unknownCatalogue = buildWorksheet({ ...baseEvidence(), catalogue: { status: "failed", text: "Lookup failed." } });
+  assert.equal(status(unknownCatalogue, "known"), "open");
+  const nothing = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "needs at least two clean dates", nClean: 1, rough: null });
+  assert.equal(nothing.verdict.level, "not-measurable");
+});
+
+test("worksheet treats a source that vanishes as a change without pretending it was calibrated", () => {
+  const s = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "the source is too faint on one date for a brightness ratio", rough: { sigma: 125, vanished: true } });
+  assert.equal(status(s, "calibration"), "warn");
+  assert.match(s.changed[0], /consistent with nothing/);
+  assert.notEqual(s.verdict.level, "no-change");
+});

@@ -5,6 +5,8 @@ import Advanced from "@/components/Advanced";
 import { getCalibrationFrame, getCalibrationStars, getKnown, Known } from "@/lib/engine/client";
 import { exactWindow, Frame, measure, Measurement } from "@/lib/engine/sequence";
 import { CAL, calibrate, Calibration } from "@/lib/engine/photometry";
+import { buildWorksheet, Evidence } from "@/lib/worksheet";
+import EvidenceWorksheet, { WORKSHEET_QUESTIONS } from "./EvidenceWorksheet";
 import { ENGINE_VERSION, RELEASE } from "@/lib/engine/releases";
 
 type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
@@ -324,6 +326,43 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           ? `About ${Math.abs(calOk.changePct).toFixed(0)}% ± ${calOk.changePctErr.toFixed(0)}% ${calOk.changePct >= 0 ? "brighter" : "fainter"} on ${fmtDate(lastFlux.date)} than on ${fmtDate(firstFlux.date)}, checked against ${calOk.nRefs} reference stars in the same images.`
           : `No clear brightness change once checked against ${calOk.nRefs} reference stars in the same images (${signed(calOk.changePct)} ± ${calOk.changePctErr.toFixed(0)}%).`
         : `Not calibrated: ${calFail}. The rough estimate below can be thrown off by calibration differences between dates.`;
+  // five-question evidence worksheet, filled only from checks actually run
+  const [notes, setNotes] = useState<string[]>(() => WORKSHEET_QUESTIONS.map(() => ""));
+  const sbStatus: Evidence["smallBodies"] =
+    sb === null
+      ? { status: "not_checked", text: "Not run yet. Use “Check known asteroids & comets” above." }
+      : sb === "loading"
+        ? { status: "pending", text: "Asking NASA/JPL…" }
+        : assoc
+          ? { status: assoc.level, text: assoc.text }
+          : !sb.comets.ok || !sb.asteroids.ok
+            ? { status: "failed", text: "The NASA/JPL lookup failed, so a passing asteroid or comet can't be ruled out." }
+            : { status: "none", text: "NASA/JPL lists no known asteroid or comet within 72″ at that time." };
+  const evidence: Evidence = {
+    dates: good.length >= 2 ? [fmtDate(firstFlux.date), fmtDate(lastFlux.date)] : null,
+    nDates: rows.length,
+    nClean: good.length,
+    nExcludedColour: cmp.drop.length,
+    nUnusable,
+    saturated,
+    cautionFlags: [...new Set(good.flatMap((r) => r.flagsHere).filter((f) => !["SOURCE", "OVERFLOW", "NONLINEAR", "SUR_ERROR"].includes(f)))],
+    calibrated: calOk ? { pct: calOk.changePct, pctErr: calOk.changePctErr, dmag: calOk.last.dmag, dmagErr: calOk.last.dmagErr, sigma: calOk.significance, nRefs: calOk.nRefs } : null,
+    calFailure: calFail || null,
+    calPending: !!calKey && (cal === null || cal === "loading"),
+    rough: good.length > 1 ? { sigma: endpointStrength, vanished: [firstFlux, lastFlux].some((r) => r.flux < 3 * r.fluxErrEmp) } : null,
+    position: withC.length >= 2 ? { shift: totalShift, err: shiftErr, predicted: Number.isFinite(predShift) ? predShift : null, n: withC.length } : null,
+    catalogue: knownErr
+      ? { status: "failed", text: `The catalogue check failed (${knownErr}).` }
+      : !known
+        ? { status: "pending", text: "Checking star catalogues…" }
+        : simbadTop || gaiaMatch
+          ? { status: "known", text: plainVerdict }
+          : catalogueGaps.length
+            ? { status: "failed", text: plainVerdict }
+            : { status: "none", text: plainVerdict },
+    smallBodies: sbStatus,
+  };
+  const sheet = buildWorksheet(evidence);
   const positionSummary = withC.length < 2
     ? "Not enough reliable positions to measure a shift."
     : `Measured shift: ${totalShift.toFixed(1)} ± ${shiftErr.toFixed(1)} arcseconds from ${withC[0].label} to ${lastT.label}.`;
@@ -348,6 +387,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       exportedAt: new Date().toISOString(), investigationUrl: window.location.href,
       target: at, catalogueEpochMjd: lastMjd, fluxUnit: "MJy/sr * pixel (aperture sum)",
       summary: { brightness: calibratedSummary || brightnessSummary, uncalibratedBrightness: brightnessSummary, position: positionSummary, catalogue: knownErr ? "Lookup failed: " + knownErr : plainVerdict || "Lookup pending" },
+      worksheet: { questions: WORKSHEET_QUESTIONS, verdict: sheet.verdict, answers: [sheet.changed, sheet.support, sheet.checks, sheet.unknown, sheet.next], notes },
       calibration: cal === null ? { status: "not_applicable" } : cal === "loading" ? { status: "pending" } : "error" in cal ? { status: "failed", error: cal.error } : cal,
       measurements, catalogues: { stars: known, error: knownErr || null, smallBodies: sb === null ? { status: "not_requested" } : sb === "loading" ? { status: "pending" } : sb }, limitations,
     };
@@ -626,6 +666,8 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         </table>
       </Advanced>
 
+      <EvidenceWorksheet sheet={sheet} notes={notes} onNote={(i, v) => setNotes((n) => n.map((x, k) => (k === i ? v : x)))} />
+
       <section id="measurement-evidence" aria-label="Save investigation evidence" className="mt-5 scroll-mt-24 border-t border-line pt-4">
         <h3 className="font-display text-[20px] font-semibold">Check and save your evidence</h3>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalogue results, failed checks and the current comparison link.</p>
@@ -634,7 +676,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           <button type="button" className="btn" onClick={() => downloadEvidence("csv")}>Download measurements CSV</button>
           <Link className="btn" href={slug === "gy152" || slug === "gpmon" ? `/investigate/search#${slug}` : slug === "swan" ? "/investigate/swan" : slug ? `/validation#${slug}` : "/about"}>Compare with the checked case study →</Link>
         </div>
-        <p className="mt-3 text-[12px] text-muted">Before making a claim: do other dates agree? Are the pixels clean? Could colour or blending explain it? Was each catalogue check successful?</p>
+        <p className="mt-3 text-[12px] text-muted">The JSON report includes the worksheet above: its verdict, every check with its result, and your notes.</p>
       </section>
     </div>
   );
