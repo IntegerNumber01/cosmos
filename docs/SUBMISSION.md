@@ -1,9 +1,14 @@
 # COSMOS: The Infrared Universe Explorer
 
-**"Google Earth for the infrared universe"** · Challenge: Planet X and SPHEREx
+**"The sky changes. See the evidence."** · Challenge: Planet X and SPHEREx
+
+## Intended audience and benefit
+COSMOS helps curious students, amateur astronomers and citizen scientists investigate the changing infrared sky without installing astronomy software. Educators can use its guided examples and shareable investigations for authentic-data activities. Beginners can start with RW Aurigae's brightness change or Epsilon Indi B's motion at `/learn`; experienced users can open the full observation controls directly.
+
+The guide connects a question to real pictures, current native-pixel measurements, catalogue checks, uncertainties and downloadable evidence. JSON reports retain the comparison URL, original images and failed checks as well as successful results. Intended educational benefits and wider scientific participation are goals; adoption, time savings and learning outcomes have not yet been established by a human user study.
 
 ## Problem
-NASA's SPHEREx images the whole sky in 102 infrared colours, again and again. Finding out what one patch of sky looked like on different dates still means archive queries, FITS files and coordinate tools. It also takes a subtle check that most tools skip: because of SPHEREx's linear variable filter, two exposures of the same spot are only comparable if they were taken at the same wavelength.
+NASA's SPHEREx images the whole sky in 102 infrared colours, again and again. People interested in that changing sky need an understandable path from archive observations to a comparison they can interpret and check. Existing archive viewers and science tools provide access; COSMOS brings temporal comparison, measurement, known-object context and explanatory case files into one workflow. Because SPHEREx's linear variable filter changes wavelength across each image, two dates also need wavelength checks at the source position. Matching within half a channel helps, but does not eliminate spectral false positives.
 
 ## Solution
 **Time Travel: enter coordinates and see a dated sequence.**

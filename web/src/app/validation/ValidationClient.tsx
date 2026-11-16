@@ -66,8 +66,8 @@ export default function ValidationClient() {
         <div className="label mt-4 text-accent">Validation</div>
         <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight">How COSMOS did on the challenge&apos;s five test targets</h1>
         <p className="mt-2 max-w-3xl text-[15px] text-muted">
-          We only compare pictures taken in the same infrared colour, so a change is real and not a colour trick. &quot;Too bright to measure&quot; is an honest
-          result. We never force a detection.
+          We compare pictures taken in closely matching infrared colours, then check for image artifacts and other explanations. Colour matching helps,
+          but does not by itself prove a real change. &quot;Too bright to measure&quot; is an honest result. We never force a detection.
         </p>
         <Advanced className="mt-2">
           For each target: which SPHEREx DR1 observations exist, which of them can fairly be compared (same detector, wavelength within half a channel), what

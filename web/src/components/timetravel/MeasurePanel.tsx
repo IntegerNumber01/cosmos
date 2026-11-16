@@ -1,8 +1,10 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Advanced from "@/components/Advanced";
 import { getKnown, Known } from "@/lib/engine/client";
 import { exactWindow, Frame, measure, Measurement } from "@/lib/engine/sequence";
+import { ENGINE_VERSION, RELEASE } from "@/lib/engine/releases";
 
 type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
 
@@ -102,18 +104,24 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   const [known, setKnown] = useState<Known | null>(null);
   const [knownErr, setKnownErr] = useState("");
   const [sb, setSb] = useState<{ comets: SbPart; asteroids: SbPart } | null | "loading">(null);
+  const lookupGeneration = useRef(0);
 
   useEffect(() => {
+    const generation = ++lookupGeneration.current;
+    let active = true;
     setKnown(null);
     setKnownErr("");
+    setSb(null);
     const [kra, kdec] = posAt(lastMjd);
     getKnown(kra, kdec, 0.0028, lastMjd, "gaia,simbad", slug)
-      .then(setKnown)
-      .catch((e) => setKnownErr(String(e.message ?? e)));
+      .then((result) => active && setKnown(result))
+      .catch((e) => active && setKnownErr(String(e.message ?? e)));
+    return () => { active = false; lookupGeneration.current = generation + 1; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [at, lastMjd, slug]);
 
   const checkSmallBodies = () => {
+    const generation = lookupGeneration.current;
     setSb("loading");
     const part = (x: PromiseSettledResult<Known>): SbPart =>
       x.status === "rejected"
@@ -121,9 +129,9 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         : x.value.small_bodies.ok
           ? { ok: true, rows: x.value.small_bodies.rows ?? [] }
           : { ok: false, error: x.value.small_bodies.error ?? "lookup failed" };
-    Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug), getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]).then(([c, a]) =>
-      setSb({ comets: part(c), asteroids: part(a) }),
-    );
+    Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug), getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]).then(([c, a]) => {
+      if (generation === lookupGeneration.current) setSb({ comets: part(c), asteroids: part(a) });
+    });
   };
 
   const gaiaMatch = known?.gaia.ok ? known.gaia.rows?.find((r) => r.sep_arcsec < 6) : undefined;
@@ -195,7 +203,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           : `Brightness differs between dates by ${pct.toFixed(0)}% (${sig.toFixed(1)}× the empirical noise).`;
     plainVar =
       sig < 5
-        ? "The brightness looks the same on every date, within the noise."
+        ? "No clear brightness difference stands out in this sample. This does not rule out smaller changes."
         : loIsZero
           ? `Visible on ${fmtDate(hi.date)} but not on ${fmtDate(lo.date)}.`
           : Number.isFinite(pct)
@@ -241,7 +249,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   if (known && assoc) {
     plainVerdict =
       assoc.level === "consistent"
-        ? `This matches a known asteroid or comet, ${sbRows[0].name}. That makes it a known object, not a discovery.`
+        ? `The measured position is consistent with known object ${sbRows[0].name}. Its motion has not been checked here.`
         : `A known asteroid or comet (${sbRows[0].name}) may be nearby, but the match isn't confirmed.`;
   } else if (known) {
     if (simbadTop) plainVerdict = `Already known: ${simbadTop.main_id.replace(/^NAME /, "")}${simbadTop.otype_label ? ` (${simbadTop.otype_label})` : ""}.`;
@@ -271,15 +279,76 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     }
   }
 
+  const firstFlux = good[0];
+  const lastFlux = good[good.length - 1];
+  const endpointNoise = good.length > 1 ? Math.hypot(firstFlux.fluxErrEmp, lastFlux.fluxErrEmp) : NaN;
+  const endpointChange = good.length > 1 ? lastFlux.flux - firstFlux.flux : NaN;
+  const endpointRatio = firstFlux && firstFlux.flux > 3 * firstFlux.fluxErrEmp && lastFlux?.flux > 0 ? endpointChange / firstFlux.flux * 100 : NaN;
+  const endpointStrength = Math.abs(endpointChange) / endpointNoise;
+  const brightnessSummary = good.length < 2
+    ? "Not enough clean, wavelength-matched brightness measurements to compare dates."
+    : endpointStrength < 5
+      ? `No clear brightness change between ${fmtDate(firstFlux.date)} and ${fmtDate(lastFlux.date)} against the measured blank-sky noise.`
+      : Number.isFinite(endpointRatio)
+        ? `About ${Math.abs(endpointRatio).toFixed(0)}% ${endpointRatio >= 0 ? "brighter" : "fainter"} on ${fmtDate(lastFlux.date)} than on ${fmtDate(firstFlux.date)}.`
+        : `Brightness differs between ${fmtDate(firstFlux.date)} and ${fmtDate(lastFlux.date)}. A percentage would be unreliable because one measurement is close to zero.`;
+  const positionSummary = withC.length < 2
+    ? "Not enough reliable positions to measure a shift."
+    : `Measured shift: ${totalShift.toFixed(1)} ± ${shiftErr.toFixed(1)} arcseconds from ${withC[0].label} to ${lastT.label}.`;
+
+  const downloadEvidence = (format: "json" | "csv") => {
+    const clean = (v: number) => Number.isFinite(v) ? v : null;
+    const limitations = [
+      "Exploratory native-pixel aperture photometry; no PSF/aperture correction, deblending or annual parallax correction.",
+      "Flux uses MJy/sr summed over aperture pixels, not calibrated integrated source flux.",
+      "Flux errors measure blank-sky aperture scatter; calibration, spectral and PSF differences can imitate variability.",
+      "Position errors include a 0.5 arcsecond alignment allowance; a catalogue prediction is not a detection.",
+      "Matching within half a channel does not remove all spectral false positives. No discovery is established.",
+    ];
+    const measurements = rows.map((r, i) => ({
+      ...r, usableForBrightness: cmpIds.has(r.obsid) && Number.isFinite(r.flux) && Number.isFinite(r.fluxErrEmp) && !r.partial,
+      flux: clean(r.flux), fluxErrEmp: clean(r.fluxErrEmp), snr: clean(r.snr),
+      sourceFits: frames[i].meta.sourceFits, cutoutUrl: frames[i].meta.cutoutUrl, detector: frames[i].meta.detector,
+      measuredAt: { ra: posAt(r.mjd)[0], dec: posAt(r.mjd)[1] },
+    }));
+    const report = {
+      schema: "cosmos-investigation-v1", release: RELEASE.label, engine: ENGINE_VERSION,
+      exportedAt: new Date().toISOString(), investigationUrl: window.location.href,
+      target: at, catalogueEpochMjd: lastMjd, fluxUnit: "MJy/sr * pixel (aperture sum)",
+      summary: { brightness: brightnessSummary, position: positionSummary, catalogue: knownErr ? "Lookup failed: " + knownErr : plainVerdict || "Lookup pending" },
+      measurements, catalogues: { stars: known, error: knownErr || null, smallBodies: sb === null ? { status: "not_requested" } : sb === "loading" ? { status: "pending" } : sb }, limitations,
+    };
+    const cell = (value: unknown) => {
+      const s = value === null || value === undefined ? "" : String(value);
+      return '"' + (/^[=+@\t\r]/.test(s) ? "'" + s : s).replace(/"/g, '""') + '"';
+    };
+    const headings = ["release", "engine", "obsid", "detector", "date_utc", "mjd", "wavelength_um", "bandwidth_um", "measured_ra_deg", "measured_dec_deg", "flux_MJy_sr_pixel", "empirical_error_MJy_sr_pixel", "snr", "usable_for_brightness", "partial_aperture", "core_flagged", "centroid_ra_deg", "centroid_dec_deg", "centroid_error_arcsec", "flags", "source_fits", "cutout_url", "investigation_url", "limitations"];
+    const csv = [headings, ...measurements.map((r) => [RELEASE.label, ENGINE_VERSION, r.obsid, r.detector, r.date, r.mjd, r.wl, r.bw, r.measuredAt.ra, r.measuredAt.dec, r.flux, r.fluxErrEmp, r.snr, r.usableForBrightness, r.partial, r.coreFlagged, r.centroid?.ra, r.centroid?.dec, r.centroid?.errArcsec, r.flagsHere.join("; "), r.sourceFits, r.cutoutUrl, window.location.href, limitations.join(" ")])].map((row) => row.map(cell).join(",")).join("\r\n");
+    const blob = new Blob([format === "json" ? JSON.stringify(report, null, 2) : csv], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `cosmos-${(slug ?? "position").replace(/[^a-z0-9-]/gi, "-")}-measurements.${format}`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
+
   return (
     <div className="glass rounded-2xl p-4">
       <div className="label">Take a closer look · {at.label}</div>
       <p className="mt-1 text-[12.5px] text-muted">We measure how bright this spot is, and where exactly it sits, on every date.</p>
 
+      <section aria-label="Measurement summary" className="mt-4 rounded-xl border border-accent/30 bg-accent/[0.04] p-4">
+        <h3 className="font-display text-[20px] font-semibold">What these measurements show</h3>
+        <p className="mt-1 text-[12px] text-muted">Calculated from the current sequence; separate from the checked case-study results.</p>
+        <dl className="mt-3 space-y-3 text-[13px] leading-relaxed">
+          <div><dt className="font-semibold text-accent">Brightness</dt><dd>{brightnessSummary}</dd></div>
+          <div><dt className="font-semibold text-accent">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalogue predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
+        </dl>
+        <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Colour, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
+      </section>
+
       <div className="mt-3 rounded-xl border border-line p-3">
         <div className="label mb-1">Is it already known?</div>
         {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogues for this date…</div>}
-        {knownErr && <div className="text-[12.5px] text-warn">The catalogue check failed ({knownErr}).</div>}
+        {knownErr && <div className="text-[12.5px] text-warn">The catalogue check failed ({knownErr}). We cannot tell whether this source is already known from this lookup.</div>}
         {known && (
           <>
             <p
@@ -499,6 +568,17 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           </tbody>
         </table>
       </Advanced>
+
+      <section id="measurement-evidence" aria-label="Save investigation evidence" className="mt-5 scroll-mt-24 border-t border-line pt-4">
+        <h3 className="font-display text-[20px] font-semibold">Check and save your evidence</h3>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalogue results, failed checks and the current comparison link.</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" className="btn btn-primary" onClick={() => downloadEvidence("json")}>Download evidence JSON</button>
+          <button type="button" className="btn" onClick={() => downloadEvidence("csv")}>Download measurements CSV</button>
+          <Link className="btn" href={slug === "gy152" || slug === "gpmon" ? `/investigate/search#${slug}` : slug === "swan" ? "/investigate/swan" : slug ? `/validation#${slug}` : "/about"}>Compare with the checked case study →</Link>
+        </div>
+        <p className="mt-3 text-[12px] text-muted">Before making a claim: do other dates agree? Are the pixels clean? Could colour or blending explain it? Was each catalogue check successful?</p>
+      </section>
     </div>
   );
 }

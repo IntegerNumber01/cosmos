@@ -10,6 +10,8 @@ import MeasurePanel from "@/components/timetravel/MeasurePanel";
 import VisitStacks from "@/components/timetravel/VisitStacks";
 import QualityOverlay from "@/components/timetravel/QualityOverlay";
 import SpectralLab from "@/components/timetravel/SpectralLab";
+import InvestigationGuide, { GUIDED_LESSONS, GuidedTarget } from "@/components/timetravel/InvestigationGuide";
+import TargetCloseup from "@/components/timetravel/TargetCloseup";
 import { inDateRange, observationKey, readViewState, viewQuery, ViewMode } from "@/lib/engine/viewState";
 import type { Cadence } from "@/lib/engine/sequence";
 import { validCoordinates } from "@/lib/engine/releases";
@@ -80,6 +82,8 @@ function pickSet(obs: Observation[], ref: Observation, cadence: Cadence): Matche
 export default function TimeTravelClient() {
   const sp = useSearchParams();
   const [shared] = useState(() => readViewState(sp));
+  const [guideEnabled, setGuideEnabled] = useState(() => sp.get("guide") === "1");
+  const [observationControls, setObservationControls] = useState(false);
   const reduced = usePrefersReducedMotion();
   const initial: Target | null = useMemo(() => {
     const slug = sp.get("target");
@@ -375,8 +379,9 @@ export default function TimeTravelClient() {
       before: observationKey(loaded.frames[pair[0]].meta), after: observationKey(loaded.frames[pair[1]].meta),
       mode: view, split, gaia: showGaia, quality: showQuality, embed: shared.embed, stack: stackSettings,
     }, fromGaia);
+    if (guideEnabled && target.slug && target.slug in GUIDED_LESSONS) q.set("guide", "1");
     window.history.replaceState(null, "", `/timetravel?${q.toString()}`);
-  }, [target, loaded, set, size, cadence, start, end, page, idx, pair, view, split, showGaia, showQuality, shared.embed, fromGaia, stackSettings]);
+  }, [target, loaded, set, size, cadence, start, end, page, idx, pair, view, split, showGaia, showQuality, shared.embed, fromGaia, stackSettings, guideEnabled]);
 
   const share = async (embed = false) => {
     setPlaying(false);
@@ -416,6 +421,14 @@ export default function TimeTravelClient() {
   const tgt = loaded && cur ? skyToGrid(loaded.grid, ...targetAt(target!, cur.meta.mjdAvg)) : [0, 0];
 
   const preset = target?.slug ? TT_BY_SLUG[target.slug] : undefined;
+  const guidedTarget = guideEnabled && target?.slug && target.slug in GUIDED_LESSONS ? target.slug as GuidedTarget : null;
+  const scrollTo = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: reduced ? "instant" : "smooth", block: "start" }));
+  const measureTarget = () => {
+    if (!target || !loaded) return;
+    setPlaying(false);
+    setMeasureAt({ ra: target.ra, dec: target.dec, label: target.name ?? "Target position", pm: target.pm, epochYear: target.epochYear });
+    setCand(null);
+  };
   const pickPreset = (t: (typeof TT_TARGETS)[number]) => {
     setInput(`${t.ra.toFixed(5)} ${t.dec.toFixed(5)}`);
     search({ ra: t.ra, dec: t.dec, name: t.name, slug: t.slug, pm: t.pm, epochYear: t.pm ? 2025.9 : undefined });
@@ -435,8 +448,21 @@ export default function TimeTravelClient() {
           NASA&apos;s SPHEREx telescope photographs the whole sky again and again. Pick a spot and we&apos;ll line up its photos from different dates so you can see what changed.
         </p>
 
+        {guidedTarget && <InvestigationGuide
+          slug={guidedTarget} ready={!!loaded && loaded.frames.length > 1}
+          measured={!!measureAt && measureAt.label === target?.name}
+          onCompare={() => { setView("swipe"); setPlaying(false); scrollTo("compare-dates"); }}
+          onMeasure={() => { measureTarget(); scrollTo("measurements"); }}
+          onEvidence={() => scrollTo("measurement-evidence")}
+          onLeave={() => setGuideEnabled(false)} controlsOpen={observationControls}
+          onToggleControls={() => setObservationControls((open) => !open)}
+        />}
+        {guidedTarget && obsState.sample && <p className="mt-3 text-[12px] leading-relaxed text-warn">{obsState.sample}</p>}
+        {!guidedTarget && !shared.embed && <p className="mt-3 text-[13px] text-muted">First visit? <Link href="/learn" className="text-accent hover:underline">Learn the basics or follow a guided investigation →</Link></p>}
+        {shareStatus && <p role="status" className="mt-3 break-all text-[12px] text-accent">{shareStatus}</p>}
+
         {/* step 1: pick a spot */}
-        <section className="glass mt-5 rounded-2xl p-4 sm:p-5">
+        <section hidden={!!guidedTarget && !observationControls} className="glass mt-5 rounded-2xl p-4 sm:p-5">
           <StepHead n={1} title="Pick a spot" />
           {!target && obsState.status === "idle" ? (
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -569,7 +595,7 @@ export default function TimeTravelClient() {
           </div>
         )}
         {obsState.status === "ready" && (
-          <section className="glass mt-5 rounded-2xl p-4 sm:p-5">
+          <section hidden={!!guidedTarget && !observationControls} className="glass mt-5 rounded-2xl p-4 sm:p-5">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <StepHead n={2} title="See when SPHEREx looked here" />
               {loaded && (
@@ -588,7 +614,6 @@ export default function TimeTravelClient() {
                 "SPHEREx has no usable photo of this exact spot in the chosen dates."
               )}
             </p>
-            {shareStatus && <p role="status" className="mt-2 break-all text-[12px] text-accent">{shareStatus}</p>}
             {refreshError && <p role="alert" className="mt-2 text-[12px] text-warn">{refreshError}</p>}
             {obsState.sample && <p className="mt-2 text-[12px] text-warn">{obsState.sample}</p>}
             {nInside > 0 && (
@@ -649,8 +674,8 @@ export default function TimeTravelClient() {
 
         {/* step 3: compare two dates */}
         {set && (
-          <div className="mt-8">
-            <StepHead n={3} title="Compare the dates">
+          <div id="compare-dates" className="mt-8 scroll-mt-24">
+            <StepHead n={guidedTarget ? undefined : 3} title="Compare the dates">
               Play the dates like a flip-book, or swipe between two of them. Click anything in the picture to measure it.
             </StepHead>
           </div>
@@ -876,6 +901,7 @@ export default function TimeTravelClient() {
                       </p>
                     </Advanced>
                   </div>
+                  {guidedTarget && view !== "stacks" && <TargetCloseup frames={loaded.frames} grids={loaded.grids} grid={loaded.grid} pair={pair} ra={target!.ra} dec={target!.dec} lo={loaded.lo} hi={loaded.hi} />}
                 </>
               )}
             </div>
@@ -905,10 +931,7 @@ export default function TimeTravelClient() {
                   <div className="mt-3 flex flex-wrap gap-2">
                     <button
                       className="btn"
-                      onClick={() => {
-                        setMeasureAt({ ra: target!.ra, dec: target!.dec, label: target!.name ?? "Target position", pm: target!.pm, epochYear: target!.epochYear });
-                        setCand(null);
-                      }}
+                      onClick={measureTarget}
                     >
                       Measure {target?.name ?? "the target"} on every date
                     </button>
@@ -972,7 +995,7 @@ export default function TimeTravelClient() {
               {/* step 4: what changed? */}
               {loaded && loaded.frames.length > 1 && !(view === "changes" && change) && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label text-accent">Step 4</div>
+                  <div className="label text-accent">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
                   <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">What changed?</h2>
                   <p className="mt-1 text-[13px] text-muted">The computer subtracts one date from another and circles the spots that look different.</p>
                   <button className="btn btn-primary mt-3" onClick={runChanges}>
@@ -982,7 +1005,7 @@ export default function TimeTravelClient() {
               )}
               {view === "changes" && change && loaded && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label text-accent">Step 4</div>
+                  <div className="label text-accent">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
                   <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">
                     What changed between {fmtDate(loaded.frames[pair[0]].meta.dateAvg)} and {fmtDate(loaded.frames[pair[1]].meta.dateAvg)}?
                   </h2>
@@ -1048,17 +1071,29 @@ export default function TimeTravelClient() {
               )}
 
               {measureAt && loaded && (
-                <MeasurePanel
+                <div id="measurements" className="scroll-mt-24"><MeasurePanel
                   key={`${measureAt.ra}_${measureAt.dec}`}
                   frames={loaded.frames}
                   at={measureAt}
                   slug={target?.slug}
                   noiseHint={robustSigma(loaded.grids[0])}
-                />
+                /></div>
               )}
             </div>
           </section>
         )}
+
+        {loaded && <section aria-label="Evidence and next steps" className="glass mt-8 rounded-2xl p-5">
+          <div className="label text-accent">Keep investigating</div>
+          <h2 className="font-display mt-1 text-[23px] font-semibold">A result is stronger when you can check it.</h2>
+          <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted">Compare the measurements with independent checks, inspect successful and inconclusive tests, or see how a promising change turned out to be a colour effect.</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button type="button" className="btn btn-primary" onClick={() => share()}>Share this comparison</button>
+            <Link className="btn" href={preset?.caseFile ?? (preset?.challenge ? `/validation#${preset.slug}` : "/validation")}>Review the checked evidence →</Link>
+            <Link className="btn" href="/investigate/search">What a blind search found →</Link>
+            <Link className="btn" href="/learn#words">Explain the astronomy terms →</Link>
+          </div>
+        </section>}
 
         {target && obsState.status === "ready" && obs.some((o) => o.inside) && (
           <section className="glass mt-8 rounded-2xl p-4 sm:p-5">
@@ -1081,10 +1116,10 @@ export default function TimeTravelClient() {
   );
 }
 
-function StepHead({ n, title, children }: { n: number; title: string; children?: React.ReactNode }) {
+function StepHead({ n, title, children }: { n?: number; title: string; children?: React.ReactNode }) {
   return (
     <div>
-      <div className="label text-accent">Step {n}</div>
+      {n !== undefined && <div className="label text-accent">Step {n}</div>}
       <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">{title}</h2>
       {children && <p className="mt-1 max-w-2xl text-[13px] text-muted">{children}</p>}
     </div>

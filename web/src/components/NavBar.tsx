@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/fly", label: "Fly", hint: "Fly in 3D between real nearby stars" },
   { href: "/timetravel", label: "Time Travel", hint: "See how one spot in the sky changed over time" },
   { href: "/investigate", label: "Investigate", hint: "Follow real cases, like a comet, step by step" },
+  { href: "/learn", label: "Learn", hint: "Start a guided investigation and learn the basics" },
   { href: "/about", label: "About", hint: "Where the data comes from, and what it can't tell you" },
 ];
 
@@ -30,7 +31,7 @@ export default function NavBar() {
       <div className="pointer-events-auto glass flex items-center rounded-full px-3 py-2 sm:px-4">
         <Logo />
       </div>
-      <nav className="pointer-events-auto glass flex items-center gap-1 rounded-full p-1">
+      <nav aria-label="Main navigation" className="pointer-events-auto glass flex min-w-0 max-w-[calc(100%-52px)] items-center gap-0.5 overflow-x-auto rounded-full p-1 sm:gap-1">
         {LINKS.map((l) => {
           const active = path?.startsWith(l.href);
           return (
@@ -38,7 +39,8 @@ export default function NavBar() {
               key={l.href}
               href={l.href}
               title={l.hint}
-              className={`rounded-full px-2 py-1.5 text-[12px] font-medium transition sm:px-3.5 sm:text-[13px] ${
+              aria-current={active ? "page" : undefined}
+              className={`shrink-0 rounded-full px-2 py-2 text-[12px] font-medium transition sm:px-3.5 sm:text-[13px] ${
                 active ? "bg-white/10 text-white" : "text-muted hover:text-white"
               }`}
             >

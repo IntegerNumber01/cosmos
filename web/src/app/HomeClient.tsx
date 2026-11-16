@@ -57,6 +57,7 @@ export default function HomeClient() {
           <Link href="/fly" className="hover:text-white">Fly</Link>
           <Link href="/timetravel" className="hover:text-white">Time Travel</Link>
           <Link href="/investigate" className="hover:text-white">Investigate</Link>
+          <Link href="/learn" className="hover:text-white">Learn</Link>
           <Link href="/about" className="hover:text-white">About</Link>
         </nav>
       </header>
@@ -65,20 +66,21 @@ export default function HomeClient() {
         <div className="fade-up max-w-2xl">
           <div className="label text-accent">Real NASA data · NASA Space Apps 2026</div>
           <h1 className="font-display mt-4 text-[44px] font-semibold leading-[1.04] sm:text-[64px]">
-            See the sky in light your eyes{" "}
-            <span className="bg-gradient-to-r from-[#7c5cff] via-[#28d2e6] to-[#ff5c48] bg-clip-text text-transparent">can&apos;t see</span>.
+            The sky changes.<br />
+            <span className="bg-gradient-to-r from-[#7c5cff] via-[#28d2e6] to-[#ff5c48] bg-clip-text text-transparent">See the evidence.</span>
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-text/80">
-            NASA&apos;s SPHEREx space telescope maps the whole sky in infrared light. Explore its real pictures here.
+            Compare real pictures from NASA&apos;s SPHEREx telescope. Watch a star brighten, measure a tiny motion, and learn what the observations can tell us.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/explore" className="btn btn-primary !px-6 !py-3 !text-[15px]">
-              Start exploring →
-            </Link>
-            <Link href="/timetravel?target=epsindib" className="btn !px-6 !py-3 !text-[15px]">
+            <Link href="/timetravel?target=rwaur&guide=1&mode=swipe" className="btn btn-primary !px-6 !py-3 !text-[15px]">
               See a real change →
             </Link>
+            <Link href="/explore" className="btn !px-6 !py-3 !text-[15px]">
+              Explore the infrared sky →
+            </Link>
           </div>
+          <p className="mt-4 text-[13px] text-muted">No astronomy experience needed. <Link href="/learn" className="text-accent hover:underline">Learn the basics</Link> or <Link href="/timetravel" className="text-accent hover:underline">open the full tools</Link>.</p>
         </div>
         <div className="fade-up flex justify-center pb-4" style={{ animationDelay: "0.2s" }}>
           <HeroGlobe />
@@ -86,6 +88,17 @@ export default function HomeClient() {
       </section>
 
       <section id="ways-in" className="relative z-10 mx-auto max-w-[1320px] scroll-mt-6 px-5 pb-16 sm:px-8">
+        <div className="mb-8 grid gap-4 rounded-2xl border border-line bg-bg/70 p-5 sm:grid-cols-[1.2fr_1fr] sm:p-6">
+          <div>
+            <h2 className="font-display text-[23px] font-semibold">From a picture to an investigation</h2>
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text/80">For curious students, amateur astronomers and citizen scientists. Compare dates, measure a change, check what is known, and share the evidence.</p>
+          </div>
+          <div className="flex flex-col justify-center gap-3 text-[13px]">
+            <Link href="/validation" className="text-accent hover:underline">Tested on the challenge&apos;s five targets →</Link>
+            <Link href="/investigate/search" className="text-accent hover:underline">A blind search: promising leads and a false alarm →</Link>
+            <Link href="/learn" className="text-accent hover:underline">A guided starting point, with science on request →</Link>
+          </div>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {MODES.map((m, i) => (
             <Link

@@ -9,7 +9,7 @@ const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "COSMOS — The Infrared Universe Explorer",
   description:
-    "See the sky in light your eyes can't see. Explore real infrared pictures from NASA's SPHEREx space telescope, fly between real nearby stars, and see how the sky changes over time.",
+    "Investigate the changing infrared sky with real NASA SPHEREx observations. Follow a guided example, compare dates, measure changes, and check the evidence—or open the full astronomy tools.",
 };
 
 export const viewport: Viewport = {

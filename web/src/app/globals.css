@@ -99,6 +99,22 @@ body {
 .btn:active {
   transform: scale(0.97);
 }
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.btn:disabled:active {
+  transform: none;
+}
+:where(a, button, input, select, summary):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+@media print {
+  nav, header, .no-print {
+    display: none !important;
+  }
+}
 .btn-primary {
   background: linear-gradient(135deg, rgba(127, 216, 255, 0.22), rgba(181, 155, 255, 0.22));
   border-color: rgba(127, 216, 255, 0.55);

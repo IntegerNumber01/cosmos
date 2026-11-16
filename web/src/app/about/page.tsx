@@ -325,6 +325,7 @@ web/scripts/build-cache.ts      # prepared cache = same bytes as the live API`}
         </Advanced>
 
         <h2 className={H2}>Acknowledgements</h2>
+        <p className="mt-3 text-[13px] leading-relaxed text-muted">Parts of the code, explanatory text and documentation were created or revised with OpenAI Codex assistance. Observations come from the named public archives; measured quantities, predictions and display aids are identified separately.</p>
         <p className="mt-3 text-[13px] leading-relaxed text-muted">
           This work uses data from SPHEREx, a NASA mission managed by JPL, with data processing and archiving at IPAC/Caltech. Data were obtained from the
           NASA/IPAC Infrared Science Archive (IRSA). It also uses data from the European Space Agency mission Gaia, processed by the Gaia Data Processing and

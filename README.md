@@ -4,6 +4,8 @@
 
 Compare real dated NASA SPHEREx images, measure what changed, and check whether the source is already known. Eight featured fields open a labelled, saved subset of real observations that works during archive outages. Arbitrary coordinates and searches for additional observations use IRSA's live discovery service.
 
+**New to astronomy?** Start at `/learn` or open `/timetravel?target=rwaur&guide=1&mode=swipe`. The guided investigation explains what to look for, measures the actual sequence, and helps users check and save the evidence. A second guide follows Epsilon Indi B's motion. Full observation controls remain available; `/timetravel` opens the general tool directly. JSON/CSV exports include native measurements, errors, flags, original FITS URLs and limitations; the JSON also records catalogue results or failures. A close-up magnifies the same sky patch without adding resolution.
+
 | Mode | What you do | Data |
 |---|---|---|
 | **Time Travel** (`/timetravel`) | RA/Dec, or pick a star → every SPHEREx DR1 exposure of that spot → wavelength-matched dates → aligned playback, swipe, **Find changes** → measure → **is it known?** | SPHEREx DR1 Level-2 (IRSA SIA2 + IBE cutouts), Gaia DR3, SIMBAD, NASA/JPL Small-Body Identification |
@@ -80,6 +82,10 @@ npm run build && npm start
 ```
 
 Deploy on Vercel with `web/` as the project root. The API routes use the Node.js runtime and declare a 60 s limit; ensure the deployment supports that limit. Dev and production use separate `.next-dev` and `.next-build` directories automatically, so building does not overwrite a running dev server.
+
+**No hosted Python backend is needed.** Vercel serves the Next.js app, prepared data and Node API routes. Python is used offline for rebuilding observations, scientific validation and browser checks. The app still depends on the public NASA/partner services for arbitrary-coordinate discovery and live catalogue answers. Deployment is intentionally deferred while the local experience is completed.
+
+Guided-experience browser checks: `pipeline/.venv/Scripts/python pipeline/tools/guided_ui.py http://localhost:3417`. The real-participant test protocol is in [docs/USER_TEST.md](docs/USER_TEST.md); automated checks do not establish human usability or learning outcomes.
 
 ## Rebuild the data (Python 3.12)
 
