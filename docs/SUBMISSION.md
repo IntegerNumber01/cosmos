@@ -18,6 +18,7 @@ NASA's SPHEREx images the whole sky in 102 infrared colours, again and again. Pe
 - The dates are aligned for playback, blink or swipe. Gaia stars are drawn where Gaia predicts they were on each date.
 - **Find changes:** the difference of two matched dates over pixels valid on both, scaled by its measured scatter. Changes are grouped as brightened, faded, moved, or residual around a saturated star.
 - **Investigate:** brightness and position are measured on each date's native pixels, with empirical errors. Flagged apertures report no value rather than a wrong one.
+- **Calibrated brightness:** the headline change divides the target by Gaia reference stars measured identically in 12′ images of the same exposures. Its ± combines blank-sky noise with how much the reference stars disagree. COSMOS refuses to give a calibrated number when fewer than 3 clean, wavelength-matched references exist, when a neighbouring star partly overlaps the target, or when the wavelength at the target differs between dates. Three controls: RW Aur brightens (+61% ± 6%, matching the independent validation), Epsilon Indi B stays steady (−1% ± 5%), and a steady but blended field star, which read −54% before the blend check, is refused.
 - **Is it already known?** Gaia DR3 and SIMBAD, propagated to the date, plus NASA/JPL's list of known asteroids and comets at that moment. A failed lookup is shown as a failure, never as "nothing known". A JPL object counts as consistent only if our measured position matches its prediction.
 
 Around it:
@@ -34,7 +35,7 @@ Thresholds were fixed before looking at results; measurements use native pixels 
 | Target | Result |
 |---|---|
 | **Epsilon Indi B** | **Confirmed.** Proper motion 4.42–4.86″ over one year against 4.68–4.77″ predicted (13.9–15.6σ), in three independent wavelength sets. The live tool reproduces it: 4.7″ ± 0.7″ against 4.7″. |
-| **RW Aurigae** | **Confirmed variability.** Brightened by Δm = −0.53 ± 0.06 mag (8σ, reference-star calibrated) at 0.744 µm, between 2 Sep 2025 and 8 Mar 2026. The live tool shows +62%. |
+| **RW Aurigae** | **Confirmed variability.** Brightened by Δm = −0.53 ± 0.06 mag (8σ, reference-star calibrated) at 0.744 µm, between 2 Sep 2025 and 8 Mar 2026. The live tool, calibrated against reference stars in the same images, independently gives Δm = −0.52 ± 0.04 mag (+61% ± 6%). |
 | **WISE 0855−0714** | **Consistent.** Detected only by stacking, at S/N 8.1 in two independent sets (4.22 and 4.37 µm), and invisible below 3.3 µm as expected for a Y dwarf. The motion matches the prediction but is only ~2σ. A neighbouring Gaia star would have fooled a naive "nearest source" method; ours rejects it. |
 | **Barnard's Star** | **Unreliable.** Saturated in every channel. A supplementary fit to the halo shows the expected ~6″ northward motion, but we don't count it. |
 | **R Draconis** | **Unreliable.** Saturated in every channel. |

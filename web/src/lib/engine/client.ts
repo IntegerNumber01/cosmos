@@ -2,6 +2,7 @@
 // targets (same bytes the live route returns) so demos keep working if the archive is unreachable.
 import { decodeFrame, Frame, Observation } from "./sequence";
 import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE } from "./releases";
+import { CAL_FIELD_DEG, FieldStar } from "./photometry";
 
 export type Source = "live" | "cache" | "aws";
 
@@ -109,6 +110,7 @@ export type GaiaRow = {
   ra_epoch: number;
   dec_epoch: number;
   sep_arcsec: number;
+  variable?: boolean;
 };
 export type SimbadRow = {
   main_id: string;
@@ -145,6 +147,28 @@ export async function getKnown(ra: number, dec: number, r: number, mjd: number, 
     if (!sameQuery({ ra: q.ra, dec: q.dec, r: q.radius_deg, mjd: q.mjd, services: (q.services ?? []).join(",") }, ra, dec, r, mjd, services)) throw e;
     return k;
   }
+}
+
+/** Gaia stars for reference-star calibration of a 12′ field: the prepared validation catalogue for featured
+ * targets (it must cover the whole field), otherwise a live Gaia DR3 query. Failures are thrown, never hidden. */
+export async function getCalibrationStars(ra: number, dec: number, mjd: number, slug?: string): Promise<{ stars: FieldStar[]; mjd: number; source: string }> {
+  if (slug) {
+    try {
+      const c = await getJSON(`/cache/${slug}/calib_stars.json`, 15000);
+      const sep = Math.hypot((c.query.ra - ra) * Math.cos((dec * Math.PI) / 180), c.query.dec - dec);
+      if (c.query.radius_deg >= CAL_FIELD_DEG / Math.SQRT2 + sep && Array.isArray(c.stars)) return { stars: c.stars, mjd: c.query.epoch_mjd, source: c.source };
+    } catch {}
+  }
+  const k: Known = await getJSON(`/api/known?ra=${ra.toFixed(6)}&dec=${dec.toFixed(6)}&r=0.16&mjd=${mjd.toFixed(5)}&services=gaia`, 62000);
+  if (!k.gaia.ok) throw new Error(`Gaia star catalogue unavailable (${k.gaia.error ?? "lookup failed"})`);
+  return { stars: k.gaia.rows ?? [], mjd: k.query.mjd, source: k.gaia.service };
+}
+
+/** The same exposure as a 12′ cutout (same native pixels, wider window) unless the frame is already that wide. */
+export async function getCalibrationFrame(f: Frame, slug?: string): Promise<Frame> {
+  if ((Math.min(f.meta.nx, f.meta.ny) * 6.15) / 3600 >= CAL_FIELD_DEG * 0.95) return f;
+  const o = { obsid: f.meta.obsid, detector: f.meta.detector, url: f.meta.sourceFits } as Observation;
+  return (await getFrame(o, f.meta.target.ra, f.meta.target.dec, CAL_FIELD_DEG, slug)).frame;
 }
 
 /** Parse "269.446 4.768", "17:57:47.1 +04:46:04", "17h57m47s +4d46m4s" -> degrees. */

@@ -44,16 +44,18 @@ export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
   const ra = Number(p.get("ra"));
   const dec = Number(p.get("dec"));
-  const r = Math.min(0.05, Math.max(0.001, Number(p.get("r") ?? 0.01)));
   const services = (p.get("services") ?? "gaia,simbad").split(",");
+  // a Gaia-only query may cover a 12-arcmin calibration field; SIMBAD/JPL lookups stay local
+  const wide = services.length === 1 && services[0] === "gaia";
+  const r = Math.min(wide ? 0.16 : 0.05, Math.max(0.001, Number(p.get("r") ?? 0.01)));
   const mjd = Number(p.get("mjd") ?? 61000);
   if (![ra, dec, mjd].every(Number.isFinite)) return NextResponse.json({ error: "bad parameters" }, { status: 400 });
   const yr = 2000 + (mjd - 51544.5) / 365.25;
   const dt = yr - 2016.0;
 
   const gaiaQ =
-    "SELECT TOP 200 source_id, ra, dec, pmra, pmdec, parallax, parallax_error, phot_g_mean_mag FROM gaiadr3.gaia_source " +
-    `WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.04})) ORDER BY phot_g_mean_mag`;
+    `SELECT TOP ${r > 0.05 ? 1500 : 200} source_id, ra, dec, pmra, pmdec, parallax, parallax_error, phot_g_mean_mag, phot_variable_flag FROM gaiadr3.gaia_source ` +
+    `WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.04}))${r > 0.05 ? " AND phot_g_mean_mag < 18" : ""} ORDER BY phot_g_mean_mag`;
   // CSV keeps the 64-bit Gaia source_id exact (JSON numbers would round it)
   const gaia = () => fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
     method: "POST",
@@ -84,6 +86,7 @@ export async function GET(req: NextRequest) {
           ra_epoch: aEp,
           dec_epoch: dEp,
           sep_arcsec: sep,
+          variable: String(s.phot_variable_flag ?? "") === "VARIABLE",
         };
       })
       .filter((s) => s.sep_arcsec <= r * 3600)

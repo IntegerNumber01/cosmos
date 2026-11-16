@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Advanced from "@/components/Advanced";
-import { getKnown, Known } from "@/lib/engine/client";
+import { getCalibrationFrame, getCalibrationStars, getKnown, Known } from "@/lib/engine/client";
 import { exactWindow, Frame, measure, Measurement } from "@/lib/engine/sequence";
+import { CAL, calibrate, Calibration } from "@/lib/engine/photometry";
 import { ENGINE_VERSION, RELEASE } from "@/lib/engine/releases";
 
 type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
@@ -292,6 +293,37 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       : Number.isFinite(endpointRatio)
         ? `About ${Math.abs(endpointRatio).toFixed(0)}% ${endpointRatio >= 0 ? "brighter" : "fainter"} on ${fmtDate(lastFlux.date)} than on ${fmtDate(firstFlux.date)}.`
         : `Brightness differs between ${fmtDate(firstFlux.date)} and ${fmtDate(lastFlux.date)}. A percentage would be unreliable because one measurement is close to zero.`;
+  // reference-star calibration of the same endpoint pair, on 12′ cutouts of the same exposures
+  type CalState = null | "loading" | { error: string } | (Calibration & { starSource: string; fieldArcmin: number });
+  const [cal, setCal] = useState<CalState>(null);
+  const calKey = good.length >= 2 ? `${firstFlux.obsid}|${lastFlux.obsid}` : "";
+  useEffect(() => {
+    if (!calKey) { setCal(null); return; }
+    let alive = true;
+    setCal("loading");
+    const pair = [firstFlux, lastFlux].map((r) => frames[rows.indexOf(r)]);
+    (async () => {
+      const wide = await Promise.all(pair.map((f) => getCalibrationFrame(f, slug)));
+      const tgt = wide.map((f) => measure(f, ...posAt(f.meta.mjdAvg), CAL.apR));
+      const field = await getCalibrationStars(wide[0].meta.target.ra, wide[0].meta.target.dec, wide[0].meta.mjdAvg, slug);
+      const res = calibrate(wide, tgt, field.stars, field.mjd);
+      if (alive) setCal({ ...res, starSource: field.source, fieldArcmin: (Math.min(wide[0].meta.nx, wide[0].meta.ny) * 6.15) / 60 });
+    })().catch((e) => alive && setCal({ error: String(e?.message ?? e) }));
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [calKey, frames]);
+  const calOk = cal && cal !== "loading" && "ok" in cal && cal.ok ? cal : null;
+  const calFail = cal && cal !== "loading" ? ("error" in cal ? `couldn't load the comparison data (${cal.error})` : !cal.ok ? cal.reason : "") : "";
+  const signed = (v: number) => `${v >= 0 ? "+" : "−"}${Math.abs(v).toFixed(0)}%`;
+  const calibratedSummary = !calKey
+    ? ""
+    : cal === "loading" || cal === null
+      ? "Checking the brightness against reference stars in the same images…"
+      : calOk
+        ? calOk.significance >= 5
+          ? `About ${Math.abs(calOk.changePct).toFixed(0)}% ± ${calOk.changePctErr.toFixed(0)}% ${calOk.changePct >= 0 ? "brighter" : "fainter"} on ${fmtDate(lastFlux.date)} than on ${fmtDate(firstFlux.date)}, checked against ${calOk.nRefs} reference stars in the same images.`
+          : `No clear brightness change once checked against ${calOk.nRefs} reference stars in the same images (${signed(calOk.changePct)} ± ${calOk.changePctErr.toFixed(0)}%).`
+        : `Not calibrated: ${calFail}. The rough estimate below can be thrown off by calibration differences between dates.`;
   const positionSummary = withC.length < 2
     ? "Not enough reliable positions to measure a shift."
     : `Measured shift: ${totalShift.toFixed(1)} ± ${shiftErr.toFixed(1)} arcseconds from ${withC[0].label} to ${lastT.label}.`;
@@ -301,7 +333,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     const limitations = [
       "Exploratory native-pixel aperture photometry; no PSF/aperture correction, deblending or annual parallax correction.",
       "Flux uses MJy/sr summed over aperture pixels, not calibrated integrated source flux.",
-      "Flux errors measure blank-sky aperture scatter; calibration, spectral and PSF differences can imitate variability.",
+      "Raw flux errors measure blank-sky aperture scatter only. The calibrated comparison divides by Gaia reference stars in the same 12-arcmin images and adds their mutual scatter; colour differences, blending and PSF changes are still not modelled.",
       "Position errors include a 0.5 arcsecond alignment allowance; a catalogue prediction is not a detection.",
       "Matching within half a channel does not remove all spectral false positives. No discovery is established.",
     ];
@@ -315,7 +347,8 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       schema: "cosmos-investigation-v1", release: RELEASE.label, engine: ENGINE_VERSION,
       exportedAt: new Date().toISOString(), investigationUrl: window.location.href,
       target: at, catalogueEpochMjd: lastMjd, fluxUnit: "MJy/sr * pixel (aperture sum)",
-      summary: { brightness: brightnessSummary, position: positionSummary, catalogue: knownErr ? "Lookup failed: " + knownErr : plainVerdict || "Lookup pending" },
+      summary: { brightness: calibratedSummary || brightnessSummary, uncalibratedBrightness: brightnessSummary, position: positionSummary, catalogue: knownErr ? "Lookup failed: " + knownErr : plainVerdict || "Lookup pending" },
+      calibration: cal === null ? { status: "not_applicable" } : cal === "loading" ? { status: "pending" } : "error" in cal ? { status: "failed", error: cal.error } : cal,
       measurements, catalogues: { stars: known, error: knownErr || null, smallBodies: sb === null ? { status: "not_requested" } : sb === "loading" ? { status: "pending" } : sb }, limitations,
     };
     const cell = (value: unknown) => {
@@ -339,7 +372,31 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         <h3 className="font-display text-[20px] font-semibold">What these measurements show</h3>
         <p className="mt-1 text-[12px] text-muted">Calculated from the current sequence; separate from the checked case-study results.</p>
         <dl className="mt-3 space-y-3 text-[13px] leading-relaxed">
-          <div><dt className="font-semibold text-accent">Brightness</dt><dd>{brightnessSummary}</dd></div>
+          <div>
+            <dt className="font-semibold text-accent">Brightness</dt>
+            {calibratedSummary && <dd className={calOk ? "" : "text-muted"} aria-live="polite">{calibratedSummary}</dd>}
+            {!calOk && <dd className={calibratedSummary ? "mt-1 text-[12px] text-muted" : ""}>{calibratedSummary ? "Rough estimate (not calibrated): " : ""}{brightnessSummary}</dd>}
+            {calOk && (
+              <Advanced label="How the brightness was checked" openLabel="Hide the brightness check" className="mt-1">
+                <div className="space-y-1.5 text-[12px] leading-relaxed text-muted">
+                  <p>
+                    Brightness ratio to {calOk.nRefs} Gaia DR3 reference stars, all measured the same way on the same {calOk.fieldArcmin.toFixed(0)}′ native-pixel images:
+                    Δm = {calOk.last.dmag >= 0 ? "+" : "−"}{Math.abs(calOk.last.dmag).toFixed(3)} ± {calOk.last.dmagErr.toFixed(3)} mag ({calOk.significance.toFixed(1)}σ).
+                  </p>
+                  <p>
+                    Uncertainty = blank-sky noise of target and references (±{calOk.last.dmagErrNominal.toFixed(3)} mag) combined with how much the reference stars disagree with each other
+                    (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include colour differences between the target and the reference stars, overlapping sources or changes in image sharpness.
+                  </p>
+                  {calOk.nRefs < 5 && <p className="text-warn">Only {calOk.nRefs} reference stars passed every check, so the disagreement estimate is itself uncertain.</p>}
+                  {calOk.rejectedAsVariable.length > 0 && <p>{calOk.rejectedAsVariable.length} reference star(s) disagreed strongly with the others and were dropped as possible variables.</p>}
+                  <p>
+                    Reference rules: Gaia G ≤ {CAL.maxG}, not flagged variable, no comparably bright neighbour, unflagged and unsaturated, S/N ≥ {CAL.minSnr} on both dates, and the same wavelength (within half a channel) at
+                    the star&apos;s own position on both dates. Rejected candidates: {Object.entries(calOk.why).map(([k, v]) => `${k.replace("_", " ")} ${v}`).join(", ")}. Stars: {calOk.starSource}.
+                  </p>
+                </div>
+              </Advanced>
+            )}
+          </div>
           <div><dt className="font-semibold text-accent">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalogue predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
         </dl>
         <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Colour, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
@@ -478,7 +535,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           {varText && (
             <p className="mt-1">
               &quot;Noise&quot; here is the scatter of blank-sky apertures in each frame. It doesn&apos;t include calibration or point-spread differences between dates,
-              so large ratios overstate the confidence. Our validation records use reference stars in the same frames for that.
+              so large ratios overstate the confidence. The calibrated brightness in the summary above divides by reference stars in the same images to correct for that.
             </p>
           )}
           {saturated && <p className="mt-1">Saturation/nonlinearity flags (OVERFLOW, NONLINEAR, SUR_ERROR) are set at this position on some dates.</p>}

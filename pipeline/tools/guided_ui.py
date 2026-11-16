@@ -44,6 +44,14 @@ with sync_playwright() as p:
     summary = page.get_by_role("region", name="Measurement summary")
     expect(summary).to_be_visible()
     expect(summary).to_contain_text("brighter")
+    # reference-star calibration runs from the prepared 12' cutouts and Gaia field, even with catalogue services down
+    expect(summary).to_contain_text("checked against", timeout=60000)
+    calibrated = summary.locator("dd").first.inner_text()
+    assert "± " in calibrated and "brighter" in calibrated and "Not calibrated" not in calibrated, calibrated
+    summary.get_by_role("button", name="How the brightness was checked").click()
+    expect(summary).to_contain_text("Δm = −0.52")
+    page.screenshot(path=str(ART / "calibrated-brightness.png"), full_page=True)
+    print("PASS: calibrated headline:", calibrated)
     expect(page.get_by_text("We cannot tell whether this source is already known from this lookup", exact=False)).to_be_visible(timeout=30000)
     print("PASS: homepage starts a real guided brightness investigation; unavailable catalogues remain unavailable")
 

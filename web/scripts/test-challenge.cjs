@@ -279,3 +279,53 @@ test("an HTML gateway response is an archive failure, never an empty observation
     assert.equal(calls, 3);
   } finally { global.fetch = original; }
 });
+
+// Reference-star calibration: one changing source, one steady source, and refusals instead of guesses.
+const { calibrate } = require("../src/lib/engine/photometry.ts");
+function prepared(slug, key) {
+  const bytes = fs.readFileSync(path.join(root, `public/cache/${slug}/frames/${key}.bin`));
+  return seq.decodeFrame(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+}
+const calibStars = (slug) => JSON.parse(fs.readFileSync(path.join(root, `public/cache/${slug}/calib_stars.json`), "utf8"));
+const RW_PAIR = ["2025W36_1A_0233_2D1", "2026W10_2B_0591_3D1"];
+
+test("calibrated brightness reproduces the independently validated RW Aur brightening (offline Δm = −0.53 ± 0.064)", () => {
+  const frames = RW_PAIR.map((k) => prepared("rwaur", `${k}_0.2`));
+  const { ra, dec } = frames[0].meta.target;
+  const c = calibStars("rwaur");
+  const r = calibrate(frames, frames.map((f) => seq.measure(f, ra, dec)), c.stars, c.query.epoch_mjd);
+  assert.equal(r.ok, true, r.reason);
+  assert(r.nRefs >= 3);
+  assert(Math.abs(r.last.dmag - -0.53) < 0.1, `Δm ${r.last.dmag}`);
+  assert(r.significance >= 5);
+  assert(r.last.dmagErr >= r.last.dmagErrNominal && r.last.refScatterMag > 0, "uncertainty includes reference-star scatter");
+});
+
+test("a steady brown dwarf stays steady after calibration (Epsilon Indi B over one year)", () => {
+  const frames = ["2025W17_4B_0027_3D2", "2026W17_2A_0308_3D2"].map((k) => prepared("epsindib", `${k}_0.2`));
+  const T = { ra: 331.09644, dec: -56.80059, pm: [3982.0, -2466.8] };
+  const posAt = (mjd) => { const dt = (mjd - (51544.5 + 25.9 * 365.25)) / 365.25; return [T.ra + (T.pm[0] * dt) / 3.6e6 / Math.cos((T.dec * Math.PI) / 180), T.dec + (T.pm[1] * dt) / 3.6e6]; };
+  const c = calibStars("epsindib");
+  const r = calibrate(frames, frames.map((f) => seq.measure(f, ...posAt(f.meta.mjdAvg))), c.stars, c.query.epoch_mjd);
+  assert.equal(r.ok, true, r.reason);
+  assert(r.significance < 3, `steady source flagged at ${r.significance}σ`);
+});
+
+test("calibration refuses instead of guessing: too few references, a blended neighbour, or no source", () => {
+  const c = calibStars("rwaur");
+  const small = RW_PAIR.map((k) => prepared("rwaur", `${k}_0.1`));
+  const { ra, dec } = small[0].meta.target;
+  const few = calibrate(small, small.map((f) => seq.measure(f, ra, dec)), c.stars, c.query.epoch_mjd);
+  assert.equal(few.ok, false);
+  assert.match(few.reason, /reference star/);
+  // artifact control: a steady G = 14.7 field star 11″ from a G = 12.8 star read −54% at 18σ before this check
+  const wide = RW_PAIR.map((k) => prepared("rwaur", `${k}_0.2`));
+  const s = c.stars.find((x) => x.source_id === "156430890833907584");
+  const at = (mjd) => { const dt = (mjd - c.query.epoch_mjd) / 365.25; return [s.ra_epoch + (s.pmra * dt) / 3.6e6 / Math.cos((s.dec_epoch * Math.PI) / 180), s.dec_epoch + (s.pmdec * dt) / 3.6e6]; };
+  const blended = calibrate(wide, wide.map((f) => seq.measure(f, ...at(f.meta.mjdAvg))), c.stars, c.query.epoch_mjd);
+  assert.equal(blended.ok, false);
+  assert.match(blended.reason, /neighbouring star/);
+  const empty = [artificial(0, 60000), artificial(0, 60100)];
+  const none = calibrate(empty, empty.map((f) => seq.measure(f, f.meta.target.ra, f.meta.target.dec)), c.stars, c.query.epoch_mjd);
+  assert.equal(none.ok, false);
+});

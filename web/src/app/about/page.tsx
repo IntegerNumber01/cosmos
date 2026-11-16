@@ -194,7 +194,8 @@ export default function About() {
             </li>
             <li>
               <b>Measure.</b> Brightness and centroid come from each frame&apos;s native pixels, with errors from blank-sky control apertures. Positions also carry a
-              stated 0.5″ alignment allowance.
+              stated 0.5″ alignment allowance. The headline brightness change is calibrated against Gaia reference stars measured the same way in the same
+              images; with too few clean references or an overlapping neighbour, no calibrated number is given.
             </li>
             <li>
               <b>Is it known?</b> Gaia DR3 and SIMBAD positions are propagated to the date. NASA/JPL lists the known asteroids and comets in the field at the time
