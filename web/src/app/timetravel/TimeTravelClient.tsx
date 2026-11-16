@@ -435,7 +435,7 @@ export default function TimeTravelClient() {
   };
   const nPages = set ? Math.ceil(set.frames.length / 12) : 1;
   const kindLabel = (k: Candidate["kind"]) =>
-    k === "residual" ? "probably not real (subtraction leftover)" : k === "unmatched" ? "colours differ here, can't compare" : k === "moved" ? "possibly moved" : k === "brightened" ? "brighter later" : "fainter later";
+    k === "residual" ? "probably not real (subtraction leftover)" : k === "unmatched" ? "colors differ here, can't compare" : k === "moved" ? "possibly moved" : k === "brightened" ? "brighter later" : "fainter later";
 
   return (
     <main className="relative min-h-screen bg-bg pb-20">
@@ -550,7 +550,7 @@ export default function TimeTravelClient() {
             {fromGaia
               ? target.pm
                 ? " · This star moves across the sky, so the crosshair and measurements follow it from date to date."
-                : " · Position from the Gaia star catalogue."
+                : " · Position from the Gaia star catalog."
               : " · Position from your COSMOS map bookmark."}
             {fromGaia && (
               <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
@@ -568,7 +568,7 @@ export default function TimeTravelClient() {
             </Link>
             {preset.pm && (
               <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
-                This star moves across the sky. Its position is propagated to 2025.9 (the middle of SPHEREx DR1) with its catalogue proper motion, and the
+                This star moves across the sky. Its position is propagated to 2025.9 (the middle of SPHEREx DR1) with its catalog proper motion, and the
                 crosshair and measurements follow it date by date.
               </Advanced>
             )}
@@ -590,7 +590,7 @@ export default function TimeTravelClient() {
               {target && <Link className="btn" href={`/explore?ra=${target.ra}&dec=${target.dec}&fov=${size}`}>See this spot on the infrared map</Link>}
               <button className="btn" onClick={() => pickPreset(TT_BY_SLUG.epsindib)}>Try the prepared Epsilon Indi B example</button>
             </div>
-            <p className="mt-2 text-[12px] text-dim">The infrared map is a time-averaged view. The prepared example opens a different, labelled sky position using saved real observations.</p>
+            <p className="mt-2 text-[12px] text-dim">The infrared map is a time-averaged view. The prepared example opens a different, labeled sky position using saved real observations.</p>
             <Advanced className="mt-3" label="Error details" openLabel="Hide error details">{obsState.error}</Advanced>
           </div>
         )}
@@ -618,16 +618,16 @@ export default function TimeTravelClient() {
             {obsState.sample && <p className="mt-2 text-[12px] text-warn">{obsState.sample}</p>}
             {nInside > 0 && (
               <>
-                <p className="mt-1 text-[12.5px] text-muted">Each dot is one photo. Left to right is time; higher dots used a longer (redder) infrared colour.</p>
+                <p className="mt-1 text-[12.5px] text-muted">Each dot is one photo. Left to right is time; higher dots used a longer (redder) infrared color.</p>
                 <div className="mt-3">
                   <ObsTimeline obs={obs} selected={set} onPick={(o) => chooseSet(pickSet(obs, o, cadence))} />
                 </div>
                 <div className="mt-3">
-                  <div className="label mb-1">Pick an infrared colour to compare</div>
-                  <p className="mb-2 text-[12.5px] text-muted">Only dates with closely matching infrared colours are compared. Quality checks help separate possible changes from camera effects.</p>
+                  <div className="label mb-1">Pick an infrared color to compare</div>
+                  <p className="mb-2 text-[12.5px] text-muted">Only dates with closely matching infrared colors are compared. Quality checks help separate possible changes from camera effects.</p>
                   {sets.length === 0 ? (
                     <p className="text-[12.5px] text-warn">
-                      No two dates here share the same infrared colour, so a fair comparison isn&apos;t possible. You can still tap a single dot to view it.
+                      No two dates here share the same infrared color, so a fair comparison isn&apos;t possible. You can still tap a single dot to view it.
                     </p>
                   ) : (
                     <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -660,13 +660,13 @@ export default function TimeTravelClient() {
                 <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
                 {loaded && <button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button>}
               </div>
-              {obsState.legacy && <p className="mt-2">Prepared demo searches cover the centre. Check the archive to include exposures overlapping the full field.</p>}
-              {obs.length > nInside && <p className="mt-2">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its centre; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
+              {obsState.legacy && <p className="mt-2">Prepared demo searches cover the center. Check the archive to include exposures overlapping the full field.</p>}
+              {obs.length > nInside && <p className="mt-2">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its center; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
               <p className="mt-2">
                 Each dot is one exposure: its date (exposure start), and the wavelength SPHEREx recorded <i>at this exact spot</i>. SPHEREx&apos;s linear variable
-                filter (LVF) changes colour across each of its six detectors, so a fair &quot;before and after&quot; needs two dots on the same detector at the same
+                filter (LVF) changes color across each of its six detectors, so a fair &quot;before and after&quot; needs two dots on the same detector at the same
                 height. A comparable set uses one detector, and every pair of dates in it agrees within half a spectral channel in wavelength. Hover a set for its
-                wavelength (µm = micrometres) and detector number.
+                wavelength (µm = micrometers) and detector number.
               </p>
             </Advanced>
           </section>
@@ -897,7 +897,7 @@ export default function TimeTravelClient() {
                         wavelength at the target in µm. The crosshair marks the target{target?.pm ? " and follows its proper motion" : ""}. N ↑ E ← gives sky orientation.
                       </p>
                       <p className="mt-2">
-                        Dark grey pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
+                        Dark gray pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
                         {showQuality && " Overlay: amber = unusable or outside coverage; purple = outlier (retained for moving/variable sources); cyan = other flags."}
                       </p>
                     </Advanced>
@@ -913,20 +913,20 @@ export default function TimeTravelClient() {
                 <div className="glass rounded-2xl p-4">
                   <div className="label">About these photos</div>
                   <div className="mt-1 text-[14px]">
-                    {loaded.frames.length} dates in the same infrared colour{" "}
+                    {loaded.frames.length} dates in the same infrared color{" "}
                     <span className="data text-[11px]" style={{ color: wavelengthColor(set.lambdaRef) }}>
                       ({set.lambdaRef.toFixed(3)} µm)
                     </span>
                   </div>
-                  <p className="mt-1 text-[12.5px] text-muted">The infrared colours match closely here. A visible difference still needs checks for image quality, blending, and wavelength effects.</p>
+                  <p className="mt-1 text-[12.5px] text-muted">The infrared colors match closely here. A visible difference still needs checks for image quality, blending, and wavelength effects.</p>
                   {(loaded.lambdaSpread.centre > 0.5 * set.bandwidth || loaded.lambdaSpread.corners > 0.5 * set.bandwidth) && (
                     <p className="mt-1 text-[12px] text-warn">
-                      {loaded.lambdaSpread.centre > 0.5 * set.bandwidth ? "The colours don't match closely at the centre" : "Near the edges of the picture the colours match less closely"}, so changes there may not be real.
+                      {loaded.lambdaSpread.centre > 0.5 * set.bandwidth ? "The colors don't match closely at the center" : "Near the edges of the picture the colors match less closely"}, so changes there may not be real.
                     </p>
                   )}
                   {loaded.excluded.length > 0 && (
                     <p className="mt-1 text-[12px] text-warn">
-                      {loaded.excluded.length} photo{loaded.excluded.length === 1 ? " was" : "s were"} left out because the colour didn&apos;t match closely enough.
+                      {loaded.excluded.length} photo{loaded.excluded.length === 1 ? " was" : "s were"} left out because the color didn&apos;t match closely enough.
                     </p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -1013,7 +1013,7 @@ export default function TimeTravelClient() {
                   <p className="mt-1 text-[13px] text-muted">Red means brighter later, blue means fainter later. Click a numbered circle or a row to check it.</p>
                   <p className="mt-1 text-[12px] text-dim">Not every circle is a real change: small differences in focus and calibration between dates can leave leftovers.</p>
                   {!Number.isFinite(change.sigma) || change.validFrac < 0.05 ? (
-                    <p className="mt-3 text-[13px] text-warn">There isn&apos;t enough clean, colour-matched sky shared by both dates to compare. Try another pair of dates or a smaller field.</p>
+                    <p className="mt-3 text-[13px] text-warn">There isn&apos;t enough clean, color-matched sky shared by both dates to compare. Try another pair of dates or a smaller field.</p>
                   ) : change.candidates.length === 0 ? (
                     <p className="mt-3 text-[13px] text-text">Nothing clearly stood out between these dates. Fainter changes, and spots hidden by bad pixels, aren&apos;t checked.</p>
                   ) : (
@@ -1066,7 +1066,7 @@ export default function TimeTravelClient() {
                     indicator, not a calibrated probability. PSF and calibration differences can produce strong residuals around a constant source.
                     Pixels that differ by more than half a channel at their own position are excluded; smaller wavelength shifts can still sample spectral features.
                     Features are listed when they exceed five times the map scatter in the usable pixels; &quot;subtraction leftover&quot; marks likely residuals and
-                    &quot;colours differ here&quot; marks spots where the two dates differ by more than half a channel at that position, so no temporal claim is made.
+                    &quot;colors differ here&quot; marks spots where the two dates differ by more than half a channel at that position, so no temporal claim is made.
                   </Advanced>
                 </div>
               )}
@@ -1087,7 +1087,7 @@ export default function TimeTravelClient() {
         {loaded && <section aria-label="Evidence and next steps" className="glass mt-8 rounded-2xl p-5">
           <div className="label text-accent">Keep investigating</div>
           <h2 className="font-display mt-1 text-[23px] font-semibold">A result is stronger when you can check it.</h2>
-          <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted">Compare the measurements with independent checks, inspect successful and inconclusive tests, or see how a promising change turned out to be a colour effect.</p>
+          <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted">Compare the measurements with independent checks, inspect successful and inconclusive tests, or see how a promising change turned out to be a color effect.</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button type="button" className="btn btn-primary" onClick={() => share()}>Share this comparison</button>
             <Link className="btn" href={preset?.caseFile ?? (preset?.challenge ? `/validation#${preset.slug}` : "/validation")}>Review the checked evidence →</Link>
@@ -1099,9 +1099,9 @@ export default function TimeTravelClient() {
         {target && obsState.status === "ready" && obs.some((o) => o.inside) && (
           <section className="glass mt-8 rounded-2xl p-4 sm:p-5">
             <div className="label">Extra</div>
-            <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">See this spot in every infrared colour</h2>
+            <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">See this spot in every infrared color</h2>
             <p className="mt-1 max-w-2xl text-[13px] text-muted">
-              SPHEREx splits infrared light into 102 colours. The wavelength lab builds pictures in six colour ranges and a brightness-by-colour chart (a spectrum).
+              SPHEREx splits infrared light into 102 colors. The wavelength lab builds pictures in six color ranges and a brightness-by-color chart (a spectrum).
             </p>
             <Advanced className="mt-3" label="Open the wavelength lab" openLabel="Close the wavelength lab">
               <SpectralLab

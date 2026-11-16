@@ -9,7 +9,7 @@ export const GUIDED_LESSONS = {
     name: "RW Aurigae",
     look: "Look at the source inside the crosshair. Move the swipe slider to reveal each date. The images use the same brightness scale, so you can compare them.",
     learn: "Young stars can change as material around them shifts. A brighter picture is a clue; measurements and checks tell us how much we can trust it.",
-    limit: "This view cannot tell us what caused the change. Nearby stars blend together, and slightly different infrared colours can affect brightness.",
+    limit: "This view cannot tell us what caused the change. Nearby stars blend together, and slightly different infrared colors can affect brightness.",
     evidence: "/validation#rwaur",
     evidenceLabel: "Read the independently checked RW Aur result",
   },
@@ -18,7 +18,7 @@ export const GUIDED_LESSONS = {
     name: "Epsilon Indi B",
     look: "Look near the crosshair and move the swipe slider. The shift is smaller than one original camera pixel, so use the close-up and measurements rather than judging by eye alone.",
     learn: "A brown dwarf is an object too small to sustain the hydrogen fusion of a star. Nearby objects can visibly shift against the more distant sky over time.",
-    limit: "The crosshair follows a catalogue prediction; it is not a measured detection. The two brown dwarfs are unresolved in these images.",
+    limit: "The crosshair follows a catalog prediction; it is not a measured detection. The two brown dwarfs are unresolved in these images.",
     evidence: "/validation#epsindib",
     evidenceLabel: "Read the independently checked motion result",
   },
@@ -56,7 +56,7 @@ export default function InvestigationGuide({ slug, ready, measured, onCompare, o
         </li>
         <li className="rounded-xl border border-line bg-white/[0.025] p-4">
           <div className="label">2 · Measure</div>
-          <p className="mt-2 text-[13px] leading-relaxed text-muted">Measure the source on the original pixels. Read the result and its uncertainty, then see what the star catalogues can tell us.</p>
+          <p className="mt-2 text-[13px] leading-relaxed text-muted">Measure the source on the original pixels. Read the result and its uncertainty, then see what the star catalogs can tell us.</p>
           <button type="button" disabled={!ready} onClick={onMeasure} className="btn mt-3 disabled:opacity-50">Measure this source ↓</button>
         </li>
         <li className="rounded-xl border border-line bg-white/[0.025] p-4">
@@ -66,7 +66,7 @@ export default function InvestigationGuide({ slug, ready, measured, onCompare, o
         </li>
       </ol>
       <Advanced className="mt-4" label="What could fool us?" openLabel="Hide the explanation">
-        <p>{lesson.limit} Camera artifacts can also leave apparent changes. Matching colours and rejecting bad pixels help, but do not remove every possible error.</p>
+        <p>{lesson.limit} Camera artifacts can also leave apparent changes. Matching colors and rejecting bad pixels help, but do not remove every possible error.</p>
         <Link className="mt-2 inline-block text-accent hover:underline" href={lesson.evidence}>{lesson.evidenceLabel} →</Link>
       </Advanced>
       <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-3 text-[12.5px]">

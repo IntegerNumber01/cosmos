@@ -273,7 +273,7 @@ const SkyViewer = forwardRef<SkyViewerHandle, Props>(function SkyViewer(
       wiseStatusRef.current?.("Loading WISE context…");
       const layer = A.imageHiPS("https://irsa.ipac.caltech.edu/data/hips/CDS/AllWISE/RGB-W4-W2-W1", {
         name: "WISE context (2010-era mosaic)", imgFormat: "jpeg", opacity,
-        successCallback: () => wiseStatusRef.current?.("WISE context: 2010-era mosaic · W4/W2/W1 false colour · NASA/IPAC, CDS"),
+        successCallback: () => wiseStatusRef.current?.("WISE context: 2010-era mosaic · W4/W2/W1 false color · NASA/IPAC, CDS"),
         errorCallback: () => wiseStatusRef.current?.("WISE context is unavailable; SPHEREx remains visible."),
       });
       wiseRef.current = layer;

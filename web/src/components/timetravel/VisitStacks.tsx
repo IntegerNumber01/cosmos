@@ -30,7 +30,7 @@ export default function VisitStacks({ frames, grid, lo, hi, settings, onSettings
     </div>
     {difference && a !== b && change ? <>
       <GridCanvas data={change.z} n={grid.n} mode="diverging" lo={0} hi={8} label="Difference of visit means" className="aspect-square w-full" />
-      <p className="mt-2 text-[12px] text-muted">Second − first · {Math.round(change.validFrac * 100)}% common coverage. Wavelength-mismatched pixels are excluded. Colour scale uses measured difference scatter ({Number.isFinite(change.sigma) ? change.sigma.toPrecision(3) : "unavailable"} MJy/sr), an indicator rather than a calibrated probability.</p>
+      <p className="mt-2 text-[12px] text-muted">Second − first · {Math.round(change.validFrac * 100)}% common coverage. Wavelength-mismatched pixels are excluded. Color scale uses measured difference scatter ({Number.isFinite(change.sigma) ? change.sigma.toPrecision(3) : "unavailable"} MJy/sr), an indicator rather than a calibrated probability.</p>
     </> : <div className="grid grid-cols-2 gap-3">{panel(left, `Mean of visit ${fmt(groups[a])}`)}{panel(right, `Mean of visit ${fmt(groups[b])}`)}</div>}
     <details className="mt-3 text-[11px] text-muted"><summary className="cursor-pointer">Contributing exposures and quality</summary>
       {Array.from(new Set([...left.frames, ...right.frames])).map((f) => <div key={f.meta.sourceFits} className="mt-1"><a href={f.meta.sourceFits} target="_blank" rel="noreferrer" className="text-accent">{f.meta.obsid} · D{f.meta.detector}</a> · {f.meta.dateAvg} · {f.meta.target.wl.toFixed(4)} µm · QA {f.meta.l2dqa || "not supplied"}</div>)}

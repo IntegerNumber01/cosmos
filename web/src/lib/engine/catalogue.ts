@@ -6,7 +6,7 @@ export async function catalogueText(url: string, init: RequestInit, deadline: Ab
   deadline.throwIfAborted();
   const attempt = new AbortController();
   const signal = AbortSignal.any([deadline, attempt.signal]);
-  const timer = setTimeout(() => attempt.abort(new DOMException("Catalogue attempt timed out", "TimeoutError")), timeoutMs);
+  const timer = setTimeout(() => attempt.abort(new DOMException("Catalog attempt timed out", "TimeoutError")), timeoutMs);
   let onAbort: () => void = () => {};
   const aborted = new Promise<never>((_, reject) => {
     onAbort = () => reject(signal.reason);

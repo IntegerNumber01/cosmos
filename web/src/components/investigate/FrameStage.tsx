@@ -99,7 +99,7 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
           brighter in the last (where it went)
           <br />
           <span className="text-muted">
-            The two pictures are different infrared colours ({seq.diff_wavelength_gap_channels} channel widths apart), so stars leave faint marks. Use
+            The two pictures are different infrared colors ({seq.diff_wavelength_gap_channels} channel widths apart), so stars leave faint marks. Use
             this for position only.
           </span>
         </div>

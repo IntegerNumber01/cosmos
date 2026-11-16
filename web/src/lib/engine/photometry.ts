@@ -67,7 +67,7 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
   if (target.some((t) => !usable(t))) return fail("the target is not cleanly measured on both dates");
   if (target.some((t) => !(t.flux > 3 * t.fluxErrEmp))) return fail("the source is too faint on one date for a brightness ratio");
   const twl = target.map((t) => t.wl);
-  if (Math.max(...twl) - Math.min(...twl) > 0.5 * Math.min(...target.map((t) => t.bw))) return fail("the infrared colour (wavelength) at this position differs between the dates");
+  if (Math.max(...twl) - Math.min(...twl) > 0.5 * Math.min(...target.map((t) => t.bw))) return fail("the infrared color (wavelength) at this position differs between the dates");
   // A comparably bright (or brighter) star partly inside the target aperture leaks a PSF- and pixel-phase-dependent
   // share of its light, which can imitate a large change (a steady G=14.7 control star 11" from a G=12.8 star read
   // -54% at 18 sigma). Unresolved companions < 0.5 px away sit wholly inside the aperture and are allowed.
@@ -80,7 +80,7 @@ export function calibrate(frames: Frame[], target: Measurement[], stars: FieldSt
     const tG = Math.min(...d.filter((o) => o.d < 0.5).map((o) => o.s.g));
     const blend = d.filter((o) => o.d >= 0.5 && o.d < cfg.apR + 1.5 && o.s.g < (Number.isFinite(tG) ? tG + cfg.isoDmag : cfg.maxG)).sort((a, b) => a.d - b.d)[0];
     if (blend)
-      return fail(`a neighbouring star (Gaia G = ${blend.s.g.toFixed(1)}, ${(blend.d * 6.15).toFixed(0)}″ away) partly overlaps the measurement, which can imitate a brightness change`);
+      return fail(`a neighboring star (Gaia G = ${blend.s.g.toFixed(1)}, ${(blend.d * 6.15).toFixed(0)}″ away) partly overlaps the measurement, which can imitate a brightness change`);
   }
 
   const per = new Map<string, Measurement[]>();

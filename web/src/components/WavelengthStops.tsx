@@ -56,25 +56,25 @@ export default function WavelengthStops({ frame, onChange }: { frame: number; on
         <div className="min-w-0">
           <div className="flex items-baseline gap-2">
             <span className="font-display text-[19px] font-semibold leading-tight" style={{ color: wavelengthColor(um) }}>
-              {exact ? cur.name : "Custom colour"}
+              {exact ? cur.name : "Custom color"}
             </span>
             <span className="data text-[11.5px] text-dim">{um.toFixed(2)} µm</span>
           </div>
           <div className="truncate text-[12.5px] text-muted">
             {exact ? cur.note : "A wavelength you picked in Advanced."}
-            {stripe && <span className="text-warn/90"> Straight stripes here are a camera artefact.</span>}
+            {stripe && <span className="text-warn/90"> Straight stripes here are a camera artifact.</span>}
           </div>
         </div>
         <button
           className={`btn shrink-0 ${playing ? "btn-primary" : ""}`}
           onClick={() => setPlaying((p) => !p)}
-          aria-label={playing ? "Pause the colour tour" : "Play a tour through the infrared colours"}
+          aria-label={playing ? "Pause the color tour" : "Play a tour through the infrared colors"}
         >
           {playing ? "❚❚ Pause" : "▶ Play"}
         </button>
       </div>
 
-      <div className="relative mt-3 select-none" role="radiogroup" aria-label="Infrared colour">
+      <div className="relative mt-3 select-none" role="radiogroup" aria-label="Infrared color">
         <div className="absolute inset-x-[10%] top-1/2 h-[6px] -translate-y-1/2 rounded-full" style={{ background: gradient }} />
         <div className="relative flex justify-between">
           {STOPS.map((s, i) => {

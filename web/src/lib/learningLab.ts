@@ -42,11 +42,11 @@ export function evaluateLabCase(id: LabId, frames: Frame[], field: StarField): L
   const explanation = !calibration.ok
     ? `The calibrated comparison is refused: ${calibration.reason}. A small statistical error would not fix this problem.`
     : interpretation === "supported"
-      ? `The target changed relative to ${calibration.nRefs} reference stars measured in the same exposures. This supports a brightness change in this pair, but does not confirm its cause or rule out every artefact.`
+      ? `The target changed relative to ${calibration.nRefs} reference stars measured in the same exposures. This supports a brightness change in this pair, but does not confirm its cause or rule out every artifact.`
       : "The measured brightness difference is small compared with its uncertainty. This does not prove constant brightness: smaller changes, or changes at other wavelengths, remain possible. This object can also move without changing brightness.";
   const next = !calibration.ok
-    ? "Use sharper independent images to separate the neighbouring sources before relying on a brightness change."
-    : "Check independent exposures at closely matched wavelengths. Inspect quality flags and neighbouring sources; other wavelengths help describe the behaviour.";
+    ? "Use sharper independent images to separate the neighboring sources before relying on a brightness change."
+    : "Check independent exposures at closely matched wavelengths. Inspect quality flags and neighboring sources; other wavelengths help describe the behavior.";
   const q = new URLSearchParams({ target: c.slug, mode: "swipe", size: "0.1", before: c.keys[0], after: c.keys[1], anchor: c.keys[0], start: frames[0].meta.dateAvg.slice(0, 10), end: frames[1].meta.dateAvg.slice(0, 10) });
   q.set("measure", JSON.stringify({ ra, dec, label: star ? "Blended control · Gaia 156430890833907584" : target.name, ...(pm ? { pm, epochYear: 2000 + (epochMjd - 51544.5) / 365.25 } : {}) }));
   return { frames, measurements, positions, calibration, interpretation, explanation, next, catalogueSource: field.source, comparisonUrl: `/timetravel?${q}` };

@@ -324,7 +324,7 @@ test("calibration refuses instead of guessing: too few references, a blended nei
   const at = (mjd) => { const dt = (mjd - c.query.epoch_mjd) / 365.25; return [s.ra_epoch + (s.pmra * dt) / 3.6e6 / Math.cos((s.dec_epoch * Math.PI) / 180), s.dec_epoch + (s.pmdec * dt) / 3.6e6]; };
   const blended = calibrate(wide, wide.map((f) => seq.measure(f, ...at(f.meta.mjdAvg))), c.stars, c.query.epoch_mjd);
   assert.equal(blended.ok, false);
-  assert.match(blended.reason, /neighbouring star/);
+  assert.match(blended.reason, /neighboring star/);
   const empty = [artificial(0, 60000), artificial(0, 60100)];
   const none = calibrate(empty, empty.map((f) => seq.measure(f, f.meta.target.ra, f.meta.target.dec)), c.stars, c.query.epoch_mjd);
   assert.equal(none.ok, false);
@@ -350,7 +350,7 @@ test("worksheet supports a calibrated change only 'so far' and keeps unrun check
   assert(s.unknown.some((u) => /spectral feature/.test(u)) && s.unknown.some((u) => /only 3 reference stars/.test(u)));
   assert(s.next.some((n) => /closely matched wavelength/.test(n)) && s.next.some((n) => /does not disprove/.test(n)));
   assert(s.unknown.some((u) => /did not mark/.test(u)));
-  assert.match(status(s, "blend") === "pass" && s.checks.find((c) => c.id === "blend").detail, /uncatalogued/);
+  assert.match(status(s, "blend") === "pass" && s.checks.find((c) => c.id === "blend").detail, /uncataloged/);
   assert.equal(s.checks.length, 8);
 });
 
@@ -358,7 +358,7 @@ test("worksheet never upgrades a failed, pending or uncalibrated result", () => 
   const sat = buildWorksheet({ ...baseEvidence(), saturated: true });
   assert.equal(sat.verdict.level, "unresolved");
   assert.equal(status(sat, "saturation"), "fail");
-  const blend = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "a neighbouring star (Gaia G = 12.8, 11″ away) partly overlaps the measurement" });
+  const blend = buildWorksheet({ ...baseEvidence(), calibrated: null, calFailure: "a neighboring star (Gaia G = 12.8, 11″ away) partly overlaps the measurement" });
   assert.equal(blend.verdict.level, "unresolved");
   assert.equal(status(blend, "blend"), "fail");
   assert(blend.next.some((n) => /sharper images/.test(n)));

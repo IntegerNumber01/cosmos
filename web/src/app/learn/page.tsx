@@ -4,9 +4,9 @@ import NavBar from "@/components/NavBar";
 export const metadata = { title: "Your first sky investigation · COSMOS", description: "Learn to compare real infrared observations, recognize a change, and understand its limits. Start with a guided investigation or open the full tools." };
 
 const CONCEPTS = [
-  { n: "01", title: "Infrared is light we cannot see", text: "SPHEREx measures light just beyond visible red, in 102 infrared colours. The purple and orange on your screen represent measured brightness; they are display colours, not what your eyes would see in space.", question: "Why use infrared?", answer: "It can reveal cool objects and regions obscured by dust. Different infrared colours also carry clues about the material that emitted or absorbed the light." },
-  { n: "02", title: "Compare dates in the same colour", text: "An object may look different because time passed, or because a different kind of light was measured. COSMOS first selects observations at closely matching infrared wavelengths, then lines up the sky.", question: "Why not just subtract any two pictures?", answer: "A star can be bright in one infrared colour and faint in another without changing over time. Even small wavelength differences can sample a spectral feature, so matching is a safeguard, not a guarantee." },
-  { n: "03", title: "A change is a question to investigate", text: "A source may move, brighten or fade. Camera artifacts, noisy pixels, overlapping stars and imperfect alignment can imitate those changes. Measurements need uncertainty and checks against other evidence.", question: "Does no catalogue match mean a discovery?", answer: "No. Catalogues are incomplete and services can fail. An unmatched source needs independent observations, artifact checks and further investigation before any discovery claim." },
+  { n: "01", title: "Infrared is light we cannot see", text: "SPHEREx measures light just beyond visible red, in 102 infrared colors. The purple and orange on your screen represent measured brightness; they are display colors, not what your eyes would see in space.", question: "Why use infrared?", answer: "It can reveal cool objects and regions obscured by dust. Different infrared colors also carry clues about the material that emitted or absorbed the light." },
+  { n: "02", title: "Compare dates in the same color", text: "An object may look different because time passed, or because a different kind of light was measured. COSMOS first selects observations at closely matching infrared wavelengths, then lines up the sky.", question: "Why not just subtract any two pictures?", answer: "A star can be bright in one infrared color and faint in another without changing over time. Even small wavelength differences can sample a spectral feature, so matching is a safeguard, not a guarantee." },
+  { n: "03", title: "A change is a question to investigate", text: "A source may move, brighten or fade. Camera artifacts, noisy pixels, overlapping stars and imperfect alignment can imitate those changes. Measurements need uncertainty and checks against other evidence.", question: "Does no catalog match mean a discovery?", answer: "No. Catalogs are incomplete and services can fail. An unmatched source needs independent observations, artifact checks and further investigation before any discovery claim." },
 ];
 
 export default function LearnPage() {
@@ -31,7 +31,7 @@ export default function LearnPage() {
             <div className="p-6">
               <div className="label text-accent">Go further · motion</div>
               <h2 className="font-display mt-2 text-[27px] font-semibold">Can a brown dwarf move in a year?</h2>
-              <p className="mt-3 text-[14px] leading-relaxed text-muted">Look for a tiny shift in Epsilon Indi B. Compare measured positions with a catalogue prediction and understand the uncertainty.</p>
+              <p className="mt-3 text-[14px] leading-relaxed text-muted">Look for a tiny shift in Epsilon Indi B. Compare measured positions with a catalog prediction and understand the uncertainty.</p>
               <span className="btn mt-5">Investigate motion →</span>
             </div>
           </Link>
@@ -73,11 +73,11 @@ export default function LearnPage() {
           <h2 className="font-display text-[25px] font-semibold">A few words, explained</h2>
           <dl className="mt-4 grid gap-4 text-[14px] sm:grid-cols-2 lg:grid-cols-3">
             {[
-              ["Wavelength", "A way to describe a colour of light. µm means micrometres; infrared wavelengths are longer than visible light."],
+              ["Wavelength", "A way to describe a color of light. µm means micrometers; infrared wavelengths are longer than visible light."],
               ["RA and Dec", "Right ascension and declination: the sky's version of longitude and latitude. They locate a patch of sky."],
               ["Arcsecond (″)", "A tiny angle: 1/3,600 of a degree. One SPHEREx camera pixel spans about 6.2 arcseconds."],
-              ["Uncertainty", "How precisely a quantity can be measured. Error bars show part of this uncertainty; unmodelled effects can still matter."],
-              ["Catalogue prediction", "Where a previously measured object is expected to be. It is separate from a detection in these pictures."],
+              ["Uncertainty", "How precisely a quantity can be measured. Error bars show part of this uncertainty; unmodeled effects can still matter."],
+              ["Catalog prediction", "Where a previously measured object is expected to be. It is separate from a detection in these pictures."],
               ["Saturation", "An object is too bright for a reliable reading in the affected camera pixels. More brightness does not always mean more useful data."],
             ].map(([word, meaning]) => <div key={word} className="rounded-xl bg-white/[0.025] p-4"><dt className="font-semibold text-text">{word}</dt><dd className="mt-1 leading-relaxed text-muted">{meaning}</dd></div>)}
           </dl>

@@ -22,7 +22,7 @@ test('learning cases reproduce supported, insignificant and refused brightness r
     assert.equal(r.interpretation, expected);
     if (i === 0) assert(Math.abs(r.calibration.last.dmag + 0.52) < 0.02);
     if (i === 1) assert(r.calibration.significance < 3);
-    if (i === 2) { assert.equal(r.calibration.ok, false); assert.match(r.calibration.reason, /neighbouring star/); }
+    if (i === 2) { assert.equal(r.calibration.ok, false); assert.match(r.calibration.reason, /neighboring star/); }
     const state = readViewState(new URL(r.comparisonUrl, 'http://local').searchParams);
     assert(state.measurement);
     assert.equal(state.size, 0.1, 'handoff uses prepared 6-arcmin observation menu');

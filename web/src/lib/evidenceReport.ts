@@ -19,6 +19,6 @@ export function evidenceText(input: {
   });
   lines.push("", "OBSERVATIONS AND ORIGINAL IMAGES");
   input.measurements.forEach((m) => lines.push(`${m.date} · ${m.wl.toFixed(5)} µm (channel width ${m.bw.toFixed(5)} µm)`, `Included in brightness screen: ${m.usableForBrightness ? "yes" : "no"}. Flags: ${m.flagsHere.join(", ") || "none reported"}`, m.sourceFits));
-  lines.push("", "METHOD LIMITS", ...input.limitations.map((s) => `- ${s}`), "", "REVIEWER CHECKLIST", "Open the link. Confirm the selected position, dates and wavelengths. Read the verdict and outstanding checks. Compare with the original images. Explain one remaining uncertainty before accepting the conclusion.", "The JSON export contains native measurements, catalogue responses and calibration details. No discovery is established by this report.");
+  lines.push("", "METHOD LIMITS", ...input.limitations.map((s) => `- ${s}`), "", "REVIEWER CHECKLIST", "Open the link. Confirm the selected position, dates and wavelengths. Read the verdict and outstanding checks. Compare with the original images. Explain one remaining uncertainty before accepting the conclusion.", "The JSON export contains native measurements, catalog responses and calibration details. No discovery is established by this report.");
   return lines.join("\n") + "\n";
 }

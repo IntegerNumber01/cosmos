@@ -419,7 +419,7 @@ export default function InvestigateClient() {
                   Press <b className="text-text">Show what moved</b>. The comet becomes a blue/red pair: where it was, and where it went.
                 </p>
                 <p className="mt-3 rounded-lg border border-warn/25 bg-warn/5 px-3 py-2 text-[13px] leading-relaxed text-warn/90">
-                  Each picture is taken in a slightly different infrared colour. So we use these pictures only to see <i>where</i> the comet is, not how
+                  Each picture is taken in a slightly different infrared color. So we use these pictures only to see <i>where</i> the comet is, not how
                   bright it is.
                 </p>
                 <Advanced className="mt-3">
@@ -455,7 +455,7 @@ export default function InvestigateClient() {
                   are all still there. The comet is gone.
                 </p>
                 <p className="mt-3 text-[13px] leading-relaxed text-muted">
-                  This is a fair test: same camera, nearly the same infrared colour. The change at the comet&apos;s old spot is far bigger than the normal noise in the
+                  This is a fair test: same camera, nearly the same infrared color. The change at the comet&apos;s old spot is far bigger than the normal noise in the
                   pictures.
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -536,7 +536,7 @@ export default function InvestigateClient() {
                 <div className="label">Step 4</div>
                 <h2 className="font-display mt-1 text-[22px] font-semibold">Does it match the prediction?</h2>
                 <p className="mt-2 text-[14px] leading-relaxed text-text/85">
-                  We found the comet&apos;s centre in each picture, then compared it with the prediction. Here&apos;s this set of pictures:
+                  We found the comet&apos;s center in each picture, then compared it with the prediction. Here&apos;s this set of pictures:
                 </p>
                 <div className="mt-3 overflow-hidden rounded-xl border border-line">
                   <table className="w-full text-[12.5px]">
@@ -612,7 +612,7 @@ export default function InvestigateClient() {
                   <Check ok title="Moves at the predicted speed and direction" detail="Five of six picture sets match the predicted speed. One is slightly faster, and we can't explain why. Every direction matches." />
                   <Check ok title="Background stars stay still" detail="So the movement isn't caused by the pictures being misaligned." />
                   <Check ok title="The comet leaves its old spot" detail="Within minutes its first spot fades. On 1 May 2026 that spot is empty." />
-                  <Check ok={false} title="What this is not" detail="Not a discovery: we found a known comet again. We also don't use these pictures to measure the comet's colours." />
+                  <Check ok={false} title="What this is not" detail="Not a discovery: we found a known comet again. We also don't use these pictures to measure the comet's colors." />
                 </ul>
                 <Advanced className="mt-4">
                   <ul className="list-disc space-y-1.5 pl-4">

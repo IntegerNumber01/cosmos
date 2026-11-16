@@ -214,7 +214,7 @@ export default function ExploreClient() {
                 <h2 className="font-display mt-2 text-[24px] font-semibold leading-tight">The whole sky around Earth, in light your eyes can&apos;t see</h2>
                 <p className="mt-3 text-[14px] leading-relaxed text-text/85">
                   Imagine standing on Earth inside a giant ball painted with every star. That&apos;s this map, and you&apos;re at its
-                  centre looking out. The glowing band is our own galaxy, the Milky Way, seen from the inside.
+                  center looking out. The glowing band is our own galaxy, the Milky Way, seen from the inside.
                 </p>
                 <p className="mt-2 text-[14px] leading-relaxed text-text/85">
                   It was made by NASA&apos;s SPHEREx telescope, which photographs the entire sky in infrared light.
@@ -224,7 +224,7 @@ export default function ExploreClient() {
                     <b className="text-text">Drag</b> to look around · <b className="text-text">scroll or pinch</b> to zoom
                   </li>
                   <li>
-                    <b className="text-text">Change the colour</b> at the bottom to see through dust
+                    <b className="text-text">Change the color</b> at the bottom to see through dust
                   </li>
                   <li>
                     <b className="text-text">Pick a place</b> to fly there
@@ -342,7 +342,7 @@ export default function ExploreClient() {
                   </button>
                 </div>
 
-                <div className="mt-3 text-muted">Colour scheme</div>
+                <div className="mt-3 text-muted">Color scheme</div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {COLORMAPS.map((c) => (
                     <button
@@ -381,7 +381,7 @@ export default function ExploreClient() {
                   )}
                 </div>
 
-                <div className="mt-4 text-muted">View centre</div>
+                <div className="mt-4 text-muted">View center</div>
                 <div className="data mt-1 text-[11.5px] text-text">
                   {fmtRA(view.ra)} {fmtDec(view.dec)}
                   <div className="text-muted">
@@ -405,7 +405,7 @@ export default function ExploreClient() {
                 </form>
                 <div className="mt-2 flex flex-wrap gap-3">
                   <button className="text-accent hover:underline" onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}>
-                    Time Travel the centre
+                    Time Travel the center
                   </button>
                   <button className="text-accent hover:underline" onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}>
                     Fly from here
@@ -415,7 +415,7 @@ export default function ExploreClient() {
                 <div className="mt-4 text-muted">About this map</div>
                 <p className="mt-1 leading-relaxed text-dim">
                   NASA SPHEREx DR1 all-sky spectral cube (IRSA, doi:{HIPS_DOI}): 102 wavelengths from 0.75 to 5 µm. It is a
-                  time-averaged mosaic, not a single date. Colours are false colour. {um.toFixed(3)} µm is{" "}
+                  time-averaged mosaic, not a single date. Colors are false color. {um.toFixed(3)} µm is{" "}
                   {(um / 0.7).toFixed(1)}× longer than the reddest light your eyes can see. Use ← → to step one channel, Shift to
                   jump a band.
                 </p>
@@ -427,7 +427,7 @@ export default function ExploreClient() {
           <div className={`absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-1.5 px-3 pb-3 sm:px-5 sm:pb-4 ${advanced ? "md:pr-[150px]" : "md:pl-[270px] md:pr-[150px] xl:px-5"}`}>
             {advanced ? <WavelengthDial frame={frame} onChange={onFrame} /> : <WavelengthStops frame={frame} onChange={onFrame} />}
             <div className="text-center text-[11px] text-dim">
-              NASA SPHEREx infrared sky map, 2025–26 · colours are artificial · showing {fovWords(view.fov)}
+              NASA SPHEREx infrared sky map, 2025–26 · colors are artificial · showing {fovWords(view.fov)}
             </div>
           </div>
           <div className="absolute right-4 top-20 z-30 flex flex-col items-end gap-2 sm:right-5 md:bottom-4 md:top-auto">

@@ -257,10 +257,10 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         : `A known asteroid or comet (${sbRows[0].name}) may be nearby, but the match isn't confirmed.`;
   } else if (known) {
     if (simbadTop) plainVerdict = `Already known: ${simbadTop.main_id.replace(/^NAME /, "")}${simbadTop.otype_label ? ` (${simbadTop.otype_label})` : ""}.`;
-    else if (gaiaMatch) plainVerdict = "Already known: a star listed in the Gaia star catalogue.";
+    else if (gaiaMatch) plainVerdict = "Already known: a star listed in the Gaia star catalog.";
     else
       plainVerdict = catalogueGaps.length
-        ? "We couldn't reach the star catalogues, so we can't say whether this is already known."
+        ? "We couldn't reach the star catalogs, so we can't say whether this is already known."
         : "Nothing known is listed here. That is NOT a discovery: it could be a glitch, so it needs more checks.";
   }
   let verdict = "";
@@ -279,7 +279,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     } else {
       verdict = catalogueGaps.length
         ? `${catalogueGaps.join(" and ")} could not be checked, so we can't say whether this is known.`
-        : "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artefacts (flags below), confirm on more dates, and check known solar-system objects.";
+        : "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artifacts (flags below), confirm on more dates, and check known solar-system objects.";
     }
   }
 
@@ -353,9 +353,9 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     rough: good.length > 1 ? { sigma: endpointStrength, vanished: [firstFlux, lastFlux].some((r) => r.flux < 3 * r.fluxErrEmp) } : null,
     position: withC.length >= 2 ? { shift: totalShift, err: shiftErr, predicted: Number.isFinite(predShift) ? predShift : null, n: withC.length } : null,
     catalogue: knownErr
-      ? { status: "failed", text: `The catalogue check failed (${knownErr}).` }
+      ? { status: "failed", text: `The catalog check failed (${knownErr}).` }
       : !known
-        ? { status: "pending", text: "Checking star catalogues…" }
+        ? { status: "pending", text: "Checking star catalogs…" }
         : simbadTop || gaiaMatch
           ? { status: "known", text: plainVerdict }
           : catalogueGaps.length
@@ -373,8 +373,8 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     const limitations = [
       "Exploratory native-pixel aperture photometry; no PSF/aperture correction, deblending or annual parallax correction.",
       "Flux uses MJy/sr summed over aperture pixels, not calibrated integrated source flux.",
-      "Raw flux errors measure blank-sky aperture scatter only. The calibrated comparison divides by Gaia reference stars in the same 12-arcmin images and adds their mutual scatter; colour differences, blending and PSF changes are still not modelled.",
-      "Position errors include a 0.5 arcsecond alignment allowance; a catalogue prediction is not a detection.",
+      "Raw flux errors measure blank-sky aperture scatter only. The calibrated comparison divides by Gaia reference stars in the same 12-arcmin images and adds their mutual scatter; color differences, blending and PSF changes are still not modeled.",
+      "Position errors include a 0.5 arcsecond alignment allowance; a catalog prediction is not a detection.",
       "Matching within half a channel does not remove all spectral false positives. No discovery is established.",
     ];
     const measurements = rows.map((r, i) => ({
@@ -427,28 +427,28 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                   </p>
                   <p>
                     Uncertainty = blank-sky noise of target and references (±{calOk.last.dmagErrNominal.toFixed(3)} mag) combined with how much the reference stars disagree with each other
-                    (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include colour differences between the target and the reference stars, overlapping sources or changes in image sharpness.
+                    (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include color differences between the target and the reference stars, overlapping sources or changes in image sharpness.
                   </p>
                   <p>Leaving out any one reference star changes Δm by at most {calOk.looMaxShift.toFixed(3)} mag ({calOk.leaveOneOut.map((x) => (x.dmag >= 0 ? "+" : "−") + Math.abs(x.dmag).toFixed(3)).join(", ")}).</p>
                   {calOk.nRefs < 5 && <p className="text-warn">Only {calOk.nRefs} reference stars passed every check, so the disagreement estimate is itself uncertain.</p>}
                   {calOk.rejectedAsVariable.length > 0 && <p>{calOk.rejectedAsVariable.length} reference star(s) disagreed strongly with the others and were dropped as possible variables.</p>}
                   <p>
-                    Reference rules: Gaia G ≤ {CAL.maxG}, not flagged variable, no comparably bright neighbour, unflagged and unsaturated, S/N ≥ {CAL.minSnr} on both dates, and the same wavelength (within half a channel) at
-                    the star&apos;s own position on both dates. Rejected candidates: {Object.entries(calOk.why).map(([k, v]) => `${k.replace("_", " ")} ${v}`).join(", ")}. Stars: {calOk.starSource}.
+                    Reference rules: Gaia G ≤ {CAL.maxG}, not flagged variable, no comparably bright neighbor, unflagged and unsaturated, S/N ≥ {CAL.minSnr} on both dates, and the same wavelength (within half a channel) at
+                    the star&apos;s own position on both dates. Rejected candidates: {Object.entries(calOk.why).map(([k, v]) => `${k.replace("_", " ").replace("catalogue", "catalog")} ${v}`).join(", ")}. Stars: {calOk.starSource}.
                   </p>
                 </div>
               </Advanced>
             )}
           </div>
-          <div><dt className="font-semibold text-accent">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalogue predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
+          <div><dt className="font-semibold text-accent">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalog predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
         </dl>
-        <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Colour, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
+        <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Color, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
       </section>
 
       <div className="mt-3 rounded-xl border border-line p-3">
         <div className="label mb-1">Is it already known?</div>
-        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogues for this date…</div>}
-        {knownErr && <div className="text-[12.5px] text-warn">The catalogue check failed ({knownErr}). We cannot tell whether this source is already known from this lookup.</div>}
+        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogs for this date…</div>}
+        {knownErr && <div className="text-[12.5px] text-warn">The catalog check failed ({knownErr}). We cannot tell whether this source is already known from this lookup.</div>}
         {known && (
           <>
             <p
@@ -459,7 +459,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
               {plainVerdict}
             </p>
             {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
-              <p className="mt-1 text-[12px] text-warn">We may be measuring a neighbouring star instead of the target here. Try a different infrared colour.</p>
+              <p className="mt-1 text-[12px] text-warn">We may be measuring a neighboring star instead of the target here. Try a different infrared color.</p>
             )}
             <div className="mt-2">
               {sb === null && (
@@ -507,7 +507,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                 {!known.simbad.ok && <li className="text-warn">SIMBAD unavailable: {known.simbad.error}</li>}
                 {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
                   <li className="text-warn">
-                    Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbour.
+                    Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbor.
                     Try a different wavelength set.
                   </li>
                 )}
@@ -535,7 +535,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         <div className="label mb-1">Brightness on each date</div>
         {cmp.drop.length > 0 && (
           <p className="text-[12px] text-warn">
-            Left out here: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}, because the infrared colour at this spot doesn&apos;t match the other dates.
+            Left out here: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}, because the infrared color at this spot doesn&apos;t match the other dates.
           </p>
         )}
         <Chart
@@ -552,7 +552,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           </p>
         )}
         {plainVar && <p className="text-[12.5px] text-text/85">{plainVar}</p>}
-        {good.length > 1 && <p className="mt-1 text-[12px] text-warn">Tiny colour differences can still fake a brightness change, so treat this as a hint, not proof.</p>}
+        {good.length > 1 && <p className="mt-1 text-[12px] text-warn">Tiny color differences can still fake a brightness change, so treat this as a hint, not proof.</p>}
         {saturated && <p className="text-[12px] text-warn">On some dates this spot is too bright for the camera (saturated), so its brightness there is unreliable.</p>}
         <Advanced className="mt-1">
           <p>Brightness is measured in a small circle (aperture) on native pixels, using only dates whose wavelengths match at this position.</p>
@@ -602,7 +602,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
             It shifted about <b className="data">{totalShift.toFixed(1)}″</b> between {withC[0].label} and {lastT.label}
             {gaiaMatch && Number.isFinite(predShift) && (
               <>
-                ; the star catalogue predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line)
+                ; the star catalog predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line)
               </>
             )}
             . <span className="text-dim">(″ = arcseconds, a tiny angle on the sky.) Shifts under about 1.5″ don&apos;t mean much.</span>
@@ -614,7 +614,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
               {gaiaMatch && (
                 <>
                   {" "}
-                  {at.pm || simbadPm ? "The catalogue" : "Gaia's"} proper motion predicts <span className="data">{predShift.toFixed(1)}″</span> (dashed line).
+                  {at.pm || simbadPm ? "The catalog" : "Gaia's"} proper motion predicts <span className="data">{predShift.toFixed(1)}″</span> (dashed line).
                 </>
               )}
             </p>
@@ -673,7 +673,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
 
       <section id="measurement-evidence" aria-label="Save investigation evidence" className="mt-5 scroll-mt-24 border-t border-line pt-4">
         <h3 className="font-display text-[20px] font-semibold">Check and save your evidence</h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalogue results, failed checks and the current comparison link.</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalog results, failed checks and the current comparison link.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" className="btn" onClick={() => downloadEvidence("txt")}>Download readable evidence</button>
           <button type="button" className="btn btn-primary" onClick={() => downloadEvidence("json")}>Download evidence JSON</button>

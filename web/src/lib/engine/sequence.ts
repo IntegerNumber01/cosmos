@@ -436,7 +436,7 @@ export function findChanges(before: Float32Array, after: Float32Array, g: Grid, 
         partner: { x: a.x, y: a.y, ra: pra, dec: pdec, sepArcsec: bestD * g.pixDeg * 3600 },
         note: residual
           ? "Faded/brightened pair right on top of a bright star. Most likely imperfect subtraction (point-spread or sub-pixel differences), not real motion."
-          : `Faded at one spot and brightened ${(bestD * g.pixDeg * 3600).toFixed(0)}″ away: what a moving source would leave. Check it against catalogues.`,
+          : `Faded at one spot and brightened ${(bestD * g.pixDeg * 3600).toFixed(0)}″ away: what a moving source would leave. Check it against catalogs.`,
       });
     }
   });

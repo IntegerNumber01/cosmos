@@ -160,7 +160,7 @@ export async function getCalibrationStars(ra: number, dec: number, mjd: number, 
     } catch {}
   }
   const k: Known = await getJSON(`/api/known?ra=${ra.toFixed(6)}&dec=${dec.toFixed(6)}&r=0.16&mjd=${mjd.toFixed(5)}&services=gaia`, 62000);
-  if (!k.gaia.ok) throw new Error(`Gaia star catalogue unavailable (${k.gaia.error ?? "lookup failed"})`);
+  if (!k.gaia.ok) throw new Error(`Gaia star catalog unavailable (${k.gaia.error ?? "lookup failed"})`);
   return { stars: k.gaia.rows ?? [], mjd: k.query.mjd, source: k.gaia.service };
 }
 
