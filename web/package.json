@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "node scripts/prepare-offline.cjs && next build",
     "start": "next start",
-    "test": "node --test scripts/test-challenge.cjs",
+    "test": "node --test scripts/test-challenge.cjs scripts/test-known.cjs scripts/test-learning.cjs",
     "prepare:offline": "node scripts/prepare-offline.cjs",
     "lint": "eslint"
   },

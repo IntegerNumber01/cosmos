@@ -197,3 +197,15 @@ input[type="range"].spectrum:focus-visible {
 .pixelated {
   image-rendering: pixelated;
 }
+
+@media print {
+  .investigation-kit { background: white !important; color: black !important; padding: 0 !important; }
+  .investigation-kit header, .investigation-kit button { display: none !important; }
+  .investigation-kit article { max-width: none; padding: 0; }
+  .investigation-kit section { padding: 0; border: 0; margin-top: 12pt; }
+  .investigation-kit h1 { font-size: 22pt; }
+  .investigation-kit h2 { font-size: 14pt; break-after: avoid; }
+  .investigation-kit p, .investigation-kit li { color: black !important; font-size: 10pt; line-height: 1.4; }
+  .investigation-kit a, .investigation-kit .label { color: black !important; }
+  .investigation-kit li { break-inside: avoid; }
+}

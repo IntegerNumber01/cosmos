@@ -3,6 +3,7 @@ import { FIELD_SIZES } from "./releases";
 
 export type ViewMode = "frames" | "swipe" | "changes" | "stacks";
 export type StackSettings = { minutes: number; first: number; second: number; difference: boolean };
+export type MeasurementSelection = { ra: number; dec: number; label: string; partner?: { ra: number; dec: number }; mjd?: number; when?: string; pm?: [number, number]; epochYear?: number };
 export type ViewState = {
   size: number;
   cadence: Cadence;
@@ -20,7 +21,24 @@ export type ViewState = {
   quality: boolean;
   embed: boolean;
   stack: StackSettings;
+  measurement?: MeasurementSelection;
 };
+function readMeasurement(raw: string | null): MeasurementSelection | undefined {
+  if (!raw || raw.length > 1000) return;
+  try {
+    const m = JSON.parse(raw);
+    const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+    const position = (v: { ra: number; dec: number }) => v && finite(v.ra) && finite(v.dec) && v.ra >= 0 && v.ra < 360 && Math.abs(v.dec) <= 90;
+    if (!position(m) || typeof m.label !== "string" || m.label.length > 120) return;
+    if (m.partner !== undefined && !position(m.partner)) return;
+    if (m.mjd !== undefined && (!finite(m.mjd) || m.mjd < 10000 || m.mjd > 100000)) return;
+    if (m.when !== undefined && (typeof m.when !== "string" || m.when.length > 100)) return;
+    if (m.pm !== undefined && (!Array.isArray(m.pm) || m.pm.length !== 2 || !m.pm.every(finite))) return;
+    if (m.epochYear !== undefined && (!finite(m.epochYear) || m.epochYear < 1800 || m.epochYear > 2200)) return;
+    if ((m.pm !== undefined) !== (m.epochYear !== undefined)) return;
+    return { ra: m.ra, dec: m.dec, label: m.label, ...(m.partner ? { partner: { ra: m.partner.ra, dec: m.partner.dec } } : {}), ...(m.mjd !== undefined ? { mjd: m.mjd } : {}), ...(m.when ? { when: m.when } : {}), ...(m.pm ? { pm: m.pm, epochYear: m.epochYear } : {}) };
+  } catch { return; }
+}
 type Params = Pick<URLSearchParams, "get">;
 const date = (s: string | null) => {
   if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return "";
@@ -48,6 +66,7 @@ export function readViewState(p: Params): ViewState {
       second: Math.max(-1, Math.floor(num(p.get("visitB"), -1))),
       difference: p.get("visitDiff") === "1",
     },
+    measurement: readMeasurement(p.get("measure")),
   };
 }
 
@@ -64,6 +83,7 @@ export function viewQuery(t: SharedTarget, s: ViewState, fromGaia = false) {
   if (s.page) q.set("page", String(s.page));
   q.set("split", String(s.split)); q.set("gaia", s.gaia ? "1" : "0"); q.set("quality", s.quality ? "1" : "0");
   if (s.embed) q.set("embed", "1");
+  if (s.measurement) q.set("measure", JSON.stringify(s.measurement));
   q.set("visitSpan", String(s.stack.minutes)); q.set("visitA", String(s.stack.first)); q.set("visitB", String(s.stack.second)); q.set("visitDiff", s.stack.difference ? "1" : "0");
   return q;
 }

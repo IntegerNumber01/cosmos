@@ -6,6 +6,8 @@ Compare real dated NASA SPHEREx images, measure what changed, and check whether 
 
 **New to astronomy?** Start at `/learn` or open `/timetravel?target=rwaur&guide=1&mode=swipe`. The guided investigation explains what to look for, measures the actual sequence, and helps users check and save the evidence. A second guide follows Epsilon Indi B's motion. Full observation controls remain available; `/timetravel` opens the general tool directly. JSON/CSV exports include native measurements, errors, flags, original FITS URLs and limitations; the JSON also records catalogue results or failures. A close-up magnifies the same sky patch without adding resolution.
 
+**Try an investigation:** `/learn/kit` is a printable 15–20 minute plan for individuals, students and astronomy clubs. `/learn/lab` uses three real prepared image pairs to distinguish a supported brightness change, no significant brightness change, and a refused blended measurement. Explain your choice before revealing the checks; responses stay in the tab until downloaded. Time Travel also offers a readable evidence report, and its share links restore the selected measurement. Notes are saved in the report files, not the URL.
+
 | Mode | What you do | Data |
 |---|---|---|
 | **Time Travel** (`/timetravel`) | RA/Dec, or pick a star → every SPHEREx DR1 exposure of that spot → wavelength-matched dates → aligned playback, swipe, **Find changes** → measure → **is it known?** | SPHEREx DR1 Level-2 (IRSA SIA2 + IBE cutouts), Gaia DR3, SIMBAD, NASA/JPL Small-Body Identification |
@@ -86,6 +88,8 @@ Deploy on Vercel with `web/` as the project root. The API routes use the Node.js
 **No hosted Python backend is needed.** Vercel serves the Next.js app, prepared data and Node API routes. Python is used offline for rebuilding observations, scientific validation and browser checks. The app still depends on the public NASA/partner services for arbitrary-coordinate discovery and live catalogue answers. Deployment is intentionally deferred while the local experience is completed.
 
 Guided-experience browser checks: `pipeline/.venv/Scripts/python pipeline/tools/guided_ui.py http://localhost:3417`. The real-participant test protocol is in [docs/USER_TEST.md](docs/USER_TEST.md); automated checks do not establish human usability or learning outcomes.
+
+Learning and evidence-handoff browser checks: `pipeline/.venv/Scripts/python pipeline/tools/learning_ui.py http://localhost:3533`. The creator is experimenting personally; use [docs/SELF_REVIEW.md](docs/SELF_REVIEW.md) to record that session. [docs/IMPACT_EVIDENCE.md](docs/IMPACT_EVIDENCE.md) distinguishes current capabilities from intended benefits and unmeasured outcomes. Independent participants are optional for using the kit; no study results or adoption figures are claimed.
 
 ## Rebuild the data (Python 3.12)
 

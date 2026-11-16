@@ -27,7 +27,7 @@ function mock(mode: Mode) {
       if (mode.simbad === "fail") return new Response("<html>down</html>", { status: 404 });
       return new Response(JSON.stringify({ metadata: [{ name: "main_id" }], data: [] }), { status: 200 });
     }
-    if (u.includes("gea.esac.esa.int")) return new Response("source_id,ra,dec,pmra,pmdec,parallax,parallax_error,phot_g_mean_mag\n", { status: 200 });
+    if (u.includes("gea.esac.esa.int")) return new Response("source_id,ra,dec,pmra,pmdec,parallax,parallax_error,phot_g_mean_mag,phot_variable_flag\n", { status: 200 });
     throw new Error("unexpected " + u);
   }) as typeof fetch;
 }

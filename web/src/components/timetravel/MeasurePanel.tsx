@@ -8,6 +8,7 @@ import { CAL, calibrate, Calibration } from "@/lib/engine/photometry";
 import { buildWorksheet, Evidence } from "@/lib/worksheet";
 import EvidenceWorksheet, { WORKSHEET_QUESTIONS } from "./EvidenceWorksheet";
 import { ENGINE_VERSION, RELEASE } from "@/lib/engine/releases";
+import { evidenceText } from "@/lib/evidenceReport";
 
 type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
 
@@ -367,7 +368,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     ? "Not enough reliable positions to measure a shift."
     : `Measured shift: ${totalShift.toFixed(1)} ± ${shiftErr.toFixed(1)} arcseconds from ${withC[0].label} to ${lastT.label}.`;
 
-  const downloadEvidence = (format: "json" | "csv") => {
+  const downloadEvidence = (format: "json" | "csv" | "txt") => {
     const clean = (v: number) => Number.isFinite(v) ? v : null;
     const limitations = [
       "Exploratory native-pixel aperture photometry; no PSF/aperture correction, deblending or annual parallax correction.",
@@ -397,7 +398,8 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     };
     const headings = ["release", "engine", "obsid", "detector", "date_utc", "mjd", "wavelength_um", "bandwidth_um", "measured_ra_deg", "measured_dec_deg", "flux_MJy_sr_pixel", "empirical_error_MJy_sr_pixel", "snr", "usable_for_brightness", "partial_aperture", "core_flagged", "centroid_ra_deg", "centroid_dec_deg", "centroid_error_arcsec", "flags", "source_fits", "cutout_url", "investigation_url", "limitations"];
     const csv = [headings, ...measurements.map((r) => [RELEASE.label, ENGINE_VERSION, r.obsid, r.detector, r.date, r.mjd, r.wl, r.bw, r.measuredAt.ra, r.measuredAt.dec, r.flux, r.fluxErrEmp, r.snr, r.usableForBrightness, r.partial, r.coreFlagged, r.centroid?.ra, r.centroid?.dec, r.centroid?.errArcsec, r.flagsHere.join("; "), r.sourceFits, r.cutoutUrl, window.location.href, limitations.join(" ")])].map((row) => row.map(cell).join(",")).join("\r\n");
-    const blob = new Blob([format === "json" ? JSON.stringify(report, null, 2) : csv], { type: format === "json" ? "application/json" : "text/csv;charset=utf-8" });
+    const text = format === "txt" ? evidenceText({ ...report, brightness: report.summary.brightness, position: positionSummary, sheet, notes, limitations }) : "";
+    const blob = new Blob([format === "json" ? JSON.stringify(report, null, 2) : format === "txt" ? text : csv], { type: format === "json" ? "application/json" : format === "txt" ? "text/plain;charset=utf-8" : "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `cosmos-${(slug ?? "position").replace(/[^a-z0-9-]/gi, "-")}-measurements.${format}`; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -673,11 +675,12 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         <h3 className="font-display text-[20px] font-semibold">Check and save your evidence</h3>
         <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalogue results, failed checks and the current comparison link.</p>
         <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" className="btn" onClick={() => downloadEvidence("txt")}>Download readable evidence</button>
           <button type="button" className="btn btn-primary" onClick={() => downloadEvidence("json")}>Download evidence JSON</button>
           <button type="button" className="btn" onClick={() => downloadEvidence("csv")}>Download measurements CSV</button>
           <Link className="btn" href={slug === "gy152" || slug === "gpmon" ? `/investigate/search#${slug}` : slug === "swan" ? "/investigate/swan" : slug ? `/validation#${slug}` : "/about"}>Compare with the checked case study →</Link>
         </div>
-        <p className="mt-3 text-[12px] text-muted">The JSON report includes the worksheet above: its verdict, every check with its result, and your notes.</p>
+        <p className="mt-3 text-[12px] text-muted">Give a reviewer the readable report and JSON. Ask them to reopen the comparison, check the dates and selected position, and explain one remaining uncertainty. Your notes are included in these files; they are not carried in a shared link.</p>
       </section>
     </div>
   );

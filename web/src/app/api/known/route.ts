@@ -3,16 +3,15 @@
 //  * SIMBAD: named objects and their types (Harvard mirror first, then CDS)
 //  * NASA/JPL Small-Body Identification: known asteroids/comets in the field AT that time
 import { NextRequest, NextResponse } from "next/server";
-import { parseCsv } from "@/lib/engine/observations";
+import { catalogueText, CATALOGUE_BUDGET_MS } from "@/lib/engine/catalogue";
+import { lookupGaia } from "@/lib/engine/gaia";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-async function tap(url: string, query: string, timeoutMs = 25000) {
+async function tap(url: string, query: string, deadline: AbortSignal, timeoutMs = 25000) {
   const body = new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "json", QUERY: query });
-  const r = await fetch(url, { method: "POST", body, signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  const text = await r.text();
+  const text = await catalogueText(url, { method: "POST", body }, deadline, timeoutMs);
   if (text.trimStart().startsWith("<")) throw new Error("service unavailable");
   return JSON.parse(text) as { metadata?: { name: string }[]; data?: unknown[][] };
 }
@@ -50,52 +49,16 @@ export async function GET(req: NextRequest) {
   const r = Math.min(wide ? 0.16 : 0.05, Math.max(0.001, Number(p.get("r") ?? 0.01)));
   const mjd = Number(p.get("mjd") ?? 61000);
   if (![ra, dec, mjd].every(Number.isFinite)) return NextResponse.json({ error: "bad parameters" }, { status: 400 });
+  const deadline = AbortSignal.timeout(CATALOGUE_BUDGET_MS);
   const yr = 2000 + (mjd - 51544.5) / 365.25;
   const dt = yr - 2016.0;
 
   const gaiaQ =
     `SELECT TOP ${r > 0.05 ? 1500 : 200} source_id, ra, dec, pmra, pmdec, parallax, parallax_error, phot_g_mean_mag, phot_variable_flag FROM gaiadr3.gaia_source ` +
     `WHERE 1 = CONTAINS(POINT('ICRS', ra, dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.04}))${r > 0.05 ? " AND phot_g_mean_mag < 18" : ""} ORDER BY phot_g_mean_mag`;
-  // CSV keeps the 64-bit Gaia source_id exact (JSON numbers would round it)
-  const esa = () => fetch("https://gea.esac.esa.int/tap-server/tap/sync", {
-    method: "POST",
-    body: new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: gaiaQ }),
-    signal: AbortSignal.timeout(20000),
-    cache: "no-store",
-  })
-    .then((x) => {
-      if (!x.ok) throw new Error(`HTTP ${x.status}`);
-      return x.text();
-    })
-    .then((text) => parseCsv(text) as Record<string, unknown>[]);
-  // Same Gaia DR3 table (I/355/gaiadr3) from the CDS VizieR mirror at Harvard, used when ESA is unreachable.
-  // Cross-checked on the RW Aur field: 758 common sources with identical positions and G magnitudes.
-  const vizier = () => {
-    const q = new URLSearchParams({
-      "-source": "I/355/gaiadr3", "-c": `${ra} ${dec >= 0 ? "+" : ""}${dec}`, "-c.rd": String(r + 0.04),
-      "-out": "Source,RA_ICRS,DE_ICRS,pmRA,pmDE,Plx,e_Plx,Gmag,VarFlag", "-sort": "Gmag", "-out.max": String(r > 0.05 ? 1500 : 200),
-      ...(r > 0.05 ? { Gmag: "<18" } : {}),
-    });
-    return fetch(`https://vizier.cfa.harvard.edu/viz-bin/asu-tsv?${q}`, { signal: AbortSignal.timeout(25000), cache: "no-store" })
-      .then((x) => {
-        if (!x.ok) throw new Error(`HTTP ${x.status}`);
-        return x.text();
-      })
-      .then((text) => {
-        const lines = text.split(/\r?\n/).filter((l) => l && !l.startsWith("#"));
-        if (!lines[0]?.startsWith("Source")) throw new Error("unexpected VizieR response");
-        return lines.filter((l) => /^\s*\d/.test(l)).map((l) => {
-          const [source_id, ra0, dec0, pmra, pmdec, plx, eplx, g, vf] = l.split("\t").map((x) => x.trim());
-          return { source_id, ra: ra0, dec: dec0, pmra, pmdec, parallax: plx, parallax_error: eplx, phot_g_mean_mag: g, phot_variable_flag: vf } as Record<string, unknown>;
-        });
-      });
-  };
   let gaiaService = "ESA Gaia DR3 (positions propagated to the epoch)";
-  const gaia = () => esa()
-    .catch((e) => vizier().catch(() => vizier()).then((rows) => {
-      gaiaService = `ESA Gaia DR3 via the CDS VizieR mirror (ESA unavailable: ${(e as Error)?.message ?? e}; positions propagated to the epoch)`;
-      return rows;
-    }, (e2) => { throw new Error(`ESA: ${(e as Error)?.message ?? e}; VizieR: ${(e2 as Error)?.message ?? e2}`); }))
+  const gaia = () => lookupGaia(gaiaQ, ra, dec, r, deadline)
+    .then((result) => { gaiaService = result.service; return result.records; })
     .then((records) =>
     records
       .map((s) => {
@@ -127,8 +90,8 @@ export async function GET(req: NextRequest) {
     `DISTANCE(POINT('ICRS', b.ra, b.dec), POINT('ICRS', ${ra}, ${dec})) * 3600 AS sep_arcsec ` +
     "FROM basic AS b LEFT JOIN otypedef AS o ON b.otype = o.otype " +
     `WHERE CONTAINS(POINT('ICRS', b.ra, b.dec), CIRCLE('ICRS', ${ra}, ${dec}, ${r + 0.1})) = 1 ORDER BY sep_arcsec`;
-  const simbad = () => tap("https://simbad.harvard.edu/simbad/sim-tap/sync", simbadQ)
-    .catch(() => tap("https://simbad.cds.unistra.fr/simbad/sim-tap/sync", simbadQ))
+  const simbad = () => tap("https://simbad.harvard.edu/simbad/sim-tap/sync", simbadQ, deadline)
+    .catch(() => tap("https://simbad.cds.unistra.fr/simbad/sim-tap/sync", simbadQ, deadline))
     .then((j) =>
       rowsOf(j)
         .map((o) => {
@@ -160,10 +123,9 @@ export async function GET(req: NextRequest) {
   // A JPL answer counts only if it is HTTP 200 AND structurally valid. "No matching records" is the only
   // empty result accepted as a successful search; anything else is an error, never "nothing known".
   const sb = () =>
-    fetch(sbUrl, { signal: AbortSignal.timeout(57000), cache: "no-store" })
-      .then(async (x) => {
-        if (!x.ok) throw new Error(`JPL HTTP ${x.status}`);
-        const j = (await x.json()) as {
+    catalogueText(sbUrl, {}, deadline, 57000)
+      .then((text) => {
+        const j = JSON.parse(text) as {
           signature?: { source?: string };
           data_second_pass?: string[][];
           n_second_pass?: number;

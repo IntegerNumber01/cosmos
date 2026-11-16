@@ -1,5 +1,6 @@
 "use client";
 import { CheckStatus, Worksheet } from "@/lib/worksheet";
+import { EVIDENCE_QUESTIONS } from "@/lib/evidenceReport";
 
 const STATUS: Record<CheckStatus, { mark: string; word: string; cls: string }> = {
   pass: { mark: "✓", word: "Checked", cls: "text-good border-good/40" },
@@ -14,13 +15,7 @@ const VERDICT = {
   "not-measurable": "border-line bg-white/[0.02] text-muted",
 } as const;
 
-export const WORKSHEET_QUESTIONS = [
-  "What changed?",
-  "Which measurements support that?",
-  "Which other explanations have been checked?",
-  "What is still unknown?",
-  "What observation would settle it?",
-] as const;
+export const WORKSHEET_QUESTIONS = EVIDENCE_QUESTIONS;
 
 export default function EvidenceWorksheet({ sheet, notes, onNote }: { sheet: Worksheet; notes: string[]; onNote: (i: number, v: string) => void }) {
   const lists: (string[] | null)[] = [sheet.changed, sheet.support, null, sheet.unknown, sheet.next];

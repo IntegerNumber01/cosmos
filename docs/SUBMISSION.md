@@ -7,6 +7,8 @@ COSMOS helps curious students, amateur astronomers and citizen scientists invest
 
 The guide connects a question to real pictures, current native-pixel measurements, catalogue checks, uncertainties and downloadable evidence. JSON reports retain the comparison URL, original images and failed checks as well as successful results. Intended educational benefits and wider scientific participation are goals; adoption, time savings and learning outcomes have not yet been established by a human user study.
 
+The printable `/learn/kit` provides a 15–20 minute investigation for individuals or groups. In `/learn/lab`, learners explain three real-data brightness cases before revealing the checks: a supported brightening, no significant brightness change, and a blended-star measurement that must be refused. Readable evidence downloads complement JSON/CSV, and shared links reopen the selected measurement as well as the image comparison. The creator plans a self-review; no independent participant results are claimed. See `IMPACT_EVIDENCE.md` for the evidence boundary and `SELF_REVIEW.md` for the session record.
+
 ## Problem
 NASA's SPHEREx images the whole sky in 102 infrared colours, again and again. People interested in that changing sky need an understandable path from archive observations to a comparison they can interpret and check. Existing archive viewers and science tools provide access; COSMOS brings temporal comparison, measurement, known-object context and explanatory case files into one workflow. Because SPHEREx's linear variable filter changes wavelength across each image, two dates also need wavelength checks at the source position. Matching within half a channel helps, but does not eliminate spectral false positives.
 

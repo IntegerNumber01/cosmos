@@ -37,6 +37,12 @@ export default function LearnPage() {
           </Link>
         </section>
 
+        <section aria-label="Real-sky investigation kit" className="mt-6 rounded-2xl border border-accent/30 p-6">
+          <div className="label text-accent">Try it yourself or with a group · 15–20 minutes</div>
+          <h2 className="font-display mt-2 text-[27px] font-semibold">Would you believe this change?</h2>
+          <p className="mt-3 max-w-3xl text-[14px] leading-relaxed text-muted">Investigate a young star, a brown dwarf and a misleading measurement from overlapping light. Give your reason before revealing the explanation, then keep a record someone else can check.</p>
+          <div className="mt-4 flex flex-wrap gap-3"><Link href="/learn/lab" className="btn btn-primary">Try the three real cases</Link><Link href="/learn/kit" className="btn">Open the printable investigation kit</Link></div>
+        </section>
         <h2 className="font-display mt-12 text-[27px] font-semibold">Three ideas to take with you</h2>
         <div className="mt-4 grid gap-4 lg:grid-cols-3">
           {CONCEPTS.map((c) => <article key={c.n} className="glass rounded-2xl p-5">
@@ -59,7 +65,7 @@ export default function LearnPage() {
           <div>
             <h2 className="font-display text-[23px] font-semibold">Teaching a group?</h2>
             <p className="mt-2 text-[14px] leading-relaxed text-muted">Ask learners: What changed? What evidence supports that answer? What could fool us? Have each learner share a comparison and describe one limitation. Prepared examples use saved real observations when the image archive is unavailable.</p>
-            <Link href="/investigate" className="btn mt-4">Explore the case files →</Link>
+            <Link href="/learn/kit" className="btn mt-4">Get the facilitator guide →</Link>
           </div>
         </section>
 

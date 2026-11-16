@@ -167,7 +167,7 @@ export default function TimeTravelClient() {
       setLoaded(null);
       setChange(null);
       setCand(null);
-      setMeasureAt(null);
+      setMeasureAt(restore ? shared.measurement ?? null : null);
       setGaia(null);
       setProgress(null);
       setPlaying(false);
@@ -180,7 +180,7 @@ export default function TimeTravelClient() {
         .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy, sample: d.sample }))
         .catch((e) => token === searchToken.current && setObsState({ status: "error", error: String(e.message ?? e) }));
     },
-    [size],
+    [size, shared.measurement],
   );
 
   useEffect(() => {
@@ -226,7 +226,7 @@ export default function TimeTravelClient() {
     setLoaded(null);
     setChange(null);
     setCand(null);
-    setMeasureAt(null);
+    setMeasureAt(restoring.current ? shared.measurement ?? null : null);
     setView("frames"); setPlaying(false);
     setIdx(0);
     const actualPage = Math.min(page, Math.max(0, Math.ceil(set.frames.length / 12) - 1));
@@ -377,11 +377,11 @@ export default function TimeTravelClient() {
       size, cadence, start, end, page, anchor: set!.anchor ?? "", window: `${set!.detector}:${set!.windowLo}:${set!.bandwidth}`,
       frame: observationKey(loaded.frames[Math.min(idx, loaded.frames.length - 1)].meta),
       before: observationKey(loaded.frames[pair[0]].meta), after: observationKey(loaded.frames[pair[1]].meta),
-      mode: view, split, gaia: showGaia, quality: showQuality, embed: shared.embed, stack: stackSettings,
+      mode: view, split, gaia: showGaia, quality: showQuality, embed: shared.embed, stack: stackSettings, measurement: measureAt ?? undefined,
     }, fromGaia);
     if (guideEnabled && target.slug && target.slug in GUIDED_LESSONS) q.set("guide", "1");
     window.history.replaceState(null, "", `/timetravel?${q.toString()}`);
-  }, [target, loaded, set, size, cadence, start, end, page, idx, pair, view, split, showGaia, showQuality, shared.embed, fromGaia, stackSettings, guideEnabled]);
+  }, [target, loaded, set, size, cadence, start, end, page, idx, pair, view, split, showGaia, showQuality, shared.embed, fromGaia, stackSettings, guideEnabled, measureAt]);
 
   const share = async (embed = false) => {
     setPlaying(false);
