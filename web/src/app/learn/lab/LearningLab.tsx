@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import TargetCloseup from "@/components/timetravel/TargetCloseup";
 import { LAB_CASES, LAB_CHOICES, loadLabCase, type LabChoice, type LabResult } from "@/lib/learningLab";
 import { makeGrid, reproject, skyLevel } from "@/lib/engine/sequence";
+import TransferCheck from "./TransferCheck";
 
 type Answer = { choice?: LabChoice; reason: string; next: string; revealed: boolean };
 const empty = (): Answer => ({ reason: "", next: "", revealed: false });
@@ -44,8 +45,8 @@ export default function LearningLab() {
     <h1 className="font-display mt-3 text-[34px] font-semibold leading-tight sm:text-[46px]">Would you believe this change?</h1>
     <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-muted">Compare real SPHEREx observations and decide what the brightness evidence supports. A careful “we can&apos;t tell” can be the best answer. These are selected examples, not a search for a new discovery.</p>
     <p className="mt-2 text-[13px] text-muted">No sign-up or telescope needed. Answers stay in this tab until you download them; reloading clears them. <Link href="/learn/kit" className="link">Facilitator guide</Link></p>
-    <nav aria-label="Activity cases" className="mt-6 flex flex-wrap gap-2">{LAB_CASES.map((c, i) => <button key={c.id} type="button" aria-current={i === index ? "step" : undefined} onClick={() => { setIndex(i); setStatus(""); }} className={`btn ${i === index ? "btn-primary" : ""}`}>{c.title}{answers[i].revealed ? " · reviewed" : ""}</button>)}</nav>
-    <section aria-label={c.title} className="mt-5 rounded-2xl card p-4 sm:p-6">
+    <nav aria-label="Activity cases" className="mt-6 flex flex-wrap gap-2">{LAB_CASES.map((c, i) => <button key={c.id} type="button" disabled={!data&&!error} aria-current={i === index ? "step" : undefined} onClick={() => { setIndex(i); setStatus(""); }} className={`btn ${i === index ? "btn-primary" : ""}`}>{c.title}{answers[i].revealed ? " · reviewed" : ""}</button>)}</nav>
+    <section aria-label={c.title} aria-busy={!data&&!error} className="mt-5 rounded-2xl card p-4 sm:p-6">
       <h2 className="font-display text-[25px] font-semibold">{c.title}</h2>
       <p className="mt-2 text-[13px] text-muted">Read the brightness evidence. Position changes are a separate question. The displayed colors represent measured infrared brightness.</p>
       {!data && !error && <p role="status" className="mt-4">Loading saved real observations…</p>}
@@ -76,6 +77,7 @@ export default function LearningLab() {
       </>}
     </section>
     <section className="mt-6 rounded-xl card p-5"><h2 className="font-display text-[23px] font-semibold">Keep your reasoning</h2><p className="mt-2 text-[14px] text-muted">Reviewed {answers.filter((a) => a.revealed).length} of 3 cases. Download your initial choices, reasons and follow-up ideas. For a full investigation, use Time Travel&apos;s readable evidence and JSON downloads.</p><button type="button" className="btn mt-3" disabled={!answers.some((a) => a.choice || a.reason)} onClick={download}>Download my responses</button>{status && <p role="status" className="mt-2 text-[13px]">{status}</p>}</section>
-    <div className="mt-6 flex flex-wrap gap-3"><Link href="/timetravel?target=rwaur&guide=1&mode=swipe" className="btn">Run a full guided investigation</Link><Link href="/timetravel" className="btn">Open the advanced tools</Link><Link href="/learn" className="btn">Back to the basics</Link></div>
+    <TransferCheck />
+    <div className="mt-6 flex flex-wrap gap-3"><Link href="/timetravel?target=epsindib&guide=1&mode=swipe" className="btn">Run a full guided investigation</Link><Link href="/timetravel" className="btn">Open the advanced tools</Link><Link href="/learn" className="btn">Back to the basics</Link></div>
   </>;
 }

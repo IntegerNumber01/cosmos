@@ -1,6 +1,9 @@
 # Prepared-data manifests hash exact bytes. Keep JSON stable across Windows and Unix checkouts.
 web/public/cache/**/*.json text eol=lf
 data/raw/identification/**/*.json text eol=lf
+web/public/data/motion-benchmark.json text eol=lf
+web/public/data/exposure-index.json text eol=lf
+docs/motion-benchmark-protocol.json text eol=lf
 
 # Science arrays and exported documents must retain their original bytes.
 *.bin -text

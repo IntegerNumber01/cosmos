@@ -130,7 +130,14 @@ export async function findObservations(ra: number, dec: number, margin = 30, siz
     if (attempt < 2 && Date.now() + delay < deadline) await new Promise((res) => setTimeout(res, delay));
   }
   if (!text) throw new Error(`NASA/IPAC's photo search is temporarily unavailable (${lastError}). Please try again.`);
-  const rows = parseCsv(text).filter((r) => r.dataproduct_subtype === "science" && r.access_url);
+  return observationsFromRows(parseCsv(text), ra, dec, margin);
+}
+
+/** Convert original NASA detector footprints at the requested position, including the RA seam.
+ * The archive normally supplies the spatial prefilter. Local inventories must apply one first.
+ */
+export function observationsFromRows(input: Record<string, string>[], ra: number, dec: number, margin = 30): Observation[] {
+  const rows = input.filter((r) => r.dataproduct_subtype === "science" && r.access_url);
   const out: Observation[] = [];
   for (const r of rows) {
     const det = parseInt(r.energy_bandpassname.slice(-1), 10);

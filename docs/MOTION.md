@@ -1,6 +1,14 @@
 # Public motion analysis and tracking stacks
 
-Time Travel now separates **Summary**, **Motion** and **Evidence**. Summary retains the original raw measurements and catalogue states; Motion runs a separate reference-star analysis on demand; Evidence preserves the worksheet and notes. Moving between views does not clear notes. The compact beginner guide keeps the three actions visible without three large instruction cards.
+Time Travel separates **Summary**, **Motion** and **Evidence**, with the selected view's content shown on its own. Summary retains the original raw measurements and catalogue states; Motion runs a separate reference-star analysis; Evidence preserves the worksheet and notes. The Epsilon Indi B guide opens Motion directly after the user measures the source, so its reference-corrected result is not mixed with the rougher raw-position summary. Moving between views does not clear notes.
+
+## Compare correction against no correction
+
+`docs/motion-benchmark-protocol.json` fixes the retrospective selection and comparison before the run: up to forty additional non-variable Gaia stars per field, selected by a source-ID hash, with no production threshold changes. `node scripts/benchmark-motion.cjs --write` evaluates all eight default saved fields using native images. On the identical accepted sample, the baseline uses the same centroids and visits without translation correction; both compare east/north displacement vectors with propagated Gaia predictions.
+
+Of **229** selected sources, **48** pass and **181** are refused. Median vector residual is **0.561″ without correction** and **0.441″ corrected**. Correction improves **28** accepted cases and worsens **20**. All fields and refusals are retained in `web/public/data/motion-benchmark.json` and `/validation#motion-benchmark`. These stars share images and reference ensembles, so they are correlated. This is not a blind prospective test, a discovery-completeness measurement or a sky-wide false-positive rate. Catalogue covariance, binary motion and radial velocity remain unmodeled. The comparison isolates translation correction, not entire products.
+
+The report hashes original binary inputs and LF-normalized UTF-8 source/JSON inputs (explicit `hashMode` per file), so Windows line endings do not falsely invalidate source provenance. The regression suite verifies those checksums and that all accepted/refused/improved/worsened cases remain represented.
 
 ## Native-pixel motion analysis
 
@@ -39,7 +47,9 @@ The tracking download retains the specified trajectory, source-image URLs, dates
 
 Every saved exposure in all eight featured fields now ships a wider native image and local Gaia reference data. `node scripts/preflight-motion.cjs --write` records 40 saved selections; `npm test` checks the preflight results, manifest checksums, native-pixel overlap and loading with live services unavailable. `pipeline/tools/prepared_motion_ui.py URL` exercises all eight default analyses and three specified-track comparisons with archive/catalog routes returning 502. The default RW Aur selection combines additional exposures within its two visits (0.18 ± 0.50 arcsec); the clean two-exposure control above is unchanged. See [archive resilience](ARCHIVE_RESILIENCE.md) for the complete target-by-target results and preparation commands.
 
-## Related public work
+## Reproducibility and related public work
+
+The Validation page's `/validation#reproduce` audit now checks the SHA-256 hashes of every consumed native cutout and Gaia reference field against the existing calibration manifests before recalculating the headline motion and brightness cases. It downloads original observation identities, dates, source-position wavelengths, hashes and actual results. Stored preflight numbers are ignored; manifests and the selection file have recorded hashes but no independent authentication. This is a local consistency and reproducibility check, not independent replication or a new discovery-performance benchmark.
 
 The capability review drew on [OSU's motion/search workflow](https://github.com/osu-spherex/planet-x-spherex), [Narvalis's reference-star calibration and dossiers](https://github.com/narvalis-labs/narvalis-spherex), [Muninn's explicit benchmark limitations](https://github.com/root3315/muninn), and [WiseView](https://github.com/backyardworlds/wiseview). This implementation was written independently in COSMOS; no competitor source files or assets were copied. Astronomical observations remain the named NASA/partner data, and Codex assistance remains acknowledged in About.
 

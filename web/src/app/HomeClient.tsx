@@ -1,10 +1,7 @@
 "use client";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { Logo } from "@/components/NavBar";
-import HeroGlobe from "@/components/HeroGlobe";
-
-const StarField = dynamic(() => import("@/components/StarField"), { ssr: false });
+import MotionPreview from "@/components/MotionPreview";
 
 const MODES = [
   {
@@ -44,15 +41,10 @@ const MODES = [
 export default function HomeClient() {
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-bg">
-      {/* living background: real Gaia stars drifting past */}
-      <div className="fixed inset-0 isolate z-0 opacity-90">
-        <StarField mode="ambient" showLabels={false} />
-      </div>
-      <div className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_30%_40%,transparent_0%,rgba(9,9,11,0.55)_60%,rgba(9,9,11,0.92)_100%)]" />
 
       <header className="relative z-10 flex items-center justify-between px-5 py-4 sm:px-8">
         <Logo />
-        <nav className="hidden gap-6 text-[13px] text-muted sm:flex">
+        <nav aria-label="Main navigation" className="hidden gap-6 text-[13px] text-muted sm:flex">
           <Link href="/explore" className="hover:text-white">Explore</Link>
           <Link href="/fly" className="hover:text-white">Fly</Link>
           <Link href="/timetravel" className="hover:text-white">Time Travel</Link>
@@ -64,25 +56,27 @@ export default function HomeClient() {
 
       <section className="relative z-10 mx-auto grid min-h-[78vh] max-w-[1320px] items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="fade-up max-w-2xl">
-          <h1 className="font-display mt-4 text-[44px] font-semibold leading-[1.04] sm:text-[64px]">
+          <div className="label">For students and astronomy clubs · no experience needed</div>
+          <h1 className="font-display mt-4 text-[36px] font-semibold leading-[1.04] sm:text-[64px]">
             The sky changes.<br />
             <span className="bg-gradient-to-r from-[#7c5cff] via-[#28d2e6] to-[#ff5c48] bg-clip-text text-transparent">See the evidence.</span>
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-text/80">
-            Compare real pictures from NASA&apos;s SPHEREx telescope. Watch a star brighten, measure a tiny motion, and learn what the observations can tell us.
+            A dot moved. Is it real? Compare NASA&apos;s infrared images, measure the change, and learn which evidence deserves your trust.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link href="/timetravel?target=rwaur&guide=1&mode=swipe" className="btn btn-primary !px-6 !py-3 !text-[15px]">
-              See a real change →
+            <Link href="/timetravel?target=epsindib&guide=1&mode=swipe" className="btn btn-primary !px-6 !py-3 !text-[15px]">
+              Investigate a moving brown dwarf →
             </Link>
-            <Link href="/explore" className="btn !px-6 !py-3 !text-[15px]">
-              Explore the infrared sky →
+            <Link href="/learn/kit" className="btn !px-6 !py-3 !text-[15px]">
+              Teach a 20-minute investigation →
             </Link>
           </div>
-          <p className="mt-4 text-[13px] text-muted">No astronomy experience needed. <Link href="/learn" className="link">Learn the basics</Link> or <Link href="/timetravel" className="link">open the full tools</Link>.</p>
+          <p className="mt-4 text-[13px] text-muted">No telescope, account or science software. <Link href="/learn" className="link">Learn the basics</Link> or <Link href="/timetravel" className="link">open the full tools</Link>.</p>
+          <ol className="mt-8 hidden gap-4 border-t border-line pt-5 text-[14px] sm:grid sm:grid-cols-3"><li><span className="data text-muted">01</span><p className="mt-1 font-semibold">Measure a real change</p></li><li><span className="data text-muted">02</span><p className="mt-1 font-semibold">Challenge a false alarm</p></li><li><span className="data text-muted">03</span><p className="mt-1 font-semibold">Explain your evidence</p></li></ol>
         </div>
-        <div className="fade-up flex justify-center pb-4" style={{ animationDelay: "0.2s" }}>
-          <HeroGlobe />
+        <div className="fade-up min-w-0 pb-4" style={{ animationDelay: "0.2s" }}>
+          <MotionPreview />
         </div>
       </section>
 
@@ -90,7 +84,7 @@ export default function HomeClient() {
         <div className="mb-8 grid gap-4 rounded-2xl card p-5 sm:grid-cols-[1.2fr_1fr] sm:p-6">
           <div>
             <h2 className="font-display text-[23px] font-semibold">From a picture to an investigation</h2>
-            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text/80">For curious students, amateur astronomers and citizen scientists. Compare dates, measure a change, check what is known, and share the evidence.</p>
+            <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-text/80">An investigation a learner can explain and a facilitator can discuss. Start with motion, test a brightness change, then challenge a misleading result. Keep the reasoning with the evidence.</p>
           </div>
           <div className="flex flex-col justify-center gap-3 text-[13px]">
             <Link href="/validation" className="link">Tested on the challenge&apos;s five targets →</Link>

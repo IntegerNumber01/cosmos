@@ -27,7 +27,8 @@ with sync_playwright() as p:
     page.screenshot(path=str(ART / "guided-compact.png"), timeout=60000)
     guide.get_by_role("button", name="Measure this source", exact=False).click()
     summary = page.get_by_role("region", name="Measurement summary")
-    expect(summary).to_be_visible()
+    expect(summary).not_to_be_visible()
+    expect(page.get_by_role("region", name="Motion analysis", exact=True)).to_be_visible()
     expect(page.get_by_role("region", name="Evidence worksheet")).not_to_be_visible()
     expect(page.get_by_label("Your notes", exact=False)).to_have_count(5)  # retained, hidden until requested
     page.get_by_role("navigation", name="Measurement views").get_by_role("button", name="Motion", exact=True).click()

@@ -6,6 +6,8 @@ import NavBar from "@/components/NavBar";
 import { TT_TARGETS } from "@/lib/ttTargets";
 import { wavelengthColor } from "@/lib/spherex";
 import Advanced from "@/components/Advanced";
+import MotionBenchmark from "@/components/MotionBenchmark";
+import EvidenceAudit from "@/components/EvidenceAudit";
 import { TEST_PLAIN, VERDICT_STYLE, plainFor } from "@/components/investigate/plainVerdicts";
 
 const IDS = ["barnard", "wise0855", "epsindib", "rwaur", "rdra"];
@@ -112,6 +114,8 @@ export default function ValidationClient() {
           </table>
         </div>
 
+        <EvidenceAudit />
+        <MotionBenchmark />
         {IDS.map((id) => {
           const r = recs[id];
           if (!r) return null;

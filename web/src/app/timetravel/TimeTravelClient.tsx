@@ -117,7 +117,7 @@ export default function TimeTravelClient() {
   const [start, setStart] = useState(shared.start);
   const [end, setEnd] = useState(shared.end);
   const [page, setPage] = useState(shared.page);
-  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string; legacy?: boolean; sample?: string }>({
+  const [obsState, setObsState] = useState<{ status: "idle" | "loading" | "ready" | "error"; error?: string; obs?: Observation[]; source?: Source; queried?: string; legacy?: boolean; sample?: string; inventoryFallback?: boolean }>({
     status: "idle",
   });
   const [set, setSet] = useState<MatchedSet | null>(null);
@@ -178,7 +178,7 @@ export default function TimeTravelClient() {
       const token = ++searchToken.current;
       loadToken.current++; // cancel any frame loading from the previous search
       getObservations(t.ra, t.dec, t.slug, true, field)
-        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy, sample: d.sample }))
+        .then((d) => token === searchToken.current && setObsState({ status: "ready", obs: d.frames as Observation[], source: d.source, queried: d.queried, legacy: d.legacy, sample: d.sample, inventoryFallback: d.inventoryFallback }))
         .catch((e) => token === searchToken.current && setObsState({ status: "error", error: String(e.message ?? e) }));
     },
     [size, shared.measurement],
@@ -608,11 +608,11 @@ export default function TimeTravelClient() {
             <p className="mt-2 text-[15px]">
               {nInside ? (
                 <>
-                  {obsState.sample ? "This prepared sample has" : "SPHEREx photographed this spot"} <span className="font-semibold text-text">{nInside}</span> {obsState.sample ? "photos" : "times"} on{" "}
+                  {obsState.sample ? "This saved inventory has" : "SPHEREx photographed this spot"} <span className="font-semibold text-text">{nInside}</span> {obsState.sample ? "photos" : "times"} on{" "}
                   <span className="font-semibold text-text">{nDays}</span> different days.
                 </>
               ) : (
-                "SPHEREx has no usable photo of this exact spot in the chosen dates."
+                obsState.sample ? "This saved inventory has no usable photo of this spot in the chosen dates." : "The archive returned no usable photo of this exact spot in the chosen dates."
               )}
             </p>
             {refreshError && <p role="alert" className="mt-2 text-[12px] text-warn">{refreshError}</p>}
@@ -654,9 +654,10 @@ export default function TimeTravelClient() {
             )}
             <Advanced className="mt-4" label="About this search" openLabel="Hide search details">
               <p>
-                SPHEREx Data Release 1 (DR1) · {obsState.source === "cache" ? obsState.sample ? "prepared observation subset" : "prepared copy of the IRSA response" : "live from IRSA SIA2"}
-                {target && ` · ${target.ra.toFixed(4)}°, ${target.dec.toFixed(4)}°`} · Archive checked {obsState.queried ? fmtDateTime(obsState.queried) : "at an unknown time"}.
+                SPHEREx Data Release 1 (DR1) · {obsState.inventoryFallback ? "saved detector-footprint inventory" : obsState.source === "cache" ? obsState.sample ? "prepared observation subset" : "prepared copy of the IRSA response" : "live from IRSA SIA2"}
+                {target && ` · ${target.ra.toFixed(4)}°, ${target.dec.toFixed(4)}°`} · {obsState.queried ? `Archive checked ${fmtDateTime(obsState.queried)}.` : obsState.inventoryFallback ? "The latest live archive search failed." : "Saved query time not recorded."}
               </p>
+              {obsState.inventoryFallback && <a className="link mt-2 inline-block" href="/data/exposure-index.json" target="_blank" rel="noreferrer">Original footprint inventory and provenance ↗</a>}
               <div className="mt-2 flex flex-wrap gap-2">
                 <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
                 {loaded && <button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button>}
@@ -1080,6 +1081,7 @@ export default function TimeTravelClient() {
                   slug={target?.slug}
                   noiseHint={robustSigma(loaded.grids[0])}
                   evidenceRequest={evidenceRequest}
+                  initialView={guidedTarget === "epsindib" ? "motion" : "summary"}
                 /></div>
               )}
             </div>

@@ -27,13 +27,16 @@ with sync_playwright() as p:
     ctx.route("**/api/known?**", lambda route: route.fulfill(status=503, json={"error": "Catalogue services deliberately offline in acceptance check"}))
     # Do not turn a prepared identity into a fabricated successful catalogue lookup.
     ctx.route("**/cache/**/known*.json", lambda route: route.fulfill(status=404, json={}))
+    ctx.route("**/cache/**/identity_*.json", lambda route: route.fulfill(status=404, json={}))
 
     page = ctx.new_page()
     page.goto(BASE, wait_until="domcontentloaded")
-    expect(page.get_by_role("link", name="See a real change", exact=False)).to_have_attribute("href", "/timetravel?target=rwaur&guide=1&mode=swipe")
+    expect(page.get_by_role("link", name="Investigate a moving brown dwarf", exact=False)).to_have_attribute("href", "/timetravel?target=epsindib&guide=1&mode=swipe")
     page.screenshot(path=str(ART / "home-desktop.png"))
-    page.get_by_role("link", name="See a real change", exact=False).click()
+    page.get_by_role("link", name="Investigate a moving brown dwarf", exact=False).click()
     guide = page.get_by_role("region", name="Guided investigation")
+    expect(guide).to_contain_text("Can you see a nearby brown dwarf move?")
+    guide.get_by_role("link", name="RW Aurigae", exact=False).click()
     expect(guide.get_by_role("button", name="Compare the pictures", exact=False)).to_be_enabled(timeout=45000)
     expect(page.get_by_label("Earlier date", exact=True)).to_be_visible()
     expect(page.get_by_role("button", name="Type sky coordinates or change search settings")).not_to_be_visible()
@@ -54,7 +57,7 @@ with sync_playwright() as p:
     page.screenshot(path=str(ART / "calibrated-brightness.png"), full_page=False)
     print("PASS: calibrated headline:", calibrated)
     expect(page.get_by_text("We cannot tell whether this source is already known from this lookup", exact=False)).to_be_visible(timeout=30000)
-    print("PASS: homepage starts a real guided brightness investigation; unavailable catalogues remain unavailable")
+    print("PASS: homepage starts the motion guide; switching to brightness works and unavailable catalogues remain unavailable")
 
     # evidence worksheet: filled from checks that ran; an unavailable catalogue stays "not checked"
     guide.get_by_role("button", name="Review the evidence", exact=False).click()
@@ -63,7 +66,7 @@ with sync_playwright() as p:
     checks = sheet.get_by_role("list", name="Alternative explanations").locator("li")
     expect(checks).to_have_count(8)
     expect(checks.filter(has_text="whole image being brighter")).to_contain_text("Checked")
-    expect(checks.filter(has_text="already catalogued")).to_contain_text("Not checked")
+    expect(checks.filter(has_text="already cataloged")).to_contain_text("Not checked")
     expect(checks.filter(has_text="spectral feature")).to_contain_text("Not checked")
     sheet.get_by_label("Your notes", exact=False).nth(4).fill("Compare a D2 set at 1.1 um.")
     sheet.screenshot(path=str(ART / "worksheet.png"))
@@ -93,7 +96,6 @@ with sync_playwright() as p:
     assert len(exported) == len(report["measurements"])
     assert exported[0]["source_fits"] == report["measurements"][0]["sourceFits"]
     assert exported[0]["empirical_error_MJy_sr_pixel"] and exported[0]["limitations"]
-    summary.screenshot(path=str(ART / "brightness-summary.png"))
     print("PASS: evidence downloads retain native measurements, errors, source URLs, service failures and limits")
 
     page.get_by_role("button", name="Share this comparison", exact=True).click()
@@ -115,6 +117,8 @@ with sync_playwright() as p:
     page.goto(BASE + "/timetravel?target=epsindib&guide=1&mode=swipe", wait_until="domcontentloaded")
     expect(page.get_by_role("region", name="Guided investigation").get_by_role("button", name="Measure this source", exact=False)).to_be_enabled(timeout=30000)
     page.get_by_role("region", name="Guided investigation").get_by_role("button", name="Measure this source", exact=False).click()
+    expect(page.get_by_role("region", name="Motion analysis", exact=True)).to_be_visible()
+    page.get_by_role("navigation", name="Measurement views").get_by_role("button", name="Summary", exact=True).click()
     expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("Measured shift")
     with page.expect_download() as downloaded:
         page.get_by_role("button", name="Download evidence JSON", exact=True).click()
@@ -135,7 +139,7 @@ with sync_playwright() as p:
             name = "guided-mobile"
         else:
             mobile.get_by_text("Why not just subtract any two pictures?", exact=True).click()
-            expect(mobile.get_by_text("A star can be bright in one infrared colour", exact=False)).to_be_visible()
+            expect(mobile.get_by_text("A star can be bright in one infrared color", exact=False)).to_be_visible()
             name = "learn-mobile"
         assert not mobile.evaluate("document.documentElement.scrollWidth > innerWidth"), path + " overflows on mobile"
         mobile.screenshot(path=str(ART / (name + ".png")), full_page=False)

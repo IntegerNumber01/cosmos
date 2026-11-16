@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findObservations } from "@/lib/engine/observations";
+import { indexObservations, inventoryProvenance } from "@/lib/engine/exposureIndex";
 import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE, validCoordinates, validSize } from "@/lib/engine/releases";
 
 export const runtime = "nodejs";
@@ -30,6 +31,15 @@ export async function GET(req: NextRequest) {
       { headers: { "Cache-Control": p.get("refresh") === "1" ? "no-store" : "public, s-maxage=3600, stale-while-revalidate=86400" } },
     );
   } catch (e) {
+    if (p.get("refresh") !== "1") {
+      const frames = indexObservations(ra, dec);
+      if (frames.length) return NextResponse.json({
+        target: { ra, dec }, schema: CACHE_SCHEMA, engine: ENGINE_VERSION, release: RELEASE.id, fieldSize: size,
+        source: "Saved NASA/IPAC IRSA detector-footprint inventory", inventoryFallback: true, inventory: inventoryProvenance,
+        sample: "The live archive search is unavailable. These dates come from a partial saved NASA detector-footprint inventory, not a complete or current observation history. Images still need the archive or its AWS mirror; other sky positions may not be indexed.",
+        frames,
+      }, { headers: { "Cache-Control": "no-store" } });
+    }
     return NextResponse.json({ error: String((e as Error).message ?? e) }, { status: 502 });
   }
 }

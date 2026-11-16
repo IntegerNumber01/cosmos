@@ -28,6 +28,7 @@ with sync_playwright() as p:
 
     ctx.route("**/api/**", unavailable)
     ctx.route("**/cache/**/known*.json", lambda route: route.fulfill(status=404, json={}))
+    ctx.route("**/cache/**/identity_*.json", lambda route: route.fulfill(status=404, json={}))
     page = ctx.new_page()
     page.goto(BASE + "/learn", wait_until="domcontentloaded")
     page.get_by_role("link", name="Try the three real cases", exact=True).click()
@@ -55,7 +56,7 @@ with sync_playwright() as p:
         links.append(case.get_by_role("link", name="Open this measurement in Time Travel").get_attribute("href"))
         expect(case.get_by_role("link", name="Original FITS", exact=False)).to_have_count(2)
         if i == 2:
-            expect(case.get_by_role("region", name="Brightness evidence")).to_contain_text("neighbouring star")
+            expect(case.get_by_role("region", name="Brightness evidence")).to_contain_text("neighboring star")
             expect(case).to_contain_text("not a current valid measurement")
         case.screenshot(path=str(ART / f"case-{i + 1}.png"))
         if i < 2:
@@ -73,7 +74,7 @@ with sync_playwright() as p:
     # The exact blended source must survive navigation and continue to be refused.
     page.goto(BASE + links[2], wait_until="domcontentloaded")
     expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("Not calibrated", timeout=45000)
-    expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("neighbouring star")
+    expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("neighboring star")
     page.get_by_role("navigation", name="Measurement views").get_by_role("button", name="Evidence", exact=True).click()
     sheet = page.get_by_role("region", name="Evidence worksheet")
     expect(sheet.locator("[data-verdict]")).not_to_have_attribute("data-verdict", "supported")
@@ -95,7 +96,7 @@ with sync_playwright() as p:
     assert json.loads(selected)["label"].startswith("Blended control")
     clone = ctx.new_page()
     clone.goto(report["investigationUrl"], wait_until="domcontentloaded")
-    expect(clone.get_by_role("region", name="Measurement summary")).to_contain_text("neighbouring star", timeout=45000)
+    expect(clone.get_by_role("region", name="Measurement summary")).to_contain_text("neighboring star", timeout=45000)
     page.screenshot(path=str(ART / "blended-restored.png"), full_page=False)
     print("PASS: selected blended source reopens exactly; readable and JSON reports retain the refusal, service failures and notes")
 

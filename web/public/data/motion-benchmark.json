@@ -1,0 +1,3445 @@
+{
+  "schema": "cosmos-motion-benchmark-v1",
+  "protocol": {
+    "schema": "cosmos-motion-benchmark-protocol-v1",
+    "frozenAgainstCommit": "e55bdd3",
+    "question": "Does field-star translation correction improve agreement with catalogue-predicted displacement on additional stars in the saved fields?",
+    "fields": [
+      "barnard",
+      "wise0855",
+      "epsindib",
+      "rwaur",
+      "rdra",
+      "gy152",
+      "gpmon",
+      "swan"
+    ],
+    "selection": "Default exposures-cadence selection from each shipped motion_analysis.json. Candidate Gaia stars have 11 <= G <= 16.5, finite proper motion, no catalogue variable flag, lie at least 12 native pixels inside the first image, and at least 10 pixels from the featured target. Sort by SHA-256 of source_id; take the first 40 per field before measuring. Retain every refusal and all fields.",
+    "maxPerField": 40,
+    "method": "Unmodified production analyseMotion on native pixels, leaving each target out of its own reference ensemble. No threshold or engine changes in response to this benchmark.",
+    "baseline": "The same accepted target centroids and visit grouping without reference-star translation correction. Both use identical exposures, catalogue truth and the calibrated method's displacement uncertainty for the discrepancy diagnostic.",
+    "truth": "Gaia catalogue positions propagated with proper motion and precise positive parallax where available to the two endpoint visit dates. Compare east/north displacement vectors, not their scalar magnitudes alone.",
+    "metrics": [
+      "selected / eligible candidates",
+      "accepted / selected",
+      "median vector residual in arcseconds for each method on the identical accepted sample",
+      "number improved, worsened or tied",
+      "residual above 3 and 5 times the same displacement uncertainty",
+      "all per-field results and all refused cases"
+    ],
+    "limitations": [
+      "A deterministic retrospective benchmark of an already developed engine on saved example fields; not a blind prospective test.",
+      "Catalogue agreement is not source discovery completeness, a sky-wide false-positive rate, or independent scientific replication.",
+      "Stars share images and reference ensembles. They are correlated and cannot be counted as independent trials.",
+      "Gaia predictions are not exact ground truth: catalogue parameter covariance, unresolved binaries and radial velocity are not modeled here.",
+      "The comparator isolates translation correction on accepted centroids; it does not compare whole products or all their quality rules.",
+      "Discrepancy screens use the production error scale; they are diagnostics, not calibrated tail probabilities."
+    ]
+  },
+  "inputs": [
+    {
+      "file": "docs/motion-benchmark-protocol.json",
+      "hashMode": "utf8-lf",
+      "sha256": "bf7a58198fa732fc638a69db351c7bdda6c5c789821d7e397e645ffe310fbcf9"
+    },
+    {
+      "file": "web/scripts/benchmark-motion.cjs",
+      "hashMode": "utf8-lf",
+      "sha256": "526520b2076471796efb4162c6162ac996bce83f317cb1f388916b774d71840e"
+    },
+    {
+      "file": "web/src/lib/engine/motion.ts",
+      "hashMode": "utf8-lf",
+      "sha256": "a54aaa683c16f10fd750fe95f4601750df8826fba7905795b673f97ca6cc010b"
+    },
+    {
+      "file": "web/src/lib/engine/sequence.ts",
+      "hashMode": "utf8-lf",
+      "sha256": "c5be076511659c6ae6a1945e93891e065c2860a9a32be98d9e44e2cdbb10cc0a"
+    },
+    {
+      "file": "web/src/lib/engine/photometry.ts",
+      "hashMode": "utf8-lf",
+      "sha256": "701ad99ff861ec3de56158bb21476b706a91f7990dc039e468cd20c67d2ff175"
+    },
+    {
+      "file": "web/src/lib/engine/astrometry.ts",
+      "hashMode": "utf8-lf",
+      "sha256": "aa0750bde037c92f9cfbf658ed95befb10b496aed79502c9f9aaec9c8b847fc7"
+    },
+    {
+      "file": "web/src/lib/engine/wcs.ts",
+      "hashMode": "utf8-lf",
+      "sha256": "7fe7d4fafd606f8185a6cac9ba3d18379f6a00c97c5a2273830d55ec1706ec20"
+    },
+    {
+      "file": "web/public/cache/barnard/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "f7cd8c14dedf3d8b6b939c2391cb11fbbd7de5fec172cce4f062ad5b922eba5e"
+    },
+    {
+      "file": "web/public/cache/barnard/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "1fbc0b2af4c9203f8520bbdba58f49ccafc5266a2ec1ef87543de2ed68334b08"
+    },
+    {
+      "file": "web/public/cache/barnard/frames/2025W34_1B_0164_3D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "0e5461cc2e357207a455835597880a862d02c2ace93c7db73d3ce477d5b4d624"
+    },
+    {
+      "file": "web/public/cache/barnard/frames/2026W12_1A_0598_1D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "236ffc500bf71a06d9a1d0c3de7d935832620009e05dde2ca4d23c77e286baa0"
+    },
+    {
+      "file": "web/public/cache/barnard/frames/2026W13_1A_0549_1D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "884d41131ef77836502995a46bcab188726499526fde17719813c11d547510ba"
+    },
+    {
+      "file": "web/public/cache/barnard/frames/2026W15_2A_0137_1D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "d701cd08de255f2fba48e218490f9e9fc9af911d845e0f5b790229cad96327c1"
+    },
+    {
+      "file": "web/public/cache/wise0855/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "ef3f26bef9da8e21d89dd592273430c88b699b9f55043b0451ee205df8d5e379"
+    },
+    {
+      "file": "web/public/cache/wise0855/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "877f8fc95108eeeade86aed3e434275e9c7d107785a5770dc7ac461dee1549fc"
+    },
+    {
+      "file": "web/public/cache/wise0855/frames/2025W45_2A_0292_3D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "b159137e9eb48eb6ee2df77e6a4fd0e39d64e8c8cc0d134c234530c3894e5d12"
+    },
+    {
+      "file": "web/public/cache/wise0855/frames/2025W50_2A_0512_1D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "23daa64401216f58edeeec67e5b7862dfa0f7bdda884ad7ee2cf67814ae2cd0d"
+    },
+    {
+      "file": "web/public/cache/wise0855/frames/2026W18_2A_0519_1D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "614e0bfd4ac28e494266cf5856118c4ae0ff5fb235ec84ff17503328b4eac893"
+    },
+    {
+      "file": "web/public/cache/wise0855/frames/2026W18_2A_0663_2D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "e102f7e52849ff302e304d872df37c5bdac328a9edfb56d14b45f3d1f76facce"
+    },
+    {
+      "file": "web/public/cache/wise0855/frames/2026W20_1A_0214_1D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "18e2c3cdb8643fbe6a212707c31bd0b2c0a56eff0ffde9ed6b165b63515afa9f"
+    },
+    {
+      "file": "web/public/cache/epsindib/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "07647a0f03dce2461f739f645d1eca2d8761509fe35bff67609204e8a384940b"
+    },
+    {
+      "file": "web/public/cache/epsindib/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "1e5e8eeb47a94b50b1352650330b9b04d900f4c49b78db69459f9152f8402e90"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2025W17_4B_0027_3D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "7f018c40ad3ce33e467c2e383aa5139dd1fd5ce7aea7413059bb55729fdea7e4"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2025W23_2B_0241_2D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "4f1930df30565e83e76874eea58737696b835cabe6557e418e5fd10b52e5f0f6"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2025W40_1A_0603_1D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "26192927bb6684a4e73fcad4d5621ee9be8b6c22fc2e280eee50b05c0e28429c"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2025W40_2B_0304_1D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "120812f34b9e63c0d2fb157604d205b594c683f83e57d8dc06a71108a367bf5f"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2025W41_2B_0173_1D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "216d98e71f3de8a9681f87c4e9cccf59165a47a6428102558f655b1f392cd2b3"
+    },
+    {
+      "file": "web/public/cache/epsindib/frames/2026W17_2A_0308_3D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "8cb5a3bd92a01bd1da7a2140c8d6ebf9b784850f61a9fa1f679a138deff7d886"
+    },
+    {
+      "file": "web/public/cache/rwaur/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "c7784959c9650b152b3edde0fbf971283e88658023bd1653c3bd13c977120ebb"
+    },
+    {
+      "file": "web/public/cache/rwaur/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "4a2f54c9ee031c731924a7c46c66fe5b451ea81f83405f9b241ea0906dabc044"
+    },
+    {
+      "file": "web/public/cache/rwaur/frames/2025W36_1A_0233_2D1_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "54e8b793cd87fa622fa1a5241d4a6d0af9584821ed80e34c3cb7ab6f7520d9ec"
+    },
+    {
+      "file": "web/public/cache/rwaur/frames/2026W10_2B_0591_3D1_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "a1ac2ea34c48296e920365601a5e80bff02375d7bca946ab6a1c67124f9ff9f7"
+    },
+    {
+      "file": "web/public/cache/rdra/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "92fa3cb4919512c163f3ba2744a547f762a47849178926a6e8ca248576a04384"
+    },
+    {
+      "file": "web/public/cache/rdra/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "b659d0d79f1bbaf6648fe5418d5c9d65d9e0cbcfa7ff3376f8def48c1b2d72e4"
+    },
+    {
+      "file": "web/public/cache/rdra/frames/2025W23_1C_0021_2D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "4713f6ee15441c8252c5595c6d73fa9c569021a56cbdb3eeac6210eef8292fff"
+    },
+    {
+      "file": "web/public/cache/rdra/frames/2026W01_1A_0534_3D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "f8d535225c2febdda781fce626da974fbea7613fa50a5a1eef253dfa08689e4b"
+    },
+    {
+      "file": "web/public/cache/rdra/frames/2026W01_2A_0426_3D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "56eab2cc2060836b3c9b81f52282b42f5cd9fba03ad7e12e805e9381b6519794"
+    },
+    {
+      "file": "web/public/cache/rdra/frames/2026W17_1B_0517_3D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "929a28a4ff14de37b732da7615c55d52917b5539ce7663f9e09f4ccfbe041f9a"
+    },
+    {
+      "file": "web/public/cache/rdra/frames/2026W20_1A_0795_1D3_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "368a185d706752494005fdee969cec3390ccc273b5f4b535ce921911a3c3deba"
+    },
+    {
+      "file": "web/public/cache/gy152/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "adc33aec09e0c33457292cf53427968959556169e391ca3a7a4c3df56965b862"
+    },
+    {
+      "file": "web/public/cache/gy152/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "492d15ab68ae177421be5e40444a1e2b2e8c7de989386a05ca8660daf69a5583"
+    },
+    {
+      "file": "web/public/cache/gy152/frames/2025W32_2D_0607_3D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "a0af78cb6bf5e21b6c97c607464b47113692d8d1e60e87a985ed64f06ddb2e51"
+    },
+    {
+      "file": "web/public/cache/gy152/frames/2025W33_1B_0472_2D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "3c23d06c12bb023fe3ece0ed04aad5e681ea0a9c761c084091ea7a3036088296"
+    },
+    {
+      "file": "web/public/cache/gy152/frames/2025W33_2C_0440_3D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "5ffe7a474d4c385c545b6edde75eabc139a20b16b171224a9f3212e954a93e8f"
+    },
+    {
+      "file": "web/public/cache/gy152/frames/2026W09_2A_0600_1D5_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "de161d6d9616154753ca49285aafe543188981e1949187056b749143126d524c"
+    },
+    {
+      "file": "web/public/cache/gpmon/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "d28d0aaa5da9e8284ee676168ae19a00798c78d803901432367f7a321c956ac1"
+    },
+    {
+      "file": "web/public/cache/gpmon/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "85606da4d8cd436a7127d415df3390a0fb4ed2717ad3b7be5792fa7245762533"
+    },
+    {
+      "file": "web/public/cache/gpmon/frames/2025W40_1A_0132_1D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "1cbf8a86cdc86bb88855c1137e2d297ffc55c66ef3a01270cc627cbf0b709d79"
+    },
+    {
+      "file": "web/public/cache/gpmon/frames/2025W46_1A_0377_1D2_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "be1bb5f7dc50d88597a12b45dc4c7bb2d26c37a92823435b75be95239e80aaa0"
+    },
+    {
+      "file": "web/public/cache/swan/motion_analysis.json",
+      "hashMode": "utf8-lf",
+      "sha256": "d95cc41dabc0b24852e61777c2ad176379012691283b5200b13e475347da1e86"
+    },
+    {
+      "file": "web/public/cache/swan/calib_stars.json",
+      "hashMode": "utf8-lf",
+      "sha256": "b369fdba164355a8888631c9b2556cee9dfe40bc568f77b3124e172f2b3b35e8"
+    },
+    {
+      "file": "web/public/cache/swan/frames/2025W44_1A_0045_2D1_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "50b2f4ea31b2fc22c967b2c84d8e9d8fdd4412ab4a164380d4f5c19a70a90557"
+    },
+    {
+      "file": "web/public/cache/swan/frames/2026W18_2A_0132_1D1_0.2.bin",
+      "hashMode": "bytes",
+      "sha256": "5855de42c45da90e081fb0b0876b5153bb7797dd7bc43f2b411e42eadc47fefb"
+    }
+  ],
+  "fields": [
+    {
+      "slug": "barnard",
+      "eligible": 108,
+      "summary": {
+        "selected": 40,
+        "accepted": 5,
+        "refused": 35,
+        "rawMedianResidual": 0.927678,
+        "correctedMedianResidual": 0.358551,
+        "improved": 4,
+        "worsened": 1,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "4472808873687491328",
+          "g": 15.0067720413208,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837765928741504",
+          "g": 16.48611068725586,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472834609131154688",
+          "g": 15.474650382995605,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 234.17382,
+          "expected": [
+            0.013888,
+            0.008269
+          ],
+          "rawVector": [
+            0.485092,
+            -0.608964
+          ],
+          "correctedVector": [
+            -0.05505,
+            0.056531
+          ],
+          "rawResidual": 0.776537,
+          "correctedResidual": 0.084153,
+          "errorScale": 0.929707,
+          "minReferences": 7,
+          "exposures": [
+            "2025W34_1B_0164_3",
+            "2026W12_1A_0598_1",
+            "2026W13_1A_0549_1",
+            "2026W15_2A_0137_1"
+          ]
+        },
+        {
+          "sourceId": "4472835846082110464",
+          "g": 14.440083503723145,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "4472833062943293952",
+          "g": 15.221646308898926,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472835330686037760",
+          "g": 16.06940269470215,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832032151138688",
+          "g": 15.310699462890625,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "4472832680687096576",
+          "g": 16.20553207397461,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472838728001567360",
+          "g": 16.42628288269043,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837942025804800",
+          "g": 11.821142196655273,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472835777362783616",
+          "g": 15.210423469543457,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837083032703744",
+          "g": 15.472872734069824,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837770227463680",
+          "g": 13.9024658203125,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "4472836013581953152",
+          "g": 16.118431091308594,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832719345899904",
+          "g": 15.542553901672363,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832581906946944",
+          "g": 15.210772514343262,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472838663580670592",
+          "g": 15.515363693237305,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832513187484544",
+          "g": 14.487945556640625,
+          "ok": true,
+          "visits": 3,
+          "baselineDays": 234.17382,
+          "expected": [
+            -0.002107,
+            -0.001502
+          ],
+          "rawVector": [
+            0.966822,
+            -0.16512
+          ],
+          "correctedVector": [
+            0.406874,
+            0.523775
+          ],
+          "rawResidual": 0.982647,
+          "correctedResidual": 0.665718,
+          "errorScale": 0.663645,
+          "minReferences": 16,
+          "exposures": [
+            "2025W34_1B_0164_3",
+            "2026W13_1A_0549_1",
+            "2026W15_2A_0137_1"
+          ]
+        },
+        {
+          "sourceId": "4472832272669313024",
+          "g": 15.564689636230469,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472836292758713216",
+          "g": 11.862573623657227,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837628489787904",
+          "g": 15.80989933013916,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472836258398975744",
+          "g": 16.307281494140625,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837632788144640",
+          "g": 15.170515060424805,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472833062943297024",
+          "g": 15.457236289978027,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472836189681423488",
+          "g": 13.705465316772461,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 234.17382,
+          "expected": [
+            -0.00387,
+            -0.004217
+          ],
+          "rawVector": [
+            0.618402,
+            -0.692231
+          ],
+          "correctedVector": [
+            0.077829,
+            -0.030775
+          ],
+          "rawResidual": 0.927678,
+          "correctedResidual": 0.085907,
+          "errorScale": 0.544491,
+          "minReferences": 9,
+          "exposures": [
+            "2025W34_1B_0164_3",
+            "2026W12_1A_0598_1",
+            "2026W13_1A_0549_1",
+            "2026W15_2A_0137_1"
+          ]
+        },
+        {
+          "sourceId": "4472838869739102720",
+          "g": 14.087055206298828,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 6.585035,
+          "expected": [
+            0.000055,
+            0.000018
+          ],
+          "rawVector": [
+            -2.343124,
+            -0.786817
+          ],
+          "correctedVector": [
+            -2.445565,
+            -0.673962
+          ],
+          "rawResidual": 2.471759,
+          "correctedResidual": 2.53679,
+          "errorScale": 1.120456,
+          "minReferences": 8,
+          "exposures": [
+            "2026W12_1A_0598_1",
+            "2026W13_1A_0549_1"
+          ]
+        },
+        {
+          "sourceId": "4472835566905145472",
+          "g": 16.22307586669922,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837048672970496",
+          "g": 16.16848373413086,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832375748534144",
+          "g": 15.918370246887207,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472834712210380032",
+          "g": 16.341293334960938,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837186111923840",
+          "g": 15.84793472290039,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "4472835807421415680",
+          "g": 12.034628868103027,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832203949832448",
+          "g": 15.680503845214844,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837495349546240",
+          "g": 13.467514991760254,
+          "ok": true,
+          "visits": 3,
+          "baselineDays": 234.17382,
+          "expected": [
+            -0.000557,
+            -0.005111
+          ],
+          "rawVector": [
+            0.459821,
+            -0.315037
+          ],
+          "correctedVector": [
+            -0.080322,
+            0.344455
+          ],
+          "rawResidual": 0.554979,
+          "correctedResidual": 0.358551,
+          "errorScale": 0.507674,
+          "minReferences": 18,
+          "exposures": [
+            "2025W34_1B_0164_3",
+            "2026W13_1A_0549_1",
+            "2026W15_2A_0137_1"
+          ]
+        },
+        {
+          "sourceId": "4472836528978002176",
+          "g": 15.354758262634277,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832066510880000",
+          "g": 15.830342292785645,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837838946944000",
+          "g": 15.046462059020996,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472837254831403648",
+          "g": 15.191537857055664,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472832959864074752",
+          "g": 14.785452842712402,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "4472838079464746880",
+          "g": 15.350715637207031,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "wise0855",
+      "eligible": 26,
+      "summary": {
+        "selected": 26,
+        "accepted": 7,
+        "refused": 19,
+        "rawMedianResidual": 0.752893,
+        "correctedMedianResidual": 0.688577,
+        "improved": 2,
+        "worsened": 5,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "5756943205434324352",
+          "g": 16.388641357421875,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756958224935793152",
+          "g": 16.029571533203125,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756955785394371328",
+          "g": 13.298080444335938,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 184.710524,
+          "expected": [
+            -0.00402,
+            -0.007894
+          ],
+          "rawVector": [
+            -0.074538,
+            -0.212964
+          ],
+          "correctedVector": [
+            0.407192,
+            0.108863
+          ],
+          "rawResidual": 0.216856,
+          "correctedResidual": 0.427466,
+          "errorScale": 0.527356,
+          "minReferences": 3,
+          "exposures": [
+            "2025W45_2A_0292_3",
+            "2025W50_2A_0512_1",
+            "2026W18_2A_0519_1",
+            "2026W18_2A_0663_2",
+            "2026W20_1A_0214_1"
+          ]
+        },
+        {
+          "sourceId": "5756956747467044608",
+          "g": 16.05809211730957,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756956163351495168",
+          "g": 15.141474723815918,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 140.30555,
+          "expected": [
+            0.001278,
+            -0.001489
+          ],
+          "rawVector": [
+            -0.157847,
+            0.734396
+          ],
+          "correctedVector": [
+            0.49639,
+            0.835744
+          ],
+          "rawResidual": 0.752893,
+          "correctedResidual": 0.972674,
+          "errorScale": 1.088281,
+          "minReferences": 5,
+          "exposures": [
+            "2025W50_2A_0512_1",
+            "2026W18_2A_0519_1"
+          ]
+        },
+        {
+          "sourceId": "5756955166919081600",
+          "g": 14.058134078979492,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756958220640028288",
+          "g": 14.81762981414795,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "5756958431094222592",
+          "g": 15.778339385986328,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "5756955579235940608",
+          "g": 15.53976058959961,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756943312809452160",
+          "g": 14.834383964538574,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756958358078991104",
+          "g": 16.418624877929688,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 8.349983,
+          "expected": [
+            -0.00038,
+            -0.000008
+          ],
+          "rawVector": [
+            1.097713,
+            0.719848
+          ],
+          "correctedVector": [
+            1.057623,
+            1.07358
+          ],
+          "rawResidual": 1.313012,
+          "correctedResidual": 1.507303,
+          "errorScale": 0.822136,
+          "minReferences": 3,
+          "exposures": [
+            "2026W18_2A_0663_2",
+            "2026W20_1A_0214_1"
+          ]
+        },
+        {
+          "sourceId": "5756958293655270400",
+          "g": 16.15276527404785,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756959491950135168",
+          "g": 13.869593620300293,
+          "ok": true,
+          "visits": 3,
+          "baselineDays": 175.816986,
+          "expected": [
+            -0.002546,
+            -0.003119
+          ],
+          "rawVector": [
+            0.092809,
+            0.086666
+          ],
+          "correctedVector": [
+            0.569294,
+            0.380467
+          ],
+          "rawResidual": 0.130972,
+          "correctedResidual": 0.688577,
+          "errorScale": 0.852601,
+          "minReferences": 3,
+          "exposures": [
+            "2025W45_2A_0292_3",
+            "2025W50_2A_0512_1",
+            "2026W18_2A_0519_1"
+          ]
+        },
+        {
+          "sourceId": "5756958362374744960",
+          "g": 16.46506690979004,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 8.62176,
+          "expected": [
+            -0.000385,
+            -0.000008
+          ],
+          "rawVector": [
+            0.742169,
+            0.666258
+          ],
+          "correctedVector": [
+            0.760352,
+            0.998809
+          ],
+          "rawResidual": 0.997646,
+          "correctedResidual": 1.25553,
+          "errorScale": 0.911363,
+          "minReferences": 3,
+          "exposures": [
+            "2026W18_2A_0519_1",
+            "2026W18_2A_0663_2",
+            "2026W20_1A_0214_1"
+          ]
+        },
+        {
+          "sourceId": "5756960046001928192",
+          "g": 16.48586082458496,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756956541308616832",
+          "g": 15.357208251953125,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 184.710524,
+          "expected": [
+            0,
+            0
+          ],
+          "rawVector": [
+            -0.372063,
+            -0.392001
+          ],
+          "correctedVector": [
+            0.2968,
+            -0.090548
+          ],
+          "rawResidual": 0.540459,
+          "correctedResidual": 0.310305,
+          "errorScale": 0.382015,
+          "minReferences": 3,
+          "exposures": [
+            "2025W45_2A_0292_3",
+            "2025W50_2A_0512_1",
+            "2026W18_2A_0519_1",
+            "2026W18_2A_0663_2",
+            "2026W20_1A_0214_1"
+          ]
+        },
+        {
+          "sourceId": "5756943312809451392",
+          "g": 15.839022636413574,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756956747467044096",
+          "g": 15.77540111541748,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756956163351495040",
+          "g": 15.339062690734863,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756958293655270144",
+          "g": 16.027666091918945,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756954960760759296",
+          "g": 16.154685974121094,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756956330854206592",
+          "g": 12.252942085266113,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "5756960355239574528",
+          "g": 14.027478218078613,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 149.199087,
+          "expected": [
+            -0.001375,
+            0.002661
+          ],
+          "rawVector": [
+            -0.47154,
+            -0.639707
+          ],
+          "correctedVector": [
+            0.231318,
+            -0.413967
+          ],
+          "rawResidual": 0.796048,
+          "correctedResidual": 0.477206,
+          "errorScale": 0.924622,
+          "minReferences": 4,
+          "exposures": [
+            "2025W50_2A_0512_1",
+            "2026W20_1A_0214_1"
+          ]
+        },
+        {
+          "sourceId": "5756954990824587392",
+          "g": 16.467496871948242,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756955888473585536",
+          "g": 15.373848915100098,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "5756955922833323392",
+          "g": 16.20685386657715,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "epsindib",
+      "eligible": 26,
+      "summary": {
+        "selected": 26,
+        "accepted": 8,
+        "refused": 18,
+        "rawMedianResidual": 0.5095,
+        "correctedMedianResidual": 0.499233,
+        "improved": 6,
+        "worsened": 2,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "6412592026417099008",
+          "g": 16.385623931884766,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412592370014523776",
+          "g": 14.068264961242676,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412596458823395328",
+          "g": 12.953572273254395,
+          "ok": true,
+          "visits": 6,
+          "baselineDays": 364.965321,
+          "expected": [
+            -0.026594,
+            -0.018571
+          ],
+          "rawVector": [
+            0.191039,
+            0.18805
+          ],
+          "correctedVector": [
+            0.207728,
+            0.124791
+          ],
+          "rawResidual": 0.300094,
+          "correctedResidual": 0.274699,
+          "errorScale": 0.656193,
+          "minReferences": 3,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2025W23_2B_0241_2",
+            "2025W40_1A_0603_1",
+            "2025W40_2B_0304_1",
+            "2025W41_2B_0173_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412594362879363328",
+          "g": 16.414278030395508,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412591300566744832",
+          "g": 16.198688507080078,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412592404374220928",
+          "g": 15.048111915588379,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594740836485888",
+          "g": 15.995610237121582,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412620167041498752",
+          "g": 16.179086685180664,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594259800093568",
+          "g": 12.961528778076172,
+          "ok": true,
+          "visits": 3,
+          "baselineDays": 364.965321,
+          "expected": [
+            0.023181,
+            -0.000114
+          ],
+          "rawVector": [
+            0.126219,
+            0.437868
+          ],
+          "correctedVector": [
+            0.100397,
+            0.404168
+          ],
+          "rawResidual": 0.449938,
+          "correctedResidual": 0.41159,
+          "errorScale": 0.649343,
+          "minReferences": 6,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2025W40_1A_0603_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412620098323390336",
+          "g": 14.536770820617676,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412592713611866496",
+          "g": 16.249034881591797,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412596390103981824",
+          "g": 15.341987609863281,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412617143385890432",
+          "g": 14.920331954956055,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594637757272192",
+          "g": 16.301494598388672,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412596493183196544",
+          "g": 16.37212562561035,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594706476744832",
+          "g": 16.04521369934082,
+          "ok": true,
+          "visits": 3,
+          "baselineDays": 203.104646,
+          "expected": [
+            -0.002529,
+            -0.005494
+          ],
+          "rawVector": [
+            0.847641,
+            0.22695
+          ],
+          "correctedVector": [
+            0.811324,
+            -0.163853
+          ],
+          "rawResidual": 0.881373,
+          "correctedResidual": 0.829116,
+          "errorScale": 1.094005,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_2B_0304_1",
+            "2025W41_2B_0173_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412596183945494144",
+          "g": 15.765997886657715,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 364.965321,
+          "expected": [
+            -0.007959,
+            -0.008976
+          ],
+          "rawVector": [
+            0.230063,
+            0.075722
+          ],
+          "correctedVector": [
+            0.223246,
+            -0.054465
+          ],
+          "rawResidual": 0.252643,
+          "correctedResidual": 0.235637,
+          "errorScale": 0.946799,
+          "minReferences": 5,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2025W40_1A_0603_1",
+            "2025W41_2B_0173_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412593435166417536",
+          "g": 13.931794166564941,
+          "ok": true,
+          "visits": 5,
+          "baselineDays": 364.965321,
+          "expected": [
+            -0.000221,
+            0.005327
+          ],
+          "rawVector": [
+            -0.035636,
+            0.460448
+          ],
+          "correctedVector": [
+            -0.038974,
+            0.314729
+          ],
+          "rawResidual": 0.456497,
+          "correctedResidual": 0.31182,
+          "errorScale": 0.651569,
+          "minReferences": 4,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2025W40_1A_0603_1",
+            "2025W40_2B_0304_1",
+            "2025W41_2B_0173_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412595771628639616",
+          "g": 14.189458847045898,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594775196223488",
+          "g": 16.164653778076172,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412595973491218944",
+          "g": 15.813785552978516,
+          "ok": true,
+          "visits": 4,
+          "baselineDays": 364.965321,
+          "expected": [
+            -0.000061,
+            0.0002
+          ],
+          "rawVector": [
+            0.449415,
+            0.774075
+          ],
+          "correctedVector": [
+            0.445914,
+            0.555522
+          ],
+          "rawResidual": 0.894936,
+          "correctedResidual": 0.712233,
+          "errorScale": 0.909076,
+          "minReferences": 6,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2025W40_1A_0603_1",
+            "2025W41_2B_0173_1",
+            "2026W17_2A_0308_3"
+          ]
+        },
+        {
+          "sourceId": "6412596836780520448",
+          "g": 14.79889965057373,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412597077298696576",
+          "g": 15.989951133728027,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594397239098752",
+          "g": 16.19563102722168,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 125.585583,
+          "expected": [
+            -0.005053,
+            -0.010438
+          ],
+          "rawVector": [
+            0.750709,
+            -0.464342
+          ],
+          "correctedVector": [
+            1.390031,
+            -0.388201
+          ],
+          "rawResidual": 0.881592,
+          "correctedResidual": 1.445325,
+          "errorScale": 1.365547,
+          "minReferences": 4,
+          "exposures": [
+            "2025W23_2B_0241_2",
+            "2025W41_2B_0173_1"
+          ]
+        },
+        {
+          "sourceId": "6412597008579272704",
+          "g": 15.212986946105957,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6412594672117008128",
+          "g": 15.728761672973633,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 364.965321,
+          "expected": [
+            -0.005226,
+            -0.023612
+          ],
+          "rawVector": [
+            0.549516,
+            0.069508
+          ],
+          "correctedVector": [
+            0.579402,
+            0.027688
+          ],
+          "rawResidual": 0.562503,
+          "correctedResidual": 0.586875,
+          "errorScale": 0.929992,
+          "minReferences": 9,
+          "exposures": [
+            "2025W17_4B_0027_3",
+            "2026W17_2A_0308_3"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rwaur",
+      "eligible": 58,
+      "summary": {
+        "selected": 40,
+        "accepted": 5,
+        "refused": 35,
+        "rawMedianResidual": 0.357848,
+        "correctedMedianResidual": 0.298366,
+        "improved": 3,
+        "worsened": 2,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "156431096994224384",
+          "g": 16.38702964782715,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156382718482607616",
+          "g": 16.34921646118164,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336023597523712",
+          "g": 16.324283599853516,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156337157468894336",
+          "g": 16.38901710510254,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336916948843648",
+          "g": 16.347021102905273,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430542942606720",
+          "g": 15.333283424377441,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 187.645464,
+          "expected": [
+            -0.000654,
+            -0.003666
+          ],
+          "rawVector": [
+            -0.085847,
+            -0.775041
+          ],
+          "correctedVector": [
+            -0.235386,
+            -0.524752
+          ],
+          "rawResidual": 0.776066,
+          "correctedResidual": 0.571516,
+          "errorScale": 0.889998,
+          "minReferences": 12,
+          "exposures": [
+            "2025W36_1A_0233_2",
+            "2026W10_2B_0591_3"
+          ]
+        },
+        {
+          "sourceId": "156430375439690368",
+          "g": 13.544578552246094,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 187.645464,
+          "expected": [
+            -0.000273,
+            -0.001678
+          ],
+          "rawVector": [
+            0.093005,
+            -0.137008
+          ],
+          "correctedVector": [
+            -0.04141,
+            0.177047
+          ],
+          "rawResidual": 0.164362,
+          "correctedResidual": 0.183398,
+          "errorScale": 0.524097,
+          "minReferences": 11,
+          "exposures": [
+            "2025W36_1A_0233_2",
+            "2026W10_2B_0591_3"
+          ]
+        },
+        {
+          "sourceId": "156335675705862016",
+          "g": 15.645529747009277,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336023597525504",
+          "g": 15.819055557250977,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430989619218176",
+          "g": 16.0068359375,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336126676738048",
+          "g": 15.690369606018066,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430955257549952",
+          "g": 16.4591121673584,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430890833907584",
+          "g": 14.66094970703125,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "156335405122243328",
+          "g": 15.470207214355469,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156335847503014272",
+          "g": 12.06386947631836,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156337260548477184",
+          "g": 16.032081604003906,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430684677333760",
+          "g": 15.065194129943848,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "156335783079360128",
+          "g": 15.62939167022705,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156288950755955968",
+          "g": 15.18319320678711,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156431131353952640",
+          "g": 15.323735237121582,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 187.645464,
+          "expected": [
+            -0.00074,
+            0.000992
+          ],
+          "rawVector": [
+            -0.138628,
+            -0.329223
+          ],
+          "correctedVector": [
+            -0.288137,
+            -0.229954
+          ],
+          "rawResidual": 0.357848,
+          "correctedResidual": 0.368691,
+          "errorScale": 0.839589,
+          "minReferences": 8,
+          "exposures": [
+            "2025W36_1A_0233_2",
+            "2026W10_2B_0591_3"
+          ]
+        },
+        {
+          "sourceId": "156335611280675328",
+          "g": 16.162567138671875,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430238000750592",
+          "g": 14.80481243133545,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156382924642022400",
+          "g": 16.37359046936035,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430478516982400",
+          "g": 16.2077693939209,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156337290611724416",
+          "g": 16.192737579345703,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "156336878294789888",
+          "g": 15.182472229003906,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336023597527808",
+          "g": 16.407197952270508,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430027546480512",
+          "g": 14.77597427368164,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430474223157760",
+          "g": 15.431160926818848,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "156430134921542272",
+          "g": 16.396724700927734,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156431234433162496",
+          "g": 14.647100448608398,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 187.645464,
+          "expected": [
+            0.002425,
+            -0.003458
+          ],
+          "rawVector": [
+            0.135389,
+            -0.339101
+          ],
+          "correctedVector": [
+            -0.014112,
+            -0.301366
+          ],
+          "rawResidual": 0.361021,
+          "correctedResidual": 0.298366,
+          "errorScale": 0.688742,
+          "minReferences": 6,
+          "exposures": [
+            "2025W36_1A_0233_2",
+            "2026W10_2B_0591_3"
+          ]
+        },
+        {
+          "sourceId": "156336401554659456",
+          "g": 15.383866310119629,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156288950755956608",
+          "g": 15.121428489685059,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156382546683909504",
+          "g": 14.852746963500977,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156336470274134912",
+          "g": 14.603384971618652,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430925195524224",
+          "g": 15.92800521850586,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "156430886538071552",
+          "g": 12.800509452819824,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "156337294907839232",
+          "g": 12.780925750732422,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 187.645464,
+          "expected": [
+            -0.002449,
+            -0.002886
+          ],
+          "rawVector": [
+            0.195039,
+            -0.227265
+          ],
+          "correctedVector": [
+            0.052443,
+            0.057106
+          ],
+          "rawResidual": 0.29891,
+          "correctedResidual": 0.081315,
+          "errorScale": 0.50821,
+          "minReferences": 10,
+          "exposures": [
+            "2025W36_1A_0233_2",
+            "2026W10_2B_0591_3"
+          ]
+        },
+        {
+          "sourceId": "156430272360627968",
+          "g": 14.358622550964355,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "156337329267577088",
+          "g": 16.078937530517578,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "rdra",
+      "eligible": 16,
+      "summary": {
+        "selected": 16,
+        "accepted": 5,
+        "refused": 11,
+        "rawMedianResidual": 0.421155,
+        "correctedMedianResidual": 0.592979,
+        "improved": 0,
+        "worsened": 5,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "1648328806627794688",
+          "g": 15.976970672607422,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1636317329289320960",
+          "g": 14.550318717956543,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648328355654678784",
+          "g": 15.406149864196777,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648328119433021824",
+          "g": 14.294921875,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648331074370509952",
+          "g": 13.639152526855469,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 324.684071,
+          "expected": [
+            -0.002266,
+            0.004917
+          ],
+          "rawVector": [
+            0.520032,
+            0.101461
+          ],
+          "correctedVector": [
+            0.403718,
+            0.553588
+          ],
+          "rawResidual": 0.531146,
+          "correctedResidual": 0.682541,
+          "errorScale": 1.119453,
+          "minReferences": 3,
+          "exposures": [
+            "2025W23_1C_0021_2",
+            "2026W17_1B_0517_3"
+          ]
+        },
+        {
+          "sourceId": "1648328325591451776",
+          "g": 15.431206703186035,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648331929067468544",
+          "g": 13.272738456726074,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 212.453944,
+          "expected": [
+            0.007242,
+            0.029777
+          ],
+          "rawVector": [
+            -0.220043,
+            -0.324784
+          ],
+          "correctedVector": [
+            -0.465424,
+            0.421629
+          ],
+          "rawResidual": 0.421155,
+          "correctedResidual": 0.613971,
+          "errorScale": 0.912238,
+          "minReferences": 3,
+          "exposures": [
+            "2025W23_1C_0021_2",
+            "2026W01_1A_0534_3"
+          ]
+        },
+        {
+          "sourceId": "1636317329289320320",
+          "g": 15.067559242248535,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "1648331692845809024",
+          "g": 13.952740669250488,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 324.684071,
+          "expected": [
+            0.000694,
+            -0.005861
+          ],
+          "rawVector": [
+            0.377834,
+            0.074418
+          ],
+          "correctedVector": [
+            0.261784,
+            0.526545
+          ],
+          "rawResidual": 0.38559,
+          "correctedResidual": 0.592979,
+          "errorScale": 1.176105,
+          "minReferences": 3,
+          "exposures": [
+            "2025W23_1C_0021_2",
+            "2026W17_1B_0517_3"
+          ]
+        },
+        {
+          "sourceId": "1648326843826192768",
+          "g": 12.515624046325684,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 324.684071,
+          "expected": [
+            -0.002169,
+            0.001659
+          ],
+          "rawVector": [
+            0.114523,
+            -0.039434
+          ],
+          "correctedVector": [
+            -0.264703,
+            -0.135978
+          ],
+          "rawResidual": 0.123716,
+          "correctedResidual": 0.296425,
+          "errorScale": 1.178492,
+          "minReferences": 3,
+          "exposures": [
+            "2025W23_1C_0021_2",
+            "2026W17_1B_0517_3"
+          ]
+        },
+        {
+          "sourceId": "1636317260569843840",
+          "g": 15.6494779586792,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 324.684071,
+          "expected": [
+            -0.009138,
+            0.013492
+          ],
+          "rawVector": [
+            0.302233,
+            -0.438635
+          ],
+          "correctedVector": [
+            -0.077389,
+            -0.535179
+          ],
+          "rawResidual": 0.548972,
+          "correctedResidual": 0.552899,
+          "errorScale": 1.272436,
+          "minReferences": 3,
+          "exposures": [
+            "2025W23_1C_0021_2",
+            "2026W17_1B_0517_3"
+          ]
+        },
+        {
+          "sourceId": "1648327226079824640",
+          "g": 13.752996444702148,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1636317329289320832",
+          "g": 14.44129753112793,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "1648328085073287040",
+          "g": 14.204461097717285,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648327741475885824",
+          "g": 16.272403717041016,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "1648326435805836800",
+          "g": 16.460119247436523,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "gy152",
+      "eligible": 1,
+      "summary": {
+        "selected": 1,
+        "accepted": 0,
+        "refused": 1,
+        "rawMedianResidual": null,
+        "correctedMedianResidual": null,
+        "improved": 0,
+        "worsened": 0,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "6049163679220111744",
+          "g": 16.348978,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Only 0 clean isolated reference stars; at least three are needed.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "gpmon",
+      "eligible": 51,
+      "summary": {
+        "selected": 40,
+        "accepted": 8,
+        "refused": 32,
+        "rawMedianResidual": 0.718196,
+        "correctedMedianResidual": 0.804072,
+        "improved": 4,
+        "worsened": 4,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 1,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "3326741003009940096",
+          "g": 14.675498,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000105,
+            -0.00004
+          ],
+          "rawVector": [
+            -0.303833,
+            -1.761837
+          ],
+          "correctedVector": [
+            0.286423,
+            -1.655155
+          ],
+          "rawResidual": 1.787786,
+          "correctedResidual": 1.679733,
+          "errorScale": 0.715128,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326717019912569088",
+          "g": 13.79901,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000194,
+            -0.000459
+          ],
+          "rawVector": [
+            -0.793693,
+            -0.402456
+          ],
+          "correctedVector": [
+            -0.311582,
+            -0.218035
+          ],
+          "rawResidual": 0.889518,
+          "correctedResidual": 0.379871,
+          "errorScale": 0.554807,
+          "minReferences": 5,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326739899203380096",
+          "g": 15.930918,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326741067438961664",
+          "g": 14.381359,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715336285397760",
+          "g": 16.167677,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000697,
+            -0.000553
+          ],
+          "rawVector": [
+            -0.314084,
+            -0.146348
+          ],
+          "correctedVector": [
+            0.038067,
+            -0.079222
+          ],
+          "rawResidual": 0.345641,
+          "correctedResidual": 0.087701,
+          "errorScale": 0.733477,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326928847700236288",
+          "g": 16.271015,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "3326904658444434944",
+          "g": 15.088505,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715847385623680",
+          "g": 14.404063,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716985553376128",
+          "g": 15.800287,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716607595712256",
+          "g": 14.60041,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715263271172096",
+          "g": 15.378524,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000336,
+            -0.000424
+          ],
+          "rawVector": [
+            -0.29382,
+            0.031531
+          ],
+          "correctedVector": [
+            0.08586,
+            0.158378
+          ],
+          "rawResidual": 0.295219,
+          "correctedResidual": 0.180687,
+          "errorScale": 0.828617,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326715886041204096",
+          "g": 16.415417,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715542443820800",
+          "g": 13.527051,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716470157708672",
+          "g": 12.281017,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326928882059976576",
+          "g": 15.051153,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716023480154880",
+          "g": 12.18487,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716848113882240",
+          "g": 16.185202,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715542441797376",
+          "g": 15.336184,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716470154750848",
+          "g": 16.354355,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326928847700236928",
+          "g": 15.941736,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715611163298304",
+          "g": 15.430951,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326928946483977088",
+          "g": 14.762191,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326740693773246848",
+          "g": 15.921277,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326715851681467904",
+          "g": 12.7935,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000126,
+            -0.000449
+          ],
+          "rawVector": [
+            1.456281,
+            0.315383
+          ],
+          "correctedVector": [
+            1.938427,
+            0.499804
+          ],
+          "rawResidual": 1.490259,
+          "correctedResidual": 2.00206,
+          "errorScale": 0.580453,
+          "minReferences": 5,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326740758201316608",
+          "g": 14.765855,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716294063118720",
+          "g": 16.292234,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716710674925568",
+          "g": 15.644632,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326905173840508416",
+          "g": 14.867373,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000165,
+            -0.000442
+          ],
+          "rawVector": [
+            -0.277324,
+            -0.54238
+          ],
+          "correctedVector": [
+            0.216754,
+            -0.594638
+          ],
+          "rawResidual": 0.608699,
+          "correctedResidual": 0.632553,
+          "errorScale": 0.759117,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326716779394406400",
+          "g": 16.100624,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326905036401556480",
+          "g": 15.594418,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326903073600851840",
+          "g": 16.179043,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326739903498311808",
+          "g": 14.246314,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716401437823488",
+          "g": 15.654967,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326928675901550208",
+          "g": 15.200226,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000174,
+            -0.000479
+          ],
+          "rawVector": [
+            -0.307636,
+            0.767989
+          ],
+          "correctedVector": [
+            0.142379,
+            0.96464
+          ],
+          "rawResidual": 0.827693,
+          "correctedResidual": 0.97559,
+          "errorScale": 0.66389,
+          "minReferences": 5,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326715782962533376",
+          "g": 16.486385,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716641955448448",
+          "g": 16.41005,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716745034669184",
+          "g": 15.005827,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326740998714107008",
+          "g": 11.374605,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 42.855341,
+          "expected": [
+            -0.000188,
+            -0.000408
+          ],
+          "rawVector": [
+            0.397582,
+            -0.225158
+          ],
+          "correctedVector": [
+            0.987854,
+            -0.118475
+          ],
+          "rawResidual": 0.456873,
+          "correctedResidual": 0.995071,
+          "errorScale": 0.512459,
+          "minReferences": 4,
+          "exposures": [
+            "2025W40_1A_0132_1",
+            "2025W46_1A_0377_1"
+          ]
+        },
+        {
+          "sourceId": "3326741037369677312",
+          "g": 16.044432,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "3326716504516497408",
+          "g": 15.024122,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "swan",
+      "eligible": 51,
+      "summary": {
+        "selected": 40,
+        "accepted": 10,
+        "refused": 30,
+        "rawMedianResidual": 0.590679,
+        "correctedMedianResidual": 0.298922,
+        "improved": 9,
+        "worsened": 1,
+        "tied": 0,
+        "rawOver3": 0,
+        "correctedOver3": 0,
+        "rawOver5": 0,
+        "correctedOver5": 0
+      },
+      "rows": [
+        {
+          "sourceId": "6910618562700778240",
+          "g": 13.354404,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            -0.004372,
+            -0.004593
+          ],
+          "rawVector": [
+            0.285051,
+            0.528051
+          ],
+          "correctedVector": [
+            0.117376,
+            0.167444
+          ],
+          "rawResidual": 0.606198,
+          "correctedResidual": 0.210759,
+          "errorScale": 0.420821,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910619563429620736",
+          "g": 13.260698,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910619490414922368",
+          "g": 15.695225,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910605883958357120",
+          "g": 16.334051,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910606128771912192",
+          "g": 15.783196,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910624506936723072",
+          "g": 15.702237,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "6910619219832120704",
+          "g": 14.981744,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910618635716568576",
+          "g": 14.983525,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.002401,
+            0.003452
+          ],
+          "rawVector": [
+            0.006124,
+            0.559914
+          ],
+          "correctedVector": [
+            -0.157531,
+            0.272751
+          ],
+          "rawResidual": 0.556475,
+          "correctedResidual": 0.313209,
+          "errorScale": 0.705975,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910605372857666944",
+          "g": 15.074182,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.001588,
+            -0.001118
+          ],
+          "rawVector": [
+            0.531408,
+            0.532893
+          ],
+          "correctedVector": [
+            0.396704,
+            0.162379
+          ],
+          "rawResidual": 0.752248,
+          "correctedResidual": 0.427607,
+          "errorScale": 0.491747,
+          "minReferences": 12,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910606021397328768",
+          "g": 15.716399,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910624305073521408",
+          "g": 15.441937,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "6910617875507110656",
+          "g": 16.201561,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910616299254355712",
+          "g": 15.586051,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910618429557586944",
+          "g": 16.16354,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910618773155519104",
+          "g": 13.494943,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.000053,
+            0.001114
+          ],
+          "rawVector": [
+            0.119835,
+            0.95864
+          ],
+          "correctedVector": [
+            -0.052913,
+            0.671477
+          ],
+          "rawResidual": 0.964989,
+          "correctedResidual": 0.672452,
+          "errorScale": 0.429932,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910624373794392704",
+          "g": 12.202401,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.000021,
+            -0.000897
+          ],
+          "rawVector": [
+            0.003638,
+            0.309146
+          ],
+          "correctedVector": [
+            -0.185746,
+            -0.028475
+          ],
+          "rawResidual": 0.310064,
+          "correctedResidual": 0.187803,
+          "errorScale": 0.432763,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910619559136374400",
+          "g": 14.979345,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910604170266708224",
+          "g": 13.970257,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910618292119298688",
+          "g": 13.608124,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            -0.001672,
+            -0.002591
+          ],
+          "rawVector": [
+            0.335313,
+            0.444611
+          ],
+          "correctedVector": [
+            0.167643,
+            0.084003
+          ],
+          "rawResidual": 0.559954,
+          "correctedResidual": 0.190174,
+          "errorScale": 0.422026,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910625748182542080",
+          "g": 16.221209,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910619529069879680",
+          "g": 15.621705,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910624472575776512",
+          "g": 13.833738,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "A comparable neighboring star overlaps the target aperture."
+          ]
+        },
+        {
+          "sourceId": "6910619219832230784",
+          "g": 16.42879,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910606403649820416",
+          "g": 15.862655,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910619563429622144",
+          "g": 15.090257,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910616299254356096",
+          "g": 15.819501,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            -0.003663,
+            -0.005253
+          ],
+          "rawVector": [
+            0.681691,
+            0.768777
+          ],
+          "correctedVector": [
+            0.51404,
+            0.40817
+          ],
+          "rawResidual": 1.033843,
+          "correctedResidual": 0.662521,
+          "errorScale": 0.976691,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910624373792994432",
+          "g": 16.496296,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "6910618493982488960",
+          "g": 14.744427,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910625301505936384",
+          "g": 11.614258,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910605956973099264",
+          "g": 15.496058,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            -0.011069,
+            -0.000431
+          ],
+          "rawVector": [
+            0.105521,
+            0.079914
+          ],
+          "correctedVector": [
+            -0.063201,
+            -0.280252
+          ],
+          "rawResidual": 0.141593,
+          "correctedResidual": 0.284636,
+          "errorScale": 0.591588,
+          "minReferences": 11,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910624369497741568",
+          "g": 16.262602,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910618219103395200",
+          "g": 12.618353,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.000391,
+            -0.006936
+          ],
+          "rawVector": [
+            0.029013,
+            0.567511
+          ],
+          "correctedVector": [
+            -0.117521,
+            0.24866
+          ],
+          "rawResidual": 0.57516,
+          "correctedResidual": 0.281482,
+          "errorScale": 0.394313,
+          "minReferences": 12,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910619559133189504",
+          "g": 13.985457,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910618562701962880",
+          "g": 16.177393,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "6910619563429620352",
+          "g": 16.045704,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Centroid is more than one native pixel from the requested track; possible neighbor.",
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910619318615021184",
+          "g": 12.740574,
+          "ok": false,
+          "reason": "Wavelengths at this source differ by more than half a channel.",
+          "exclusions": []
+        },
+        {
+          "sourceId": "6910604273345924352",
+          "g": 16.343266,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        },
+        {
+          "sourceId": "6910617982881536768",
+          "g": 12.31352,
+          "ok": true,
+          "visits": 2,
+          "baselineDays": 185.872352,
+          "expected": [
+            0.009706,
+            0.000578
+          ],
+          "rawVector": [
+            0.098865,
+            0.741148
+          ],
+          "correctedVector": [
+            -0.085423,
+            0.443918
+          ],
+          "rawResidual": 0.745918,
+          "correctedResidual": 0.453431,
+          "errorScale": 0.429577,
+          "minReferences": 13,
+          "exposures": [
+            "2025W44_1A_0045_2",
+            "2026W18_2A_0132_1"
+          ]
+        },
+        {
+          "sourceId": "6910624472575776256",
+          "g": 14.545818,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated.",
+            "Centroid is more than one native pixel from the requested track; possible neighbor."
+          ]
+        },
+        {
+          "sourceId": "6910605716454934016",
+          "g": 15.845451,
+          "ok": false,
+          "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+          "exclusions": [
+            "Target is faint, flagged, incomplete or saturated."
+          ]
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "selected": 229,
+    "accepted": 48,
+    "refused": 181,
+    "rawMedianResidual": 0.561228,
+    "correctedMedianResidual": 0.440519,
+    "improved": 28,
+    "worsened": 20,
+    "tied": 0,
+    "rawOver3": 0,
+    "correctedOver3": 1,
+    "rawOver5": 0,
+    "correctedOver5": 0
+  }
+}

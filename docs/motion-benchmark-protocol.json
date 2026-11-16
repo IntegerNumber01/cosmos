@@ -1,0 +1,20 @@
+{
+  "schema": "cosmos-motion-benchmark-protocol-v1",
+  "frozenAgainstCommit": "e55bdd3",
+  "question": "Does field-star translation correction improve agreement with catalogue-predicted displacement on additional stars in the saved fields?",
+  "fields": ["barnard", "wise0855", "epsindib", "rwaur", "rdra", "gy152", "gpmon", "swan"],
+  "selection": "Default exposures-cadence selection from each shipped motion_analysis.json. Candidate Gaia stars have 11 <= G <= 16.5, finite proper motion, no catalogue variable flag, lie at least 12 native pixels inside the first image, and at least 10 pixels from the featured target. Sort by SHA-256 of source_id; take the first 40 per field before measuring. Retain every refusal and all fields.",
+  "maxPerField": 40,
+  "method": "Unmodified production analyseMotion on native pixels, leaving each target out of its own reference ensemble. No threshold or engine changes in response to this benchmark.",
+  "baseline": "The same accepted target centroids and visit grouping without reference-star translation correction. Both use identical exposures, catalogue truth and the calibrated method's displacement uncertainty for the discrepancy diagnostic.",
+  "truth": "Gaia catalogue positions propagated with proper motion and precise positive parallax where available to the two endpoint visit dates. Compare east/north displacement vectors, not their scalar magnitudes alone.",
+  "metrics": ["selected / eligible candidates", "accepted / selected", "median vector residual in arcseconds for each method on the identical accepted sample", "number improved, worsened or tied", "residual above 3 and 5 times the same displacement uncertainty", "all per-field results and all refused cases"],
+  "limitations": [
+    "A deterministic retrospective benchmark of an already developed engine on saved example fields; not a blind prospective test.",
+    "Catalogue agreement is not source discovery completeness, a sky-wide false-positive rate, or independent scientific replication.",
+    "Stars share images and reference ensembles. They are correlated and cannot be counted as independent trials.",
+    "Gaia predictions are not exact ground truth: catalogue parameter covariance, unresolved binaries and radial velocity are not modeled here.",
+    "The comparator isolates translation correction on accepted centroids; it does not compare whole products or all their quality rules.",
+    "Discrepancy screens use the production error scale; they are diagnostics, not calibrated tail probabilities."
+  ]
+}

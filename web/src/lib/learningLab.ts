@@ -8,6 +8,8 @@ export const LAB_CASES = [
   { id: "blend", title: "Case 3 · A star with company", slug: "rwaur", keys: ["2025W36_1A_0233_2D1", "2026W10_2B_0591_3D1"] },
 ] as const;
 export type LabId = (typeof LAB_CASES)[number]["id"];
+export const TRANSFER_CASE = { id: "gpmon", title: "A new investigation · GP Mon", slug: "gpmon", keys: ["2025W40_1A_0132_1D2", "2025W46_1A_0377_1D2"] } as const;
+export type InvestigationId = LabId | typeof TRANSFER_CASE.id;
 export type LabChoice = "supported" | "no-change" | "unreliable";
 export const LAB_CHOICES: { value: LabChoice; label: string }[] = [
   { value: "supported", label: "A brightness change is supported so far" },
@@ -22,8 +24,9 @@ export type LabResult = {
 };
 
 /** The same native-pixel rules as Time Travel, with fixed real benchmark/control pairs. */
-export function evaluateLabCase(id: LabId, frames: Frame[], field: StarField): LabResult {
-  const c = LAB_CASES.find((c) => c.id === id)!;
+export function evaluateLabCase(id: InvestigationId, frames: Frame[], field: StarField): LabResult {
+  const c = [...LAB_CASES, TRANSFER_CASE].find((c) => c.id === id);
+  if (!c) throw new Error("Unknown investigation.");
   if (frames.length !== 2 || frames.some((f, i) => `${f.meta.obsid}D${f.meta.detector}` !== c.keys[i] || !f.meta.sourceFits.includes("/spherex/dr1/")))
     throw new Error("These images do not match the prepared investigation.");
   const star = id === "blend" ? field.stars.find((s) => s.source_id === "156430890833907584") : null;
@@ -52,11 +55,12 @@ export function evaluateLabCase(id: LabId, frames: Frame[], field: StarField): L
   return { frames, measurements, positions, calibration, interpretation, explanation, next, catalogueSource: field.source, comparisonUrl: `/timetravel?${q}` };
 }
 
-export async function loadLabCase(id: LabId, signal: AbortSignal): Promise<LabResult> {
-  const c = LAB_CASES.find((c) => c.id === id)!;
+export async function loadLabCase(id: InvestigationId, signal: AbortSignal, fetcher: typeof fetch = fetch): Promise<LabResult> {
+  const c = [...LAB_CASES, TRANSFER_CASE].find((c) => c.id === id);
+  if (!c) throw new Error("Unknown investigation.");
   const base = `/cache/${c.slug}`;
   const read = async (url: string) => {
-    const response = await fetch(url, { signal });
+    const response = await fetcher(url, { signal });
     if (!response.ok) throw new Error("A prepared image or star field could not be loaded. Retry when the site is reachable.");
     return response;
   };

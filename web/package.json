@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/prepare-offline.cjs && next build",
+    "build": "node scripts/build-exposure-index.cjs && node scripts/prepare-offline.cjs && next build",
     "start": "next start",
-    "test": "node --test scripts/test-challenge.cjs scripts/test-known.cjs scripts/test-learning.cjs scripts/test-motion.cjs",
+    "test": "node --test scripts/test-challenge.cjs scripts/test-known.cjs scripts/test-learning.cjs scripts/test-motion.cjs scripts/test-investigation.cjs scripts/test-exposure-index.cjs",
+    "prepare:index": "node scripts/build-exposure-index.cjs",
+    "benchmark:motion": "node scripts/benchmark-motion.cjs --write",
     "prepare:offline": "node scripts/prepare-offline.cjs",
     "lint": "eslint"
   },

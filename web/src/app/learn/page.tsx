@@ -19,20 +19,20 @@ export default function LearnPage() {
         <p className="mt-4 max-w-2xl text-[16px] leading-relaxed text-text/80">You don&apos;t need to know astronomy coordinates or install software. Start with real NASA pictures, ask one question, and follow the evidence.</p>
 
         <section aria-label="Choose an investigation" className="mt-8 grid gap-4 md:grid-cols-2">
-          <Link href="/timetravel?target=rwaur&guide=1&mode=swipe" className="glass group overflow-hidden rounded-2xl transition glass-hover">
+          <Link href="/timetravel?target=epsindib&guide=1&mode=swipe" className="glass group overflow-hidden rounded-2xl transition glass-hover">
             <div className="p-6">
-              <div className="label">Start here · brightness</div>
-              <h2 className="font-display mt-2 text-[27px] font-semibold">Did this young star get brighter?</h2>
-              <p className="mt-3 text-[14px] leading-relaxed text-muted">Compare RW Aurigae on two dates, measure its brightness, and learn why a visible difference still needs checking.</p>
+              <div className="label">Start here · motion</div>
+              <h2 className="font-display mt-2 text-[27px] font-semibold">Can a brown dwarf move in a year?</h2>
+              <p className="mt-3 text-[14px] leading-relaxed text-muted">Find Epsilon Indi B in two real observations. Measure its tiny shift against surrounding stars, then compare the result with a separate prediction.</p>
               <span className="btn btn-primary mt-5">Start the guided investigation →</span>
             </div>
           </Link>
-          <Link href="/timetravel?target=epsindib&guide=1&mode=swipe" className="glass group overflow-hidden rounded-2xl transition glass-hover">
+          <Link href="/timetravel?target=rwaur&guide=1&mode=swipe" className="glass group overflow-hidden rounded-2xl transition glass-hover">
             <div className="p-6">
-              <div className="label">Go further · motion</div>
-              <h2 className="font-display mt-2 text-[27px] font-semibold">Can a brown dwarf move in a year?</h2>
-              <p className="mt-3 text-[14px] leading-relaxed text-muted">Look for a tiny shift in Epsilon Indi B. Compare measured positions with a catalog prediction and understand the uncertainty.</p>
-              <span className="btn mt-5">Investigate motion →</span>
+              <div className="label">Next · brightness</div>
+              <h2 className="font-display mt-2 text-[27px] font-semibold">Did this young star get brighter?</h2>
+              <p className="mt-3 text-[14px] leading-relaxed text-muted">Compare RW Aurigae at matching infrared wavelengths. Learn why a brightness change is a different question from a change of position.</p>
+              <span className="btn mt-5">Investigate brightness →</span>
             </div>
           </Link>
         </section>

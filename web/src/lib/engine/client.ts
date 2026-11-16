@@ -20,7 +20,7 @@ async function getJSON(url: string, timeoutMs: number, fresh = false) {
 }
 
 export async function getObservations(ra: number, dec: number, slug?: string, preferCache = true, size = 0.1, refresh = false) {
-  const live = () => getJSON(`/api/observations?ra=${ra}&dec=${dec}&size=${size}${refresh ? "&refresh=1" : ""}`, 60000, refresh).then((d) => ({ ...d, source: "live" as Source }));
+  const live = () => getJSON(`/api/observations?ra=${ra}&dec=${dec}&size=${size}${refresh ? "&refresh=1" : ""}`, 60000, refresh).then((d) => ({ ...d, source: (d.inventoryFallback ? "cache" : "live") as Source }));
   const cache = async () => {
     const d = await getJSON(`/cache/${slug}/prepared.json`, 15000)
       .catch(() => getJSON(`/cache/${slug}/observations.json`, 15000));

@@ -33,6 +33,7 @@ type Props = {
   slug?: string;
   noiseHint: number;
   evidenceRequest?: number;
+  initialView?: "summary" | "motion";
 };
 
 const fmtDate = (iso: string) =>
@@ -90,9 +91,9 @@ function Chart({ pts, unit, label }: { pts: { t: number; v: number; e: number; l
   );
 }
 
-export default function MeasurePanel({ frames, at, slug, evidenceRequest = 0 }: Props) {
-  const [tab, setTab] = useState<"summary" | "motion" | "evidence">("summary");
-  const [motionVisited, setMotionVisited] = useState(false);
+export default function MeasurePanel({ frames, at, slug, evidenceRequest = 0, initialView = "summary" }: Props) {
+  const [tab, setTab] = useState<"summary" | "motion" | "evidence">(initialView);
+  const [motionVisited, setMotionVisited] = useState(initialView === "motion");
   const [motionResult, setMotionResult] = useState<MotionResult | null>(null);
   useEffect(() => { if (evidenceRequest > 0) setTab("evidence"); }, [evidenceRequest]);
   // follow proper motion (if known) so the aperture stays on a fast-moving star on every date
@@ -430,7 +431,10 @@ export default function MeasurePanel({ frames, at, slug, evidenceRequest = 0 }: 
       <div className="label">Take a closer look · {at.label}</div>
       <p className="mt-1 text-[12.5px] text-muted">We measure how bright this spot is, and where exactly it sits, on every date.</p>
 
-      <section aria-label="Measurement summary" className="mt-4 rounded-xl card p-4">
+      <nav aria-label="Measurement views" className="mt-4 flex gap-2 border-b border-line pb-3">
+        {(["summary", "motion", "evidence"] as const).map((value) => <button key={value} type="button" aria-pressed={tab === value} className={`btn ${tab === value ? "btn-primary" : ""}`} onClick={() => { setTab(value); if (value === "motion") setMotionVisited(true); }}>{value[0].toUpperCase() + value.slice(1)}</button>)}
+      </nav>
+      <section hidden={tab !== "summary"} aria-label="Measurement summary" className="mt-4 rounded-xl card p-4">
         <h3 className="font-display text-[20px] font-semibold">What these measurements show</h3>
         <p className="mt-1 text-[12px] text-muted">Calculated from the current sequence; separate from the checked case-study results.</p>
         <dl className="mt-3 space-y-3 text-[13px] leading-relaxed">
@@ -465,9 +469,6 @@ export default function MeasurePanel({ frames, at, slug, evidenceRequest = 0 }: 
         <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Color, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
       </section>
 
-      <nav aria-label="Measurement views" className="mt-4 flex gap-2 border-b border-line pb-3">
-        {(["summary", "motion", "evidence"] as const).map((value) => <button key={value} type="button" aria-pressed={tab === value} className={`btn ${tab === value ? "btn-primary" : ""}`} onClick={() => { setTab(value); if (value === "motion") setMotionVisited(true); }}>{value[0].toUpperCase() + value.slice(1)}</button>)}
-      </nav>
       <div hidden={tab !== "motion"}>{motionVisited && <MotionPanel frames={frames} target={motionTarget} slug={slug} onResult={setMotionResult} />}</div>
       <div hidden={tab !== "summary"}>
       <div className="mt-3 rounded-xl card p-3">
