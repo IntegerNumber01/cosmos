@@ -1,0 +1,261 @@
+{
+  "engine": "dr1-wcs-v2",
+  "release": "dr1",
+  "target": {
+    "ra": 133.75999,
+    "dec": -7.2422,
+    "pm": [
+      -8123.7,
+      673.2
+    ],
+    "epochYear": 2025.9,
+    "parallaxMas": 439,
+    "parallaxSource": "saved validation catalog"
+  },
+  "note": "Preflight of saved selections, recomputed from native pixels. The app recomputes for the actual selected position and frames. A refused measurement is not a scientific non-detection. The SWAN quick pick is a fixed sky field, not a comet ephemeris fit.",
+  "catalog": {
+    "file": "calib_stars.json",
+    "sha256": "877f8fc95108eeeade86aed3e434275e9c7d107785a5770dc7ac461dee1549fc",
+    "source": "ESA Gaia DR3 (gaiadr3.gaia_source via ESA TAP), queried for the independent validation; positions at J2016.0"
+  },
+  "selections": [
+    {
+      "cadence": "exposures",
+      "default": true,
+      "page": 0,
+      "detector": 5,
+      "sources": [
+        {
+          "file": "frames/2025W45_2A_0292_3D5_0.2.bin",
+          "sha256": "b159137e9eb48eb6ee2df77e6a4fd0e39d64e8c8cc0d134c234530c3894e5d12"
+        },
+        {
+          "file": "frames/2025W50_2A_0512_1D5_0.2.bin",
+          "sha256": "23daa64401216f58edeeec67e5b7862dfa0f7bdda884ad7ee2cf67814ae2cd0d"
+        },
+        {
+          "file": "frames/2026W18_2A_0519_1D5_0.2.bin",
+          "sha256": "614e0bfd4ac28e494266cf5856118c4ae0ff5fb235ec84ff17503328b4eac893"
+        },
+        {
+          "file": "frames/2026W18_2A_0663_2D5_0.2.bin",
+          "sha256": "e102f7e52849ff302e304d872df37c5bdac328a9edfb56d14b45f3d1f76facce"
+        },
+        {
+          "file": "frames/2026W20_1A_0214_1D5_0.2.bin",
+          "sha256": "18e2c3cdb8643fbe6a212707c31bd0b2c0a56eff0ffde9ed6b165b63515afa9f"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W45_2A_0292_3",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2025W50_2A_0512_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0519_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0663_2",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W20_1A_0214_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 2,
+      "sources": [
+        {
+          "file": "frames/2025W45_2A_0292_3D2_0.2.bin",
+          "sha256": "724e0a21de476d11fe806f719cc35222d38cbb98420ae062c0f39653896e1e89"
+        },
+        {
+          "file": "frames/2025W50_2A_0512_1D2_0.2.bin",
+          "sha256": "b6e5c58b172a78a5b31aff334f6084802563891aa11c63967eac693a35b3c98f"
+        },
+        {
+          "file": "frames/2026W18_2A_0519_1D2_0.2.bin",
+          "sha256": "003ca08aa460d1a83cad01fb8ecf0d5d58af7bc910a9f944336d0c8a3d95e53b"
+        },
+        {
+          "file": "frames/2026W18_2A_0663_2D2_0.2.bin",
+          "sha256": "99beaabe65c424c3a8bb2b20eaeb36cf6f5da2a5baa5ad5f78e308f295e04f82"
+        },
+        {
+          "file": "frames/2026W20_1A_0214_1D2_0.2.bin",
+          "sha256": "2ad525f192b804197448969beb0cf046d0af1e738f8e4a8a6e0adf98fc0d6280"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W45_2A_0292_3",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2025W50_2A_0512_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0519_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0663_2",
+            "reason": "A comparable neighboring star overlaps the target aperture."
+          },
+          {
+            "obsid": "2026W20_1A_0214_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 3,
+      "sources": [
+        {
+          "file": "frames/2026W17_2A_0591_1D3_0.2.bin",
+          "sha256": "145bb4bcb829a5992b38b54830285f199a5ac195b25da82ab831ed9831b292c3"
+        },
+        {
+          "file": "frames/2026W18_2A_0065_1D3_0.2.bin",
+          "sha256": "39d65f9e78844be62d7923e1a50790fcff10cc4dfae8fff037d6863728d59243"
+        },
+        {
+          "file": "frames/2026W19_2A_0568_1D3_0.2.bin",
+          "sha256": "22a50be8dee31cd5371cc0c710835b62b708ef25a72a116b43f3e0e4c59b8c00"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2026W17_2A_0591_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0065_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W19_2A_0568_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 2,
+      "sources": [
+        {
+          "file": "frames/2025W19_1B_0181_3D2_0.2.bin",
+          "sha256": "535f19305820558431b8673856fceb0810add4d1c6229f6ef7d10fc6f41a44b5"
+        },
+        {
+          "file": "frames/2025W45_2A_0308_3D2_0.2.bin",
+          "sha256": "6ff15f420283b84b6257327fd82ed8322540c13f7b3f53444157ea4dd2187c35"
+        },
+        {
+          "file": "frames/2026W20_1A_1166_1D2_0.2.bin",
+          "sha256": "022e6acc15156c26adfc32ed3c84c53b0e7e914d39d7f5e3d505a0d906bf8e8c"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W19_1B_0181_3",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2025W45_2A_0308_3",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W20_1A_1166_1",
+            "reason": "A comparable neighboring star overlaps the target aperture."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "daily",
+      "default": true,
+      "page": 0,
+      "detector": 5,
+      "sources": [
+        {
+          "file": "frames/2025W45_2A_0292_3D5_0.2.bin",
+          "sha256": "b159137e9eb48eb6ee2df77e6a4fd0e39d64e8c8cc0d134c234530c3894e5d12"
+        },
+        {
+          "file": "frames/2025W50_2A_0512_1D5_0.2.bin",
+          "sha256": "23daa64401216f58edeeec67e5b7862dfa0f7bdda884ad7ee2cf67814ae2cd0d"
+        },
+        {
+          "file": "frames/2026W18_2A_0519_1D5_0.2.bin",
+          "sha256": "614e0bfd4ac28e494266cf5856118c4ae0ff5fb235ec84ff17503328b4eac893"
+        },
+        {
+          "file": "frames/2026W18_2A_0663_2D5_0.2.bin",
+          "sha256": "e102f7e52849ff302e304d872df37c5bdac328a9edfb56d14b45f3d1f76facce"
+        },
+        {
+          "file": "frames/2026W20_1A_0214_1D5_0.2.bin",
+          "sha256": "18e2c3cdb8643fbe6a212707c31bd0b2c0a56eff0ffde9ed6b165b63515afa9f"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W45_2A_0292_3",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2025W50_2A_0512_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0519_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W18_2A_0663_2",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W20_1A_0214_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    }
+  ]
+}

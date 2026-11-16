@@ -9,7 +9,7 @@ import { useReducedMotion } from "@/lib/useReducedMotion";
 const FRAMES = [
   { f: 5, note: "Dust clouds block the view" },
   { f: 30, note: "The dust starts to fade" },
-  { f: 47, note: "The galaxy's bright centre appears" },
+  { f: 47, note: "The galaxy's bright center appears" },
   { f: 62, note: "Clouds where stars are born light up" },
   { f: 88, note: "Warm dust glows" },
 ];
@@ -40,7 +40,7 @@ export default function HeroGlobe() {
           <img
             key={fr.f}
             src={`/img/globe-${fr.f}.webp`}
-            alt={`The Milky Way seen from Earth in infrared light (${WAVELENGTHS_UM[fr.f].toFixed(2)} micrometres)`}
+            alt={`The Milky Way seen from Earth in infrared light (${WAVELENGTHS_UM[fr.f].toFixed(2)} micrometers)`}
             className="absolute inset-0 h-full w-full transition-opacity duration-1000 group-hover:scale-[1.01]"
             style={{ opacity: i === k ? 1 : 0 }}
           />
@@ -57,7 +57,7 @@ export default function HeroGlobe() {
               <button
                 key={fr.f}
                 type="button"
-                aria-label={`Show infrared at ${WAVELENGTHS_UM[fr.f].toFixed(2)} micrometres`}
+                aria-label={`Show infrared at ${WAVELENGTHS_UM[fr.f].toFixed(2)} micrometers`}
                 onClick={(e) => {
                   e.preventDefault();
                   setK(i);
@@ -70,7 +70,7 @@ export default function HeroGlobe() {
         </div>
       </Link>
       <figcaption className="mx-auto mt-6 max-w-[440px] text-center text-[13px] leading-relaxed text-muted">
-        <b className="font-medium text-text/90">What am I looking at?</b> Our sky as seen from Earth, looking toward the centre of our
+        <b className="font-medium text-text/90">What am I looking at?</b> Our sky as seen from Earth, looking toward the center of our
         galaxy, the Milky Way. We live inside it, so we see it edge-on, as a glowing band.
       </figcaption>
     </figure>

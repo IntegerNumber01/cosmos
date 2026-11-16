@@ -1,0 +1,97 @@
+{
+  "engine": "dr1-wcs-v2",
+  "release": "dr1",
+  "target": {
+    "ra": 269.44629,
+    "dec": 4.76792
+  },
+  "fieldSize": 0.2,
+  "requested": 10,
+  "complete": true,
+  "catalog": {
+    "file": "calib_stars.json",
+    "sha256": "1fbc0b2af4c9203f8520bbdba58f49ccafc5266a2ec1ef87543de2ed68334b08"
+  },
+  "frames": [
+    {
+      "file": "frames/2025W34_1B_0164_3D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W34_1B/l2b-v27-2026-228/3/level2_2025W34_1B_0164_3D3_spx_l2b-v27-2026-228.fits",
+      "sha256": "0e5461cc2e357207a455835597880a862d02c2ace93c7db73d3ce477d5b4d624",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2025W35_1A_0008_4D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/3/level2_2025W35_1A_0008_4D3_spx_l2b-v27-2026-230.fits",
+      "sha256": "991745da419c0b589061c307486b9b0ada9dc007fe7018dd686e56b7d09bf7c0",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2025W35_1A_0008_4D6_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2025W35_1A/l2b-v27-2026-230/6/level2_2025W35_1A_0008_4D6_spx_l2b-v27-2026-230.fits",
+      "sha256": "052f9ae9c46419b1e77e7382f26aed25e1162ccf2999a6cad4a9b19cac59d6ea",
+      "nx": 117,
+      "ny": 117,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W12_1A_0598_1D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W12_1A/l2b-v27-2026-235/3/level2_2026W12_1A_0598_1D3_spx_l2b-v27-2026-235.fits",
+      "sha256": "236ffc500bf71a06d9a1d0c3de7d935832620009e05dde2ca4d23c77e286baa0",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W12_2A_0520_1D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W12_2A/l2b-v27-2026-235/3/level2_2026W12_2A_0520_1D3_spx_l2b-v27-2026-235.fits",
+      "sha256": "6b9d1af1eb1cc3d09efe71d39c9f13a0412b10d61efcdd75567942f73e46849b",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W12_2A_0520_1D6_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W12_2A/l2b-v27-2026-235/6/level2_2026W12_2A_0520_1D6_spx_l2b-v27-2026-235.fits",
+      "sha256": "27e248b55c2615a63569186920eb2beb487ecc26d5073a668c1ca3d32a484fd3",
+      "nx": 117,
+      "ny": 117,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W13_1A_0549_1D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W13_1A/l2b-v27-2026-236/3/level2_2026W13_1A_0549_1D3_spx_l2b-v27-2026-236.fits",
+      "sha256": "884d41131ef77836502995a46bcab188726499526fde17719813c11d547510ba",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W15_2A_0137_1D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W15_2A/l2b-v27-2026-240/3/level2_2026W15_2A_0137_1D3_spx_l2b-v27-2026-240.fits",
+      "sha256": "d701cd08de255f2fba48e218490f9e9fc9af911d845e0f5b790229cad96327c1",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W19_1A_0216_1D3_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/3/level2_2026W19_1A_0216_1D3_spx_l2b-v27-2026-245.fits",
+      "sha256": "2b01ada921ba258d683f86184749d104cd2aeb599a7e11fc0e8581ac8ebdf913",
+      "nx": 118,
+      "ny": 118,
+      "delivery": "aws"
+    },
+    {
+      "file": "frames/2026W19_1A_0216_1D6_0.2.bin",
+      "source": "https://irsa.ipac.caltech.edu/ibe/data/spherex/dr1/level2/2026W19_1A/l2b-v27-2026-245/6/level2_2026W19_1A_0216_1D6_spx_l2b-v27-2026-245.fits",
+      "sha256": "08e0094a6fa9a4b344269464e44a100091b70c4edbbff4a9b4bceaa9ed48c94e",
+      "nx": 117,
+      "ny": 117,
+      "delivery": "aws"
+    }
+  ]
+}

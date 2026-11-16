@@ -84,6 +84,7 @@ export default function TimeTravelClient() {
   const [shared] = useState(() => readViewState(sp));
   const [guideEnabled, setGuideEnabled] = useState(() => sp.get("guide") === "1");
   const [observationControls, setObservationControls] = useState(false);
+  const [evidenceRequest, setEvidenceRequest] = useState(0);
   const reduced = usePrefersReducedMotion();
   const initial: Target | null = useMemo(() => {
     const slug = sp.get("target");
@@ -435,14 +436,14 @@ export default function TimeTravelClient() {
   };
   const nPages = set ? Math.ceil(set.frames.length / 12) : 1;
   const kindLabel = (k: Candidate["kind"]) =>
-    k === "residual" ? "probably not real (subtraction leftover)" : k === "unmatched" ? "colours differ here, can't compare" : k === "moved" ? "possibly moved" : k === "brightened" ? "brighter later" : "fainter later";
+    k === "residual" ? "probably not real (subtraction leftover)" : k === "unmatched" ? "colors differ here, can't compare" : k === "moved" ? "possibly moved" : k === "brightened" ? "brighter later" : "fainter later";
 
   return (
     <main className="relative min-h-screen bg-bg pb-20">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.05),transparent_70%)]" />
       {!shared.embed && <NavBar />}
       <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
-        <div className="label text-accent">Time Travel</div>
+        <div className="label">Time Travel</div>
         <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">See how one spot in the sky changes over time.</h1>
         <p className="mt-1 max-w-2xl text-[14px] text-muted">
           NASA&apos;s SPHEREx telescope photographs the whole sky again and again. Pick a spot and we&apos;ll line up its photos from different dates so you can see what changed.
@@ -453,13 +454,13 @@ export default function TimeTravelClient() {
           measured={!!measureAt && measureAt.label === target?.name}
           onCompare={() => { setView("swipe"); setPlaying(false); scrollTo("compare-dates"); }}
           onMeasure={() => { measureTarget(); scrollTo("measurements"); }}
-          onEvidence={() => scrollTo("measurement-evidence")}
+          onEvidence={() => { setEvidenceRequest((n) => n + 1); scrollTo("measurements"); }}
           onLeave={() => setGuideEnabled(false)} controlsOpen={observationControls}
           onToggleControls={() => setObservationControls((open) => !open)}
         />}
         {guidedTarget && obsState.sample && <p className="mt-3 text-[12px] leading-relaxed text-warn">{obsState.sample}</p>}
-        {!guidedTarget && !shared.embed && <p className="mt-3 text-[13px] text-muted">First visit? <Link href="/learn" className="text-accent hover:underline">Learn the basics or follow a guided investigation →</Link></p>}
-        {shareStatus && <p role="status" className="mt-3 break-all text-[12px] text-accent">{shareStatus}</p>}
+        {!guidedTarget && !shared.embed && <p className="mt-3 text-[13px] text-muted">First visit? <Link href="/learn" className="link">Learn the basics or follow a guided investigation →</Link></p>}
+        {shareStatus && <p role="status" className="mt-3 break-all text-[12px] text-muted">{shareStatus}</p>}
 
         {/* step 1: pick a spot */}
         <section hidden={!!guidedTarget && !observationControls} className="glass mt-5 rounded-2xl p-4 sm:p-5">
@@ -470,11 +471,11 @@ export default function TimeTravelClient() {
                 <button
                   key={t.slug}
                   onClick={() => pickPreset(t)}
-                  className="flex flex-col items-start justify-start rounded-2xl border border-line bg-white/[0.02] p-4 text-left transition hover:-translate-y-0.5 hover:border-accent/40"
+                  className="flex flex-col items-start justify-start rounded-2xl card p-4 text-left transition hover:-translate-y-0.5 hover:bg-surface-2"
                 >
                   <div className="label">{t.kind}</div>
                   <div className="font-display mt-1 text-[17px] font-semibold">
-                    {t.challenge && <span className="mr-1 text-accent">★</span>}
+                    {t.challenge && <span className="mr-1 text-warn">★</span>}
                     {t.name}
                   </div>
                   <p className="mt-1 text-[12.5px] leading-relaxed text-muted">{t.why}</p>
@@ -488,12 +489,12 @@ export default function TimeTravelClient() {
                   key={t.slug}
                   type="button"
                   onClick={() => pickPreset(t)}
-                  className={`rounded-full border px-3 py-1 text-[12.5px] transition ${
-                    target?.slug === t.slug ? "border-accent/60 bg-accent/10 text-white" : "border-line text-muted hover:text-white"
+                  className={`chip !rounded-full px-3 py-1 text-[12.5px] ${
+                    target?.slug === t.slug ? "is-on" : ""
                   }`}
                   title={t.why}
                 >
-                  {t.challenge && <span className="mr-1 text-accent">★</span>}
+                  {t.challenge && <span className="mr-1 text-warn">★</span>}
                   {t.name}
                 </button>
               ))}
@@ -507,14 +508,14 @@ export default function TimeTravelClient() {
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="RA Dec, e.g. 269.4463 4.7679 or 17:57:47 +04:46:05"
                 aria-label="Sky coordinates (RA Dec)"
-                className="data min-w-[240px] flex-1 rounded-lg border border-line bg-black/30 px-3 py-2 text-[14px] text-text focus:border-accent/60 focus:outline-none"
+                className="data min-w-[240px] flex-1 field px-3 py-2 text-[14px] text-text"
               />
               <label className="flex items-center gap-2 text-[12.5px] text-muted">
                 Field
                 <select
                   value={size}
                   onChange={(e) => { const field = Number(e.target.value); resetSelection(); setSize(field); if (target) search(target, field); }}
-                  className="rounded-lg border border-line bg-black/40 px-2 py-2 text-text"
+                  className="field px-2 py-2 text-text"
                   aria-label="Field of view"
                 >
                   <option value={0.05}>3′</option>
@@ -528,11 +529,11 @@ export default function TimeTravelClient() {
               </button>
               {inputErr && <div className="w-full text-[12px] text-warn">{inputErr}</div>}
               <div className="flex w-full flex-wrap items-center gap-3 text-[12px] text-muted">
-                <label>Playback <select aria-label="Playback cadence" value={cadence} onChange={(e) => { resetSelection(); setCadence(e.target.value as Cadence); }} className="rounded-lg border border-line bg-bg p-2">
+                <label>Playback <select aria-label="Playback cadence" value={cadence} onChange={(e) => { resetSelection(); setCadence(e.target.value as Cadence); }} className="field p-2">
                   <option value="exposures">Every compatible exposure</option><option value="daily">One exposure per day</option>
                 </select></label>
-                <label>From (UTC) <input type="date" aria-label="Start date" value={start} max={end || undefined} onChange={(e) => { resetSelection(); setStart(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
-                <label>Through (UTC) <input type="date" aria-label="End date" value={end} min={start || undefined} onChange={(e) => { resetSelection(); setEnd(e.target.value); }} className="rounded-lg border border-line bg-bg p-2" /></label>
+                <label>From (UTC) <input type="date" aria-label="Start date" value={start} max={end || undefined} onChange={(e) => { resetSelection(); setStart(e.target.value); }} className="field p-2" /></label>
+                <label>Through (UTC) <input type="date" aria-label="End date" value={end} min={start || undefined} onChange={(e) => { resetSelection(); setEnd(e.target.value); }} className="field p-2" /></label>
                 {(start || end) && <button type="button" className="btn" onClick={() => { resetSelection(); setStart(""); setEnd(""); }}>All dates</button>}
               </div>
               <p className="w-full">
@@ -550,7 +551,7 @@ export default function TimeTravelClient() {
             {fromGaia
               ? target.pm
                 ? " · This star moves across the sky, so the crosshair and measurements follow it from date to date."
-                : " · Position from the Gaia star catalogue."
+                : " · Position from the Gaia star catalog."
               : " · Position from your COSMOS map bookmark."}
             {fromGaia && (
               <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
@@ -563,12 +564,12 @@ export default function TimeTravelClient() {
         {preset && (
           <div className="mt-3 text-[13px] text-muted">
             <b className="text-text">{preset.name}:</b> {preset.why}{" "}
-            <Link href={preset.caseFile ?? `/validation#${target!.slug}`} className="text-accent hover:underline">
+            <Link href={preset.caseFile ?? `/validation#${target!.slug}`} className="link">
               {preset.caseFile ? "Search case file" : "How we checked it"} →
             </Link>
             {preset.pm && (
               <Advanced className="mt-1" label="Position details" openLabel="Hide position details">
-                This star moves across the sky. Its position is propagated to 2025.9 (the middle of SPHEREx DR1) with its catalogue proper motion, and the
+                This star moves across the sky. Its position is propagated to 2025.9 (the middle of SPHEREx DR1) with its catalog proper motion, and the
                 crosshair and measurements follow it date by date.
               </Advanced>
             )}
@@ -590,7 +591,7 @@ export default function TimeTravelClient() {
               {target && <Link className="btn" href={`/explore?ra=${target.ra}&dec=${target.dec}&fov=${size}`}>See this spot on the infrared map</Link>}
               <button className="btn" onClick={() => pickPreset(TT_BY_SLUG.epsindib)}>Try the prepared Epsilon Indi B example</button>
             </div>
-            <p className="mt-2 text-[12px] text-dim">The infrared map is a time-averaged view. The prepared example opens a different, labelled sky position using saved real observations.</p>
+            <p className="mt-2 text-[12px] text-dim">The infrared map is a time-averaged view. The prepared example opens a different, labeled sky position using saved real observations.</p>
             <Advanced className="mt-3" label="Error details" openLabel="Hide error details">{obsState.error}</Advanced>
           </div>
         )}
@@ -607,8 +608,8 @@ export default function TimeTravelClient() {
             <p className="mt-2 text-[15px]">
               {nInside ? (
                 <>
-                  {obsState.sample ? "This prepared sample has" : "SPHEREx photographed this spot"} <span className="text-accent">{nInside}</span> {obsState.sample ? "photos" : "times"} on{" "}
-                  <span className="text-accent">{nDays}</span> different days.
+                  {obsState.sample ? "This prepared sample has" : "SPHEREx photographed this spot"} <span className="font-semibold text-text">{nInside}</span> {obsState.sample ? "photos" : "times"} on{" "}
+                  <span className="font-semibold text-text">{nDays}</span> different days.
                 </>
               ) : (
                 "SPHEREx has no usable photo of this exact spot in the chosen dates."
@@ -618,16 +619,16 @@ export default function TimeTravelClient() {
             {obsState.sample && <p className="mt-2 text-[12px] text-warn">{obsState.sample}</p>}
             {nInside > 0 && (
               <>
-                <p className="mt-1 text-[12.5px] text-muted">Each dot is one photo. Left to right is time; higher dots used a longer (redder) infrared colour.</p>
+                <p className="mt-1 text-[12.5px] text-muted">Each dot is one photo. Left to right is time; higher dots used a longer (redder) infrared color.</p>
                 <div className="mt-3">
                   <ObsTimeline obs={obs} selected={set} onPick={(o) => chooseSet(pickSet(obs, o, cadence))} />
                 </div>
                 <div className="mt-3">
-                  <div className="label mb-1">Pick an infrared colour to compare</div>
-                  <p className="mb-2 text-[12.5px] text-muted">Only dates with closely matching infrared colours are compared. Quality checks help separate possible changes from camera effects.</p>
+                  <div className="label mb-1">Pick an infrared color to compare</div>
+                  <p className="mb-2 text-[12.5px] text-muted">Only dates with closely matching infrared colors are compared. Quality checks help separate possible changes from camera effects.</p>
                   {sets.length === 0 ? (
                     <p className="text-[12.5px] text-warn">
-                      No two dates here share the same infrared colour, so a fair comparison isn&apos;t possible. You can still tap a single dot to view it.
+                      No two dates here share the same infrared color, so a fair comparison isn&apos;t possible. You can still tap a single dot to view it.
                     </p>
                   ) : (
                     <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -636,7 +637,7 @@ export default function TimeTravelClient() {
                           key={s.key}
                           onClick={() => chooseSet(s)}
                           title={`${s.lambdaRef.toFixed(3)} µm · detector D${s.detector} · ${s.frames.length} exposures`}
-                          className={`rounded-xl border px-3 py-1.5 text-left transition ${set?.key === s.key ? "border-white/50 bg-white/10" : "border-line hover:bg-white/5"}`}
+                          className={`chip px-3 py-1.5 text-left ${set?.key === s.key ? "is-on" : ""}`}
                         >
                           <div className="text-[12.5px]">
                             {s.nDays} dates · {Math.round(s.spanDays)} days apart
@@ -660,13 +661,13 @@ export default function TimeTravelClient() {
                 <button type="button" className="btn" disabled={refreshing} onClick={refresh}>{refreshing ? "Checking archive…" : "Check for newer observations"}</button>
                 {loaded && <button type="button" className="btn" onClick={() => share(true)}>Copy embed code</button>}
               </div>
-              {obsState.legacy && <p className="mt-2">Prepared demo searches cover the centre. Check the archive to include exposures overlapping the full field.</p>}
-              {obs.length > nInside && <p className="mt-2">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its centre; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
+              {obsState.legacy && <p className="mt-2">Prepared demo searches cover the center. Check the archive to include exposures overlapping the full field.</p>}
+              {obs.length > nInside && <p className="mt-2">{obs.length - nInside} additional archive footprints overlap the search region but do not safely cover its center; they are excluded from target comparisons. Edge coverage can be incomplete.</p>}
               <p className="mt-2">
                 Each dot is one exposure: its date (exposure start), and the wavelength SPHEREx recorded <i>at this exact spot</i>. SPHEREx&apos;s linear variable
-                filter (LVF) changes colour across each of its six detectors, so a fair &quot;before and after&quot; needs two dots on the same detector at the same
+                filter (LVF) changes color across each of its six detectors, so a fair &quot;before and after&quot; needs two dots on the same detector at the same
                 height. A comparable set uses one detector, and every pair of dates in it agrees within half a spectral channel in wavelength. Hover a set for its
-                wavelength (µm = micrometres) and detector number.
+                wavelength (µm = micrometers) and detector number.
               </p>
             </Advanced>
           </section>
@@ -697,7 +698,7 @@ export default function TimeTravelClient() {
                 <div className="glass rounded-2xl p-5 text-[13px] text-muted">
                   Downloading and lining up the photos… {progress.done}/{progress.total}
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full bg-accent transition-all" style={{ width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }} />
+                    <div className="h-full bg-white transition-all" style={{ width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }} />
                   </div>
                   {progress.error && <div className="mt-2 text-warn">Some photos failed to load: {progress.error}</div>}
                   {progress.error && progress.done === progress.total && <button className="btn mt-2" onClick={() => setLoadAttempt((v) => v + 1)}>Try these photos again</button>}
@@ -708,7 +709,7 @@ export default function TimeTravelClient() {
                   {frameWarnings.map((warning) => <p key={warning} role="alert" className="mb-2 text-[12px] text-warn">{warning}</p>)}
                   {!!frameWarnings.length && <button className="btn mb-2" onClick={() => setLoadAttempt((v) => v + 1)}>Retry failed photos</button>}
                   {view === "stacks" ? <VisitStacks frames={loaded.frames} grid={loaded.grid} lo={loaded.lo} hi={loaded.hi} settings={stackSettings} onSettings={setStackSettings} /> : <div
-                    className="relative aspect-square w-full cursor-crosshair overflow-hidden rounded-2xl border border-line bg-black"
+                    className="relative aspect-square w-full cursor-crosshair overflow-hidden rounded-2xl bg-black"
                     title="Click a spot to measure it below"
                     onClick={(e) => {
                       if (view === "changes") return;
@@ -770,7 +771,7 @@ export default function TimeTravelClient() {
                             {c.partner && <line x1={sx(c.partner.x)} y1={sy(c.partner.y)} x2={sx(c.x)} y2={sy(c.y)} stroke="#ffc857" strokeWidth={n / 400} strokeDasharray="1 1" />}
                           </g>
                         ))}
-                      <text x={n * 0.03} y={n * 0.97} fontSize={n * 0.035} fill="rgba(233,237,255,0.8)">
+                      <text x={n * 0.03} y={n * 0.97} fontSize={n * 0.035} fill="rgba(244,244,245,0.8)">
                         N ↑ E ←
                       </text>
                     </svg>
@@ -824,7 +825,7 @@ export default function TimeTravelClient() {
                               setIdx(i);
                               setPlaying(false);
                             }}
-                            className={`min-w-[92px] flex-1 rounded-lg border px-2 py-1.5 text-left ${i === idx ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"}`}
+                            className={`chip min-w-[92px] flex-1 !rounded-lg px-2 py-1.5 text-left ${i === idx ? "is-on" : ""}`}
                           >
                             <div className="data text-[11.5px]">{fmtDateTime(f.meta.dateAvg)}</div>
                             <div className="data text-[10px]" style={{ color: wavelengthColor(f.meta.target.wl) }}>
@@ -840,7 +841,7 @@ export default function TimeTravelClient() {
                         <select
                           value={pair[0]}
                           onChange={(e) => { setChange(null); setPair([parseInt(e.target.value), pair[1]]); }}
-                          className="rounded-lg border border-line bg-black/40 px-2 py-1"
+                          className="field px-2 py-1"
                           aria-label="Earlier date"
                         >
                           {loaded.frames.map((f, i) => (
@@ -853,7 +854,7 @@ export default function TimeTravelClient() {
                         <select
                           value={pair[1]}
                           onChange={(e) => { setChange(null); setPair([pair[0], parseInt(e.target.value)]); }}
-                          className="rounded-lg border border-line bg-black/40 px-2 py-1"
+                          className="field px-2 py-1"
                           aria-label="Later date"
                         >
                           {loaded.frames.map((f, i) => (
@@ -897,7 +898,7 @@ export default function TimeTravelClient() {
                         wavelength at the target in µm. The crosshair marks the target{target?.pm ? " and follows its proper motion" : ""}. N ↑ E ← gives sky orientation.
                       </p>
                       <p className="mt-2">
-                        Dark grey pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
+                        Dark gray pixels are flagged as unusable in that exposure (saturation, bad pixels, cosmic-ray hits), using the flag definitions in each file&apos;s header.
                         {showQuality && " Overlay: amber = unusable or outside coverage; purple = outlier (retained for moving/variable sources); cyan = other flags."}
                       </p>
                     </Advanced>
@@ -913,20 +914,20 @@ export default function TimeTravelClient() {
                 <div className="glass rounded-2xl p-4">
                   <div className="label">About these photos</div>
                   <div className="mt-1 text-[14px]">
-                    {loaded.frames.length} dates in the same infrared colour{" "}
+                    {loaded.frames.length} dates in the same infrared color{" "}
                     <span className="data text-[11px]" style={{ color: wavelengthColor(set.lambdaRef) }}>
                       ({set.lambdaRef.toFixed(3)} µm)
                     </span>
                   </div>
-                  <p className="mt-1 text-[12.5px] text-muted">The infrared colours match closely here. A visible difference still needs checks for image quality, blending, and wavelength effects.</p>
+                  <p className="mt-1 text-[12.5px] text-muted">The infrared colors match closely here. A visible difference still needs checks for image quality, blending, and wavelength effects.</p>
                   {(loaded.lambdaSpread.centre > 0.5 * set.bandwidth || loaded.lambdaSpread.corners > 0.5 * set.bandwidth) && (
                     <p className="mt-1 text-[12px] text-warn">
-                      {loaded.lambdaSpread.centre > 0.5 * set.bandwidth ? "The colours don't match closely at the centre" : "Near the edges of the picture the colours match less closely"}, so changes there may not be real.
+                      {loaded.lambdaSpread.centre > 0.5 * set.bandwidth ? "The colors don't match closely at the center" : "Near the edges of the picture the colors match less closely"}, so changes there may not be real.
                     </p>
                   )}
                   {loaded.excluded.length > 0 && (
                     <p className="mt-1 text-[12px] text-warn">
-                      {loaded.excluded.length} photo{loaded.excluded.length === 1 ? " was" : "s were"} left out because the colour didn&apos;t match closely enough.
+                      {loaded.excluded.length} photo{loaded.excluded.length === 1 ? " was" : "s were"} left out because the color didn&apos;t match closely enough.
                     </p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -973,11 +974,11 @@ export default function TimeTravelClient() {
                           {cur.meta.obsid} · D{cur.meta.detector} · {cur.meta.exposure.toFixed(0)} s · QA {cur.meta.l2dqa}
                         </div>
                         <div className="mt-1 flex flex-wrap gap-3">
-                          <a className="text-accent hover:underline" href={cur.meta.sourceFits} target="_blank" rel="noreferrer">
+                          <a className="link" href={cur.meta.sourceFits} target="_blank" rel="noreferrer">
                             Original FITS ↗
                           </a>
-                          {cur.meta.mirrorFits && <a className="text-accent hover:underline" href={cur.meta.mirrorFits} target="_blank" rel="noreferrer">AWS original FITS ↗</a>}
-                          <a className="text-accent hover:underline" href={cur.meta.cutoutUrl} target="_blank" rel="noreferrer">
+                          {cur.meta.mirrorFits && <a className="link" href={cur.meta.mirrorFits} target="_blank" rel="noreferrer">AWS original FITS ↗</a>}
+                          <a className="link" href={cur.meta.cutoutUrl} target="_blank" rel="noreferrer">
                             {cur.meta.delivery === "aws" ? "IRSA cutout request ↗" : "Exact cutout ↗"}
                           </a>
                         </div>
@@ -994,9 +995,9 @@ export default function TimeTravelClient() {
               )}
 
               {/* step 4: what changed? */}
-              {loaded && loaded.frames.length > 1 && !(view === "changes" && change) && (
+              {loaded && !guidedTarget && !measureAt && loaded.frames.length > 1 && !(view === "changes" && change) && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label text-accent">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
+                  <div className="label">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
                   <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">What changed?</h2>
                   <p className="mt-1 text-[13px] text-muted">The computer subtracts one date from another and circles the spots that look different.</p>
                   <button className="btn btn-primary mt-3" onClick={runChanges}>
@@ -1006,14 +1007,14 @@ export default function TimeTravelClient() {
               )}
               {view === "changes" && change && loaded && (
                 <div className="glass rounded-2xl p-4">
-                  <div className="label text-accent">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
+                  <div className="label">{guidedTarget ? "Optional · difference image" : "Step 4"}</div>
                   <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">
                     What changed between {fmtDate(loaded.frames[pair[0]].meta.dateAvg)} and {fmtDate(loaded.frames[pair[1]].meta.dateAvg)}?
                   </h2>
                   <p className="mt-1 text-[13px] text-muted">Red means brighter later, blue means fainter later. Click a numbered circle or a row to check it.</p>
                   <p className="mt-1 text-[12px] text-dim">Not every circle is a real change: small differences in focus and calibration between dates can leave leftovers.</p>
                   {!Number.isFinite(change.sigma) || change.validFrac < 0.05 ? (
-                    <p className="mt-3 text-[13px] text-warn">There isn&apos;t enough clean, colour-matched sky shared by both dates to compare. Try another pair of dates or a smaller field.</p>
+                    <p className="mt-3 text-[13px] text-warn">There isn&apos;t enough clean, color-matched sky shared by both dates to compare. Try another pair of dates or a smaller field.</p>
                   ) : change.candidates.length === 0 ? (
                     <p className="mt-3 text-[13px] text-text">Nothing clearly stood out between these dates. Fainter changes, and spots hidden by bad pixels, aren&apos;t checked.</p>
                   ) : (
@@ -1046,7 +1047,7 @@ export default function TimeTravelClient() {
                                         ? "text-warn"
                                         : c.kind === "brightened"
                                           ? "text-[#ff8f7a]"
-                                          : "text-[#8fb8ff]"
+                                          : "text-muted"
                                   }
                                 >
                                   {kindLabel(c.kind)}
@@ -1066,7 +1067,7 @@ export default function TimeTravelClient() {
                     indicator, not a calibrated probability. PSF and calibration differences can produce strong residuals around a constant source.
                     Pixels that differ by more than half a channel at their own position are excluded; smaller wavelength shifts can still sample spectral features.
                     Features are listed when they exceed five times the map scatter in the usable pixels; &quot;subtraction leftover&quot; marks likely residuals and
-                    &quot;colours differ here&quot; marks spots where the two dates differ by more than half a channel at that position, so no temporal claim is made.
+                    &quot;colors differ here&quot; marks spots where the two dates differ by more than half a channel at that position, so no temporal claim is made.
                   </Advanced>
                 </div>
               )}
@@ -1078,6 +1079,7 @@ export default function TimeTravelClient() {
                   at={measureAt}
                   slug={target?.slug}
                   noiseHint={robustSigma(loaded.grids[0])}
+                  evidenceRequest={evidenceRequest}
                 /></div>
               )}
             </div>
@@ -1085,9 +1087,9 @@ export default function TimeTravelClient() {
         )}
 
         {loaded && <section aria-label="Evidence and next steps" className="glass mt-8 rounded-2xl p-5">
-          <div className="label text-accent">Keep investigating</div>
+          <div className="label">Keep investigating</div>
           <h2 className="font-display mt-1 text-[23px] font-semibold">A result is stronger when you can check it.</h2>
-          <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted">Compare the measurements with independent checks, inspect successful and inconclusive tests, or see how a promising change turned out to be a colour effect.</p>
+          <p className="mt-2 max-w-3xl text-[14px] leading-relaxed text-muted">Compare the measurements with independent checks, inspect successful and inconclusive tests, or see how a promising change turned out to be a color effect.</p>
           <div className="mt-4 flex flex-wrap gap-3">
             <button type="button" className="btn btn-primary" onClick={() => share()}>Share this comparison</button>
             <Link className="btn" href={preset?.caseFile ?? (preset?.challenge ? `/validation#${preset.slug}` : "/validation")}>Review the checked evidence →</Link>
@@ -1099,9 +1101,9 @@ export default function TimeTravelClient() {
         {target && obsState.status === "ready" && obs.some((o) => o.inside) && (
           <section className="glass mt-8 rounded-2xl p-4 sm:p-5">
             <div className="label">Extra</div>
-            <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">See this spot in every infrared colour</h2>
+            <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">See this spot in every infrared color</h2>
             <p className="mt-1 max-w-2xl text-[13px] text-muted">
-              SPHEREx splits infrared light into 102 colours. The wavelength lab builds pictures in six colour ranges and a brightness-by-colour chart (a spectrum).
+              SPHEREx splits infrared light into 102 colors. The wavelength lab builds pictures in six color ranges and a brightness-by-color chart (a spectrum).
             </p>
             <Advanced className="mt-3" label="Open the wavelength lab" openLabel="Close the wavelength lab">
               <SpectralLab
@@ -1120,7 +1122,7 @@ export default function TimeTravelClient() {
 function StepHead({ n, title, children }: { n?: number; title: string; children?: React.ReactNode }) {
   return (
     <div>
-      {n !== undefined && <div className="label text-accent">Step {n}</div>}
+      {n !== undefined && <div className="label">Step {n}</div>}
       <h2 className="font-display mt-0.5 text-[20px] font-semibold leading-tight">{title}</h2>
       {children && <p className="mt-1 max-w-2xl text-[13px] text-muted">{children}</p>}
     </div>

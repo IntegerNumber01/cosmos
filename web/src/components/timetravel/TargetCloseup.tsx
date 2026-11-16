@@ -24,7 +24,7 @@ export default function TargetCloseup({ frames, grids, grid, pair, ra, dec, lo, 
     <h3 className="text-[14px] font-semibold">A closer look at the target</h3>
     <div className="mt-3 grid grid-cols-2 gap-3">
       {crops.map((pixels, i) => <figure key={i}>
-        <GridCanvas data={pixels} n={width} mode="image" lo={lo} hi={hi} className="aspect-square w-full rounded-lg border border-line" label={`Magnified target on ${frames[pair[i]].meta.dateAvg.slice(0, 10)}`} />
+        <GridCanvas data={pixels} n={width} mode="image" lo={lo} hi={hi} className="aspect-square w-full rounded-lg" label={`Magnified target on ${frames[pair[i]].meta.dateAvg.slice(0, 10)}`} />
         <figcaption className="data mt-1 text-[11.5px] text-muted">{frames[pair[i]].meta.dateAvg.slice(0, 10)}</figcaption>
       </figure>)}
     </div>

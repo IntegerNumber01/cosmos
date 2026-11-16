@@ -2,6 +2,8 @@
 
 The public tool centres on RA/Dec → real dated SPHEREx DR1 images → wavelength-matched playback and comparisons. All five requested test targets retain their existing validation records in `VALIDATION.md`; adding display features does not upgrade those scientific verdicts.
 
+The compact guide and Summary / Motion / Evidence views separate the main result from optional tools and the worksheet. Motion now offers reference-star alignment and independent-visit fitting, plus a separately labelled known-trajectory stacking comparison with per-sample wavelength/quality checks. Visit means below remain sky aligned; the separate tracking comparison is not a blind motion search. See [MOTION.md](MOTION.md) for the method, catalogue-parallax inputs, real controls and limitations.
+
 | Consideration | Implemented public behaviour | Limits |
 |---|---|---|
 | New releases / updates | Explicit archive refresh, query timestamp, central release configuration, versioned prepared-cache metadata and SHA-256 manifest builder | DR1 remains the project baseline. QR3 is not silently mixed in. Refresh does not mean a new observation exists. |

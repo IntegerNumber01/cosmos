@@ -9,8 +9,11 @@ import { buildWorksheet, Evidence } from "@/lib/worksheet";
 import EvidenceWorksheet, { WORKSHEET_QUESTIONS } from "./EvidenceWorksheet";
 import { ENGINE_VERSION, RELEASE } from "@/lib/engine/releases";
 import { evidenceText } from "@/lib/evidenceReport";
+import MotionPanel from "./MotionPanel";
+import type { MotionResult, MotionTarget } from "@/lib/engine/motion";
+import { TT_BY_SLUG } from "@/lib/ttTargets";
 
-type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]> } | { ok: false; error: string };
+type SbPart = { ok: true; rows: NonNullable<Known["small_bodies"]["rows"]>; lookupInfo?: NonNullable<Known["lookupInfo"]>["small_bodies"] } | { ok: false; error: string };
 
 /** "20:56:58.19" / "-05 41'18.5\"" -> degrees */
 function hmsToDeg(h: string) {
@@ -29,6 +32,7 @@ type Props = {
   at: { ra: number; dec: number; label: string; partner?: { ra: number; dec: number }; mjd?: number; when?: string; pm?: [number, number]; epochYear?: number };
   slug?: string;
   noiseHint: number;
+  evidenceRequest?: number;
 };
 
 const fmtDate = (iso: string) =>
@@ -57,13 +61,13 @@ function Chart({ pts, unit, label }: { pts: { t: number; v: number; e: number; l
   const predPts = ok.filter((p) => p.pred !== undefined);
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={label}>
-      <text x={4} y={12} fontSize={10} fill="#8d96bd">
+      <text x={4} y={12} fontSize={10} fill="#a1a1aa">
         {unit}
       </text>
       {[v0 + pad, (v0 + v1) / 2, v1 - pad].map((v, i) => (
         <g key={i}>
-          <line x1={P.l} x2={W - P.r} y1={y(v)} y2={y(v)} stroke="rgba(150,175,255,0.08)" />
-          <text x={P.l - 4} y={y(v) + 3} fontSize={9.5} fill="#5d668c" textAnchor="end">
+          <line x1={P.l} x2={W - P.r} y1={y(v)} y2={y(v)} stroke="rgba(255,255,255,0.08)" />
+          <text x={P.l - 4} y={y(v) + 3} fontSize={9.5} fill="#71717a" textAnchor="end">
             {Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)}
           </text>
         </g>
@@ -76,7 +80,7 @@ function Chart({ pts, unit, label }: { pts: { t: number; v: number; e: number; l
           {Number.isFinite(p.e) && <line x1={x(p.t)} x2={x(p.t)} y1={y(p.v - p.e)} y2={y(p.v + p.e)} stroke="#6ef0b0" strokeWidth={1.2} />}
           <circle cx={x(p.t)} cy={y(p.v)} r={3.2} fill="#6ef0b0" />
           {(i === 0 || i === ok.length - 1) && (
-            <text x={x(p.t)} y={H - 6} fontSize={9} fill="#5d668c" textAnchor={i === 0 ? "start" : "end"}>
+            <text x={x(p.t)} y={H - 6} fontSize={9} fill="#71717a" textAnchor={i === 0 ? "start" : "end"}>
               {p.label}
             </text>
           )}
@@ -86,7 +90,11 @@ function Chart({ pts, unit, label }: { pts: { t: number; v: number; e: number; l
   );
 }
 
-export default function MeasurePanel({ frames, at, slug }: Props) {
+export default function MeasurePanel({ frames, at, slug, evidenceRequest = 0 }: Props) {
+  const [tab, setTab] = useState<"summary" | "motion" | "evidence">("summary");
+  const [motionVisited, setMotionVisited] = useState(false);
+  const [motionResult, setMotionResult] = useState<MotionResult | null>(null);
+  useEffect(() => { if (evidenceRequest > 0) setTab("evidence"); }, [evidenceRequest]);
   // follow proper motion (if known) so the aperture stays on a fast-moving star on every date
   const posAt = (mjd: number): [number, number] => {
     if (!at.pm || at.epochYear === undefined) return [at.ra, at.dec];
@@ -131,11 +139,15 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       x.status === "rejected"
         ? { ok: false, error: String((x.reason as Error)?.message ?? x.reason) }
         : x.value.small_bodies.ok
-          ? { ok: true, rows: x.value.small_bodies.rows ?? [] }
+          ? { ok: true, rows: x.value.small_bodies.rows ?? [], lookupInfo:x.value.lookupInfo?.small_bodies }
           : { ok: false, error: x.value.small_bodies.error ?? "lookup failed" };
-    Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug), getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]).then(([c, a]) => {
-      if (generation === lookupGeneration.current) setSb({ comets: part(c), asteroids: part(a) });
-    });
+    // JPL asks callers to issue one request at a time. Each live request gets its own route budget.
+    (async () => {
+      const [c] = await Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sbc", slug)]);
+      if (generation !== lookupGeneration.current) return;
+      const [a] = await Promise.allSettled([getKnown(at.ra, at.dec, 0.02, lastMjd, "sba", slug)]);
+      if (generation === lookupGeneration.current) setSb({ comets:part(c), asteroids:part(a) });
+    })();
   };
 
   const gaiaMatch = known?.gaia.ok ? known.gaia.rows?.find((r) => r.sep_arcsec < 6) : undefined;
@@ -154,6 +166,13 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   // the Gaia source is the target only if its proper motion matches what we know about the target
   const gaiaIsTarget = !!gaiaMatch && (!targetPm || pmAgree(targetPm, [gaiaMatch.pmra, gaiaMatch.pmdec]));
   const predPm: [number, number] | null = targetPm ?? (gaiaMatch ? [gaiaMatch.pmra, gaiaMatch.pmdec] : null);
+  const prepared = slug ? TT_BY_SLUG[slug] : undefined;
+  const atPrepared = prepared && Math.hypot((at.ra - prepared.ra) * Math.cos(at.dec * Math.PI / 180), at.dec - prepared.dec) * 3600 < 1;
+  const preparedParallax = atPrepared ? prepared.parallaxMas : undefined;
+  const trustedGaia = gaiaIsTarget && gaiaMatch && gaiaMatch.sep_arcsec < 2 && gaiaMatch.parallax !== null && gaiaMatch.parallax_error !== null && gaiaMatch.parallax_error > 0 && gaiaMatch.parallax / gaiaMatch.parallax_error >= 5 ? gaiaMatch : null;
+  const motionTarget: MotionTarget = { ra: at.ra, dec: at.dec, pm: at.pm, epochYear: at.epochYear,
+    parallaxMas: preparedParallax ?? trustedGaia?.parallax ?? undefined,
+    parallaxSource: preparedParallax !== undefined ? "saved validation catalog" : trustedGaia ? `Gaia DR3 ${trustedGaia.source_id}` : undefined };
   // the sequence is matched at the search target; re-check the wavelengths at THIS position
   const bwHere = rows.map((r) => r.bw).sort((a, b) => a - b)[rows.length >> 1];
   const cmp = exactWindow(rows, (r) => r.wl, bwHere);
@@ -257,10 +276,10 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         : `A known asteroid or comet (${sbRows[0].name}) may be nearby, but the match isn't confirmed.`;
   } else if (known) {
     if (simbadTop) plainVerdict = `Already known: ${simbadTop.main_id.replace(/^NAME /, "")}${simbadTop.otype_label ? ` (${simbadTop.otype_label})` : ""}.`;
-    else if (gaiaMatch) plainVerdict = "Already known: a star listed in the Gaia star catalogue.";
+    else if (gaiaMatch) plainVerdict = "Already known: a star listed in the Gaia star catalog.";
     else
       plainVerdict = catalogueGaps.length
-        ? "We couldn't reach the star catalogues, so we can't say whether this is already known."
+        ? "We couldn't reach the star catalogs, so we can't say whether this is already known."
         : "Nothing known is listed here. That is NOT a discovery: it could be a glitch, so it needs more checks.";
   }
   let verdict = "";
@@ -279,7 +298,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     } else {
       verdict = catalogueGaps.length
         ? `${catalogueGaps.join(" and ")} could not be checked, so we can't say whether this is known.`
-        : "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artefacts (flags below), confirm on more dates, and check known solar-system objects.";
+        : "No Gaia DR3 or SIMBAD object within 10″ at this date. That is NOT a discovery. Check for artifacts (flags below), confirm on more dates, and check known solar-system objects.";
     }
   }
 
@@ -353,9 +372,9 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
     rough: good.length > 1 ? { sigma: endpointStrength, vanished: [firstFlux, lastFlux].some((r) => r.flux < 3 * r.fluxErrEmp) } : null,
     position: withC.length >= 2 ? { shift: totalShift, err: shiftErr, predicted: Number.isFinite(predShift) ? predShift : null, n: withC.length } : null,
     catalogue: knownErr
-      ? { status: "failed", text: `The catalogue check failed (${knownErr}).` }
+      ? { status: "failed", text: `The catalog check failed (${knownErr}).` }
       : !known
-        ? { status: "pending", text: "Checking star catalogues…" }
+        ? { status: "pending", text: "Checking star catalogs…" }
         : simbadTop || gaiaMatch
           ? { status: "known", text: plainVerdict }
           : catalogueGaps.length
@@ -371,10 +390,11 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
   const downloadEvidence = (format: "json" | "csv" | "txt") => {
     const clean = (v: number) => Number.isFinite(v) ? v : null;
     const limitations = [
-      "Exploratory native-pixel aperture photometry; no PSF/aperture correction, deblending or annual parallax correction.",
+      "Exploratory native-pixel aperture photometry; no PSF/aperture correction or deblending. Raw position traces omit parallax; any separately requested motion analysis states its catalog-parallax correction.",
       "Flux uses MJy/sr summed over aperture pixels, not calibrated integrated source flux.",
-      "Raw flux errors measure blank-sky aperture scatter only. The calibrated comparison divides by Gaia reference stars in the same 12-arcmin images and adds their mutual scatter; colour differences, blending and PSF changes are still not modelled.",
-      "Position errors include a 0.5 arcsecond alignment allowance; a catalogue prediction is not a detection.",
+      "Raw flux errors measure blank-sky aperture scatter only. The calibrated comparison divides by Gaia reference stars in the same 12-arcmin images and adds their mutual scatter; color differences, blending and PSF changes are still not modeled.",
+      "Position errors include a 0.5 arcsecond alignment allowance; a catalog prediction is not a detection.",
+      "JPL checks use an Earth-center observer, not SPHEREx's spacecraft state. Spacecraft parallax can shift nearby objects; a nearby prediction alone does not confirm an association. Saved catalog answers record their source files and retrieval time in the JSON export.",
       "Matching within half a channel does not remove all spectral false positives. No discovery is established.",
     ];
     const measurements = rows.map((r, i) => ({
@@ -390,7 +410,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       summary: { brightness: calibratedSummary || brightnessSummary, uncalibratedBrightness: brightnessSummary, position: positionSummary, catalogue: knownErr ? "Lookup failed: " + knownErr : plainVerdict || "Lookup pending" },
       worksheet: { questions: WORKSHEET_QUESTIONS, verdict: sheet.verdict, answers: [sheet.changed, sheet.support, sheet.checks, sheet.unknown, sheet.next], notes },
       calibration: cal === null ? { status: "not_applicable" } : cal === "loading" ? { status: "pending" } : "error" in cal ? { status: "failed", error: cal.error } : cal,
-      measurements, catalogues: { stars: known, error: knownErr || null, smallBodies: sb === null ? { status: "not_requested" } : sb === "loading" ? { status: "pending" } : sb }, limitations,
+      measurements, motionAnalysis: motionResult ?? { status: motionVisited ? "pending" : "not_requested" }, catalogues: { stars: known, error: knownErr || null, smallBodies: sb === null ? { status: "not_requested" } : sb === "loading" ? { status: "pending" } : sb }, limitations,
     };
     const cell = (value: unknown) => {
       const s = value === null || value === undefined ? "" : String(value);
@@ -410,12 +430,12 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
       <div className="label">Take a closer look · {at.label}</div>
       <p className="mt-1 text-[12.5px] text-muted">We measure how bright this spot is, and where exactly it sits, on every date.</p>
 
-      <section aria-label="Measurement summary" className="mt-4 rounded-xl border border-accent/30 bg-accent/[0.04] p-4">
+      <section aria-label="Measurement summary" className="mt-4 rounded-xl card p-4">
         <h3 className="font-display text-[20px] font-semibold">What these measurements show</h3>
         <p className="mt-1 text-[12px] text-muted">Calculated from the current sequence; separate from the checked case-study results.</p>
         <dl className="mt-3 space-y-3 text-[13px] leading-relaxed">
           <div>
-            <dt className="font-semibold text-accent">Brightness</dt>
+            <dt className="font-semibold text-text">Brightness</dt>
             {calibratedSummary && <dd className={calOk ? "" : "text-muted"} aria-live="polite">{calibratedSummary}</dd>}
             {!calOk && <dd className={calibratedSummary ? "mt-1 text-[12px] text-muted" : ""}>{calibratedSummary ? "Rough estimate (not calibrated): " : ""}{brightnessSummary}</dd>}
             {calOk && (
@@ -427,28 +447,33 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                   </p>
                   <p>
                     Uncertainty = blank-sky noise of target and references (±{calOk.last.dmagErrNominal.toFixed(3)} mag) combined with how much the reference stars disagree with each other
-                    (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include colour differences between the target and the reference stars, overlapping sources or changes in image sharpness.
+                    (±{calOk.last.refScatterMag.toFixed(3)} mag). It does not include color differences between the target and the reference stars, overlapping sources or changes in image sharpness.
                   </p>
                   <p>Leaving out any one reference star changes Δm by at most {calOk.looMaxShift.toFixed(3)} mag ({calOk.leaveOneOut.map((x) => (x.dmag >= 0 ? "+" : "−") + Math.abs(x.dmag).toFixed(3)).join(", ")}).</p>
                   {calOk.nRefs < 5 && <p className="text-warn">Only {calOk.nRefs} reference stars passed every check, so the disagreement estimate is itself uncertain.</p>}
                   {calOk.rejectedAsVariable.length > 0 && <p>{calOk.rejectedAsVariable.length} reference star(s) disagreed strongly with the others and were dropped as possible variables.</p>}
                   <p>
-                    Reference rules: Gaia G ≤ {CAL.maxG}, not flagged variable, no comparably bright neighbour, unflagged and unsaturated, S/N ≥ {CAL.minSnr} on both dates, and the same wavelength (within half a channel) at
-                    the star&apos;s own position on both dates. Rejected candidates: {Object.entries(calOk.why).map(([k, v]) => `${k.replace("_", " ")} ${v}`).join(", ")}. Stars: {calOk.starSource}.
+                    Reference rules: Gaia G ≤ {CAL.maxG}, not flagged variable, no comparably bright neighbor, unflagged and unsaturated, S/N ≥ {CAL.minSnr} on both dates, and the same wavelength (within half a channel) at
+                    the star&apos;s own position on both dates. Rejected candidates: {Object.entries(calOk.why).map(([k, v]) => `${k.replace("_", " ").replace("catalogue", "catalog")} ${v}`).join(", ")}. Stars: {calOk.starSource}.
                   </p>
                 </div>
               </Advanced>
             )}
           </div>
-          <div><dt className="font-semibold text-accent">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalogue predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
+          <div><dt className="font-semibold text-text">Position</dt><dd>{positionSummary}{withC.length >= 2 && Number.isFinite(predShift) && <> The catalog predicts {predShift.toFixed(1)} arcseconds over these dates.</>}</dd></div>
         </dl>
-        <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Colour, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
+        <p className="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-warn">A measurement is evidence, not a discovery. Color, calibration and overlapping sources can imitate changes. Check the errors, image quality and independent case-study results.</p>
       </section>
 
-      <div className="mt-3 rounded-xl border border-line p-3">
+      <nav aria-label="Measurement views" className="mt-4 flex gap-2 border-b border-line pb-3">
+        {(["summary", "motion", "evidence"] as const).map((value) => <button key={value} type="button" aria-pressed={tab === value} className={`btn ${tab === value ? "btn-primary" : ""}`} onClick={() => { setTab(value); if (value === "motion") setMotionVisited(true); }}>{value[0].toUpperCase() + value.slice(1)}</button>)}
+      </nav>
+      <div hidden={tab !== "motion"}>{motionVisited && <MotionPanel frames={frames} target={motionTarget} slug={slug} onResult={setMotionResult} />}</div>
+      <div hidden={tab !== "summary"}>
+      <div className="mt-3 rounded-xl card p-3">
         <div className="label mb-1">Is it already known?</div>
-        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogues for this date…</div>}
-        {knownErr && <div className="text-[12.5px] text-warn">The catalogue check failed ({knownErr}). We cannot tell whether this source is already known from this lookup.</div>}
+        {!known && !knownErr && <div className="text-[12.5px] text-muted">Checking star catalogs for this date…</div>}
+        {knownErr && <div className="text-[12.5px] text-warn">The catalog check failed ({knownErr}). We cannot tell whether this source is already known from this lookup.</div>}
         {known && (
           <>
             <p
@@ -458,8 +483,9 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
             >
               {plainVerdict}
             </p>
+            {known.lookupInfo && Object.values(known.lookupInfo).some(info => info?.delivery === "prepared") && <p className="mt-1 text-[12px] text-muted">Using saved catalog answers for this observation. Query details and sources are included in the evidence download.</p>}
             {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
-              <p className="mt-1 text-[12px] text-warn">We may be measuring a neighbouring star instead of the target here. Try a different infrared colour.</p>
+              <p className="mt-1 text-[12px] text-warn">We may be measuring a neighboring star instead of the target here. Try a different infrared color.</p>
             )}
             <div className="mt-2">
               {sb === null && (
@@ -467,7 +493,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                   Check known asteroids &amp; comets (NASA JPL)
                 </button>
               )}
-              {sb === "loading" && <span className="text-[12px] text-muted">Asking NASA/JPL which asteroids and comets were here on {fmtDate(whenIso)}… (up to a minute)</span>}
+              {sb === "loading" && <span className="text-[12px] text-muted">Checking known comets and asteroids for {fmtDate(whenIso)}… Live checks can take up to two minutes.</span>}
               {sb && sb !== "loading" && (
                 <div className="space-y-0.5 text-[12px]">
                   {sbRows.slice(0, 4).map((r) => (
@@ -489,6 +515,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                       </div>
                     ),
                   )}
+                  {(sb.comets.ok || sb.asteroids.ok) && <p className="pt-1 text-muted">Geocentric predictions; SPHEREx&apos;s orbital position can shift nearby objects. {([sb.comets,sb.asteroids]).some(p => p.ok && p.lookupInfo?.delivery === "prepared") ? "Saved JPL answers used for this observation." : "Live JPL answers."}</p>}
                 </div>
               )}
             </div>
@@ -507,7 +534,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
                 {!known.simbad.ok && <li className="text-warn">SIMBAD unavailable: {known.simbad.error}</li>}
                 {gaiaMatch && !gaiaIsTarget && centroidOnNeighbour && (
                   <li className="text-warn">
-                    Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbour.
+                    Our measured centroid sits on that other Gaia star. At this wavelength the target may be too faint, so we are probably measuring the neighbor.
                     Try a different wavelength set.
                   </li>
                 )}
@@ -531,11 +558,12 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         )}
       </div>
 
+      <Advanced className="mt-4" label="Brightness, raw positions and per-date data" openLabel="Hide brightness and raw position details">
       <div className="mt-3">
         <div className="label mb-1">Brightness on each date</div>
         {cmp.drop.length > 0 && (
           <p className="text-[12px] text-warn">
-            Left out here: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}, because the infrared colour at this spot doesn&apos;t match the other dates.
+            Left out here: {cmp.drop.map((r) => fmtDate(r.date)).join(", ")}, because the infrared color at this spot doesn&apos;t match the other dates.
           </p>
         )}
         <Chart
@@ -552,7 +580,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
           </p>
         )}
         {plainVar && <p className="text-[12.5px] text-text/85">{plainVar}</p>}
-        {good.length > 1 && <p className="mt-1 text-[12px] text-warn">Tiny colour differences can still fake a brightness change, so treat this as a hint, not proof.</p>}
+        {good.length > 1 && <p className="mt-1 text-[12px] text-warn">Tiny color differences can still fake a brightness change, so treat this as a hint, not proof.</p>}
         {saturated && <p className="text-[12px] text-warn">On some dates this spot is too bright for the camera (saturated), so its brightness there is unreliable.</p>}
         <Advanced className="mt-1">
           <p>Brightness is measured in a small circle (aperture) on native pixels, using only dates whose wavelengths match at this position.</p>
@@ -602,7 +630,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
             It shifted about <b className="data">{totalShift.toFixed(1)}″</b> between {withC[0].label} and {lastT.label}
             {gaiaMatch && Number.isFinite(predShift) && (
               <>
-                ; the star catalogue predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line)
+                ; the star catalog predicts <b className="data text-accent">{predShift.toFixed(1)}″</b> (dashed line)
               </>
             )}
             . <span className="text-dim">(″ = arcseconds, a tiny angle on the sky.) Shifts under about 1.5″ don&apos;t mean much.</span>
@@ -614,7 +642,7 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
               {gaiaMatch && (
                 <>
                   {" "}
-                  {at.pm || simbadPm ? "The catalogue" : "Gaia's"} proper motion predicts <span className="data">{predShift.toFixed(1)}″</span> (dashed line).
+                  {at.pm || simbadPm ? "The catalog" : "Gaia's"} proper motion predicts <span className="data">{predShift.toFixed(1)}″</span> (dashed line).
                 </>
               )}
             </p>
@@ -669,12 +697,17 @@ export default function MeasurePanel({ frames, at, slug }: Props) {
         </table>
       </Advanced>
 
+      </Advanced>
+      </div>
+      <div hidden={tab !== "evidence"}>
       <EvidenceWorksheet sheet={sheet} notes={notes} onNote={(i, v) => setNotes((n) => n.map((x, k) => (k === i ? v : x)))} />
+      </div>
 
       <section id="measurement-evidence" aria-label="Save investigation evidence" className="mt-5 scroll-mt-24 border-t border-line pt-4">
         <h3 className="font-display text-[20px] font-semibold">Check and save your evidence</h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalogue results, failed checks and the current comparison link.</p>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">Keep the dates, measurements, errors, flags and original image links together. The JSON report also records catalog results, failed checks and the current comparison link.</p>
         <div className="mt-3 flex flex-wrap gap-2">
+          {tab !== "evidence" && <button type="button" className="btn" onClick={() => setTab("evidence")}>Review the reasoning</button>}
           <button type="button" className="btn" onClick={() => downloadEvidence("txt")}>Download readable evidence</button>
           <button type="button" className="btn btn-primary" onClick={() => downloadEvidence("json")}>Download evidence JSON</button>
           <button type="button" className="btn" onClick={() => downloadEvidence("csv")}>Download measurements CSV</button>

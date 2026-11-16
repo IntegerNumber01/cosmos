@@ -20,7 +20,7 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
   const f: Frame = seq.frames[frameIndex];
   const arcminPx = 60 / seq.grid.pixel_arcsec;
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line bg-black">
+    <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-black">
       {mode === "frames" ? (
         seq.frames.map((fr, i) => (
           // all frames stacked; only the current is visible: instant blink, no reload flicker
@@ -81,16 +81,16 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
           </g>
         )}
         {/* compass: north up, east left */}
-        <g transform={`translate(${n - 9},${9})`} stroke="rgba(233,237,255,0.8)" strokeWidth={0.3} fill="none">
+        <g transform={`translate(${n - 9},${9})`} stroke="rgba(244,244,245,0.8)" strokeWidth={0.3} fill="none">
           <line x1={0} y1={0} x2={0} y2={-5} />
           <line x1={0} y1={0} x2={-5} y2={0} />
-          <text x={-1} y={-6} fill="rgba(233,237,255,0.85)" stroke="none" fontSize={2.6} fontFamily="Inter">N</text>
-          <text x={-8.2} y={1} fill="rgba(233,237,255,0.85)" stroke="none" fontSize={2.6} fontFamily="Inter">E</text>
+          <text x={-1} y={-6} fill="rgba(244,244,245,0.85)" stroke="none" fontSize={2.6} fontFamily="Inter">N</text>
+          <text x={-8.2} y={1} fill="rgba(244,244,245,0.85)" stroke="none" fontSize={2.6} fontFamily="Inter">E</text>
         </g>
         {/* scale bar: 1 arcmin */}
         <g transform={`translate(5,${n - 5})`}>
-          <line x1={0} y1={0} x2={arcminPx} y2={0} stroke="rgba(233,237,255,0.85)" strokeWidth={0.4} />
-          <text x={0} y={-1.5} fill="rgba(233,237,255,0.85)" fontSize={2.6} fontFamily="Inter">1′ (≈ 10 px)</text>
+          <line x1={0} y1={0} x2={arcminPx} y2={0} stroke="rgba(244,244,245,0.85)" strokeWidth={0.4} />
+          <text x={0} y={-1.5} fill="rgba(244,244,245,0.85)" fontSize={2.6} fontFamily="Inter">1′ (≈ 10 px)</text>
         </g>
       </svg>
       {mode === "difference" && (
@@ -99,7 +99,7 @@ export default function FrameStage({ seq, frameIndex, mode, showPred, showMeas, 
           brighter in the last (where it went)
           <br />
           <span className="text-muted">
-            The two pictures are different infrared colours ({seq.diff_wavelength_gap_channels} channel widths apart), so stars leave faint marks. Use
+            The two pictures are different infrared colors ({seq.diff_wavelength_gap_channels} channel widths apart), so stars leave faint marks. Use
             this for position only.
           </span>
         </div>

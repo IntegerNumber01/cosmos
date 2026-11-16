@@ -26,6 +26,8 @@ All 41 Node regression tests passed, along with typecheck, lint and the producti
 
 These checks were automated. They are not a completed creator session or an independent user study. Reproduce them with `pipeline/tools/learning_ui.py` and `pipeline/tools/guided_ui.py` against a running app.
 
+The subsequent interface/motion change passed 48 Node regression tests, TypeScript, lint and a production build. Browser checks verified the compact guide, Summary/Motion/Evidence views, real reference-star motion, specified-trajectory stacking, contributor/quality limits, readable/JSON exports and retained notes. Epsilon Indi B gives 4.79 ± 0.59″ displacement; RW Aur and an additional GP Mon field remain consistent with no significant positional change. These establish scoped engineering/scientific behavior, not independent audience benefit. See `MOTION.md` and `pipeline/tools/motion_ui.py`. A separate seven-slide demo is under `docs/demo/`; personal details are intentionally omitted.
+
 ## How to collect stronger evidence later
 
 | Claim to investigate | Observable evidence | Limits |

@@ -447,7 +447,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
 
   if (loadErr)
     return (
-      <div className="grid h-full w-full place-items-center bg-[#020308] text-[13px] text-warn">
+      <div className="grid h-full w-full place-items-center bg-bg text-[13px] text-warn">
         The Gaia star data couldn&apos;t be loaded. Check your connection and reload.
       </div>
     );
@@ -459,7 +459,7 @@ const StarField = forwardRef<StarFieldHandle, Props>(function StarField(
         cameraRef.current = camera;
         clock.current = c;
       }}
-      style={{ background: "#020308" }}
+      style={{ background: "#09090b" }}
       dpr={[1, 2]}
     >
       {skyStrength > 0 && <SkyBackdrop strength={skyStrength} />}

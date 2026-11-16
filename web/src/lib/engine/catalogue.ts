@@ -6,7 +6,7 @@ export async function catalogueText(url: string, init: RequestInit, deadline: Ab
   deadline.throwIfAborted();
   const attempt = new AbortController();
   const signal = AbortSignal.any([deadline, attempt.signal]);
-  const timer = setTimeout(() => attempt.abort(new DOMException("Catalogue attempt timed out", "TimeoutError")), timeoutMs);
+  const timer = setTimeout(() => attempt.abort(new DOMException("Catalog attempt timed out", "TimeoutError")), timeoutMs);
   let onAbort: () => void = () => {};
   const aborted = new Promise<never>((_, reject) => {
     onAbort = () => reject(signal.reason);
@@ -16,7 +16,15 @@ export async function catalogueText(url: string, init: RequestInit, deadline: Ab
     return await Promise.race([
       (async () => {
         const response = await fetch(url, { ...init, signal, cache: "no-store" });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+          let detail = "";
+          try {
+            const body = JSON.parse(await response.text());
+            const message = body.message ?? body.error;
+            if (typeof message === "string") detail = `: ${message.slice(0,180)}`;
+          } catch { /* Non-JSON gateway pages are not useful error messages. */ }
+          throw new Error(`HTTP ${response.status}${detail}`);
+        }
         return response.text();
       })(),
       aborted,

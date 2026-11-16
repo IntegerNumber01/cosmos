@@ -3,6 +3,7 @@
 import { decodeFrame, Frame, Observation } from "./sequence";
 import { CACHE_SCHEMA, ENGINE_VERSION, RELEASE } from "./releases";
 import { CAL_FIELD_DEG, FieldStar } from "./photometry";
+import { bodyPosition, skySeparation } from "./smallBodies";
 
 export type Source = "live" | "cache" | "aws";
 
@@ -95,7 +96,8 @@ export function getFrame(o: Observation, ra: number, dec: number, size: number, 
 }
 
 export type Known = {
-  query: { ra: number; dec: number; radius_deg: number; mjd: number; epoch_year: number; time_utc: string };
+  query: { ra: number; dec: number; radius_deg: number; mjd: number; epoch_year: number; time_utc: string; services?: string[] };
+  lookupInfo?: Partial<Record<"gaia" | "simbad" | "small_bodies", { delivery: "prepared" | "live"; retrieved?: string; file?: string; query?: Known["query"]; requestUrl?: string }>>;
   gaia: { service: string; ok: boolean; rows?: GaiaRow[]; error?: string };
   simbad: { service: string; ok: boolean; rows?: SimbadRow[]; error?: string };
   small_bodies: { service: string; ok: boolean; rows?: SmallBodyRow[]; error?: string };
@@ -126,27 +128,54 @@ export type SmallBodyRow = { name: string; ra_hms: string; dec_dms: string; sep_
 
 export type KnownIndexEntry = { file: string; ra: number; dec: number; r: number; mjd: number; services: string };
 
-/** A cached catalogue answer is usable only if it answers exactly this question: same services, radius,
- * position (< 1") and observation time (< 2 minutes). Checked against the index AND the stored response. */
+/** A saved field must contain the whole requested cone at the same observation time (within one second).
+ * Both index and stored query are checked. Never reuse moving-object answers at another epoch. */
 function sameQuery(q: { ra: number; dec: number; r: number; mjd: number; services: string }, ra: number, dec: number, r: number, mjd: number, services: string) {
-  const sep = Math.hypot((q.ra - ra) * Math.cos((dec * Math.PI) / 180), q.dec - dec) * 3600;
-  return q.services === services && Math.abs(q.r - r) < 1e-6 && Math.abs(q.mjd - mjd) < 1.5e-3 && sep < 1;
+  const sep = skySeparation(q.ra,q.dec,ra,dec) / 3600;
+  return services.split(',').every(s => q.services.split(',').includes(s)) &&
+    (!/sbc|sba/.test(services) || q.services === services) &&
+    (sep < 1e-6 && Math.abs(q.r-r) < 1e-6 || sep + r <= q.r + 1e-8) && Math.abs(q.mjd - mjd) <= 1.2e-5;
 }
 
 export async function getKnown(ra: number, dec: number, r: number, mjd: number, services: string, slug?: string): Promise<Known> {
   const url = `/api/known?ra=${ra.toFixed(6)}&dec=${dec.toFixed(6)}&r=${r}&mjd=${mjd.toFixed(5)}&services=${services}`;
-  try {
-    return await getJSON(url, 62000);
-  } catch (e) {
-    if (!slug) throw e;
-    const index: KnownIndexEntry[] = await getJSON(`/cache/${slug}/known_index.json`, 15000).catch(() => []);
-    const hit = index.find((x) => sameQuery(x, ra, dec, r, mjd, services));
-    if (!hit) throw e;
-    const k: Known = await getJSON(`/cache/${slug}/${hit.file}`, 15000);
-    const q = k.query as Known["query"] & { services?: string[] };
-    if (!sameQuery({ ra: q.ra, dec: q.dec, r: q.radius_deg, mjd: q.mjd, services: (q.services ?? []).join(",") }, ra, dec, r, mjd, services)) throw e;
-    return k;
+  const query = { ra, dec, radius_deg:r, mjd, services:services.split(','), epoch_year:2000+(mjd-51544.5)/365.25, time_utc:new Date((mjd-40587)*86400000).toISOString() };
+  const unavailable = { ok:false, error:'not requested' };
+  const saved: Known = { query, gaia:{service:'Gaia DR3',...unavailable}, simbad:{service:'SIMBAD',...unavailable}, small_bodies:{service:'NASA/JPL Small-Body Identification',...unavailable}, lookupInfo:{} };
+  const key = (s: string) => s === 'sbc' || s === 'sba' ? 'small_bodies' as const : s as 'gaia' | 'simbad';
+  if (slug) {
+    const rawIndex = await getJSON(`/cache/${slug}/known_index.json`, 15000).catch(() => []);
+    const index: KnownIndexEntry[] = Array.isArray(rawIndex) ? rawIndex.filter(x => x && typeof x.services === 'string' && typeof x.file === 'string' && [x.ra,x.dec,x.r,x.mjd].every(Number.isFinite)) : [];
+    for (const service of query.services) {
+      for (const hit of index.filter(x => sameQuery(x,ra,dec,r,mjd,service))) {
+        try {
+          const k: Known & { retrieved?:string; provenance?:{requestUrl?:string} } = await getJSON(`/cache/${slug}/${hit.file}`,15000);
+          const q = k.query, part = k[key(service)];
+          if (!sameQuery({ra:q.ra,dec:q.dec,r:q.radius_deg,mjd:q.mjd,services:(q.services ?? []).join(',')},ra,dec,r,mjd,service) || !part.ok || !Array.isArray(part.rows)) continue;
+          if (service === 'gaia' && k.gaia.rows!.some(s => !/^\d+$/.test(s.source_id) || ![s.ra_epoch,s.dec_epoch,s.g,s.pmra,s.pmdec].every(Number.isFinite))) continue;
+          if (service === 'simbad' && k.simbad.rows!.some(s => !s.main_id || ![s.ra_epoch,s.dec_epoch].every(Number.isFinite))) continue;
+          if ((service === 'sbc' || service === 'sba') && k.small_bodies.rows!.some(s => !s.name || ![s.sep_arcsec,s.ra_rate_arcsec_h,s.dec_rate_arcsec_h].every(Number.isFinite))) continue;
+          if (service === 'gaia') saved.gaia = { ...k.gaia, rows:k.gaia.rows!.map(s => ({...s,sep_arcsec:skySeparation(ra,dec,s.ra_epoch,s.dec_epoch)})).filter(s => s.sep_arcsec <= r*3600).sort((a,b)=>a.sep_arcsec-b.sep_arcsec) };
+          else if (service === 'simbad') saved.simbad = { ...k.simbad, rows:k.simbad.rows!.map(s => ({...s,sep_arcsec:skySeparation(ra,dec,s.ra_epoch,s.dec_epoch)})).filter(s => s.sep_arcsec <= r*3600).sort((a,b)=>a.sep_arcsec-b.sep_arcsec) };
+          else saved.small_bodies = { ...k.small_bodies, rows:k.small_bodies.rows!.map(s => ({...s,sep_arcsec:skySeparation(ra,dec,...bodyPosition(s))})).filter(s => s.sep_arcsec <= r*3600).sort((a,b)=>a.sep_arcsec-b.sep_arcsec) };
+          saved.lookupInfo![key(service)] = {delivery:'prepared',file:`/cache/${slug}/${hit.file}`,retrieved:k.retrieved,query:k.query,requestUrl:k.provenance?.requestUrl};
+          break;
+        } catch { /* An invalid saved answer must never become an empty successful search. */ }
+      }
+    }
   }
+  const missing = query.services.filter(s => !saved[key(s)].ok);
+  if (!missing.length) return saved;
+  let live: Known;
+  try { live = await getJSON(url.replace(`services=${services}`,`services=${missing.join(',')}`),62000); }
+  catch (e) {
+    if (missing.length === query.services.length) throw e;
+    for (const s of missing) saved[key(s)] = {service:saved[key(s)].service,ok:false,error:e instanceof Error ? e.message : String(e)};
+    return saved;
+  }
+  // Preserve every successful saved service even when the server returns HTTP 200 with partial failures.
+  for (const s of missing) { Object.assign(saved,{[key(s)]:live[key(s)]}); saved.lookupInfo![key(s)]={delivery:'live'}; }
+  return saved;
 }
 
 /** Gaia stars for reference-star calibration of a 12′ field: the prepared validation catalogue for featured
@@ -160,7 +189,7 @@ export async function getCalibrationStars(ra: number, dec: number, mjd: number, 
     } catch {}
   }
   const k: Known = await getJSON(`/api/known?ra=${ra.toFixed(6)}&dec=${dec.toFixed(6)}&r=0.16&mjd=${mjd.toFixed(5)}&services=gaia`, 62000);
-  if (!k.gaia.ok) throw new Error(`Gaia star catalogue unavailable (${k.gaia.error ?? "lookup failed"})`);
+  if (!k.gaia.ok) throw new Error(`Gaia star catalog unavailable (${k.gaia.error ?? "lookup failed"})`);
   return { stars: k.gaia.rows ?? [], mjd: k.query.mjd, source: k.gaia.service };
 }
 

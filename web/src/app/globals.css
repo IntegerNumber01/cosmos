@@ -1,24 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #03040a;
-  --bg-2: #070a16;
-  --panel: rgba(9, 13, 28, 0.66);
-  --panel-strong: rgba(9, 13, 28, 0.86);
-  --line: rgba(150, 175, 255, 0.14);
-  --line-strong: rgba(150, 175, 255, 0.28);
-  --text: #e9edff;
-  --muted: #8d96bd;
-  --dim: #5d668c;
+  /* Neutral foundation: near-black, true greys, no blue cast. */
+  --bg: #09090b;
+  --bg-2: #0f0f12;
+  --surface: #141417;
+  --surface-2: #1e1e22;
+  --surface-3: #2a2a2f;
+  --panel: rgba(22, 22, 26, 0.58);
+  --panel-strong: rgba(18, 18, 21, 0.86);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --dim: #71717a;
+  /* Colour is reserved for data: the predicted-path cyan, status, and the spectrum. */
   --accent: #7fd8ff;
   --accent-2: #b59bff;
-  --good: #6ef0b0;
+  --good: #5ee6a0;
   --warn: #ffc857;
   --bad: #ff6b6b;
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-panel: var(--panel);
   --color-line: var(--line);
   --color-text: var(--text);
@@ -46,85 +54,171 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.font-display {
-  font-family: var(--font-grotesk), var(--font-inter), sans-serif;
-  letter-spacing: -0.02em;
+::selection {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
 }
 
-.glass {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 3px;
 }
 
-.glass-strong {
-  background: var(--panel-strong);
-  border: 1px solid var(--line);
-  backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
-}
-
-.label {
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.data {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  padding: 0.45rem 0.95rem;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.03);
-  transition: background 0.2s, border-color 0.2s, transform 0.15s;
-}
-.btn:hover {
-  background: rgba(127, 216, 255, 0.1);
-  border-color: rgba(127, 216, 255, 0.5);
-}
-.btn:active {
-  transform: scale(0.97);
-}
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.btn:disabled:active {
-  transform: none;
-}
-:where(a, button, input, select, summary):focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
-}
 @media print {
   nav, header, .no-print {
     display: none !important;
   }
 }
-.btn-primary {
-  background: linear-gradient(135deg, rgba(127, 216, 255, 0.22), rgba(181, 155, 255, 0.22));
-  border-color: rgba(127, 216, 255, 0.55);
+
+/* Component classes live in a layer so Tailwind utilities on the element can refine them. */
+@layer components {
+  .font-display {
+    font-family: var(--font-grotesk), var(--font-inter), sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  /* Liquid glass: the one place tint and translucency are used — floating chrome over imagery. */
+  .glass {
+    background: var(--panel);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+      0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  .glass-hover {
+    transition: background 0.2s, transform 0.2s;
+  }
+  .glass-hover:hover {
+    background: rgba(40, 40, 46, 0.66);
+  }
+
+  .glass-strong {
+    background: var(--panel-strong);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  /* Solid surface for cards and grouped content. */
+  .card {
+    background: var(--surface);
+  }
+
+  .label {
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .data {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Inline links: neutral text, a quiet underline that brightens on hover. */
+  .link {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 255, 255, 0.28);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.15s, color 0.15s;
+  }
+  .link:hover {
+    color: #fff;
+    text-decoration-color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Buttons: solid fills, no borders. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 0;
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--surface-2);
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+  }
+  .btn:hover {
+    background: var(--surface-3);
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+  .btn:disabled:hover {
+    background: var(--surface-2);
+  }
+  .btn:disabled:active {
+    transform: none;
+  }
+  .btn-primary,
+  .btn-primary:disabled:hover {
+    background: #f4f4f5;
+    color: #09090b;
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background: #ffffff;
+  }
+  /* Glass buttons float over the sky map. */
+  .btn.glass {
+    background: var(--panel);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+  .btn.glass:hover {
+    background: rgba(48, 48, 54, 0.66);
+  }
+  .btn.glass.is-on {
+    background: #f4f4f5;
+    color: #09090b;
+  }
+
+  /* Selectable chips and tiles (segmented choices, date tiles, step tabs). */
+  .chip {
+    border-radius: 0.75rem;
+    background: var(--surface-2);
+    color: var(--muted);
+    transition: background 0.15s, color 0.15s;
+  }
+  .chip:hover {
+    background: var(--surface-3);
+    color: var(--text);
+  }
+  .chip.is-on {
+    background: #f4f4f5;
+    color: #09090b;
+  }
+
+  .field {
+    border-radius: 0.5rem;
+    background: var(--surface-2);
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .field:focus {
+    background: var(--surface-3);
+    outline: none;
+  }
 }
 
 .scrollbar-thin::-webkit-scrollbar {
   width: 6px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: rgba(150, 175, 255, 0.2);
+  background: rgba(255, 255, 255, 0.16);
   border-radius: 3px;
 }
 
@@ -163,7 +257,7 @@ input[type="range"].spectrum::-moz-range-thumb {
   border: none;
 }
 input[type="range"].spectrum:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid rgba(255, 255, 255, 0.85);
   outline-offset: 4px;
   border-radius: 6px;
 }
@@ -184,10 +278,10 @@ input[type="range"].spectrum:focus-visible {
 
 @keyframes pulseRing {
   0% {
-    box-shadow: 0 0 0 0 rgba(127, 216, 255, 0.45);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35);
   }
   100% {
-    box-shadow: 0 0 0 14px rgba(127, 216, 255, 0);
+    box-shadow: 0 0 0 14px rgba(255, 255, 255, 0);
   }
 }
 .pulse {

@@ -25,7 +25,7 @@ export default function Advanced({
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-accent/90 transition hover:text-white"
+        className="inline-flex items-center gap-1.5 text-[12px] font-medium text-muted transition hover:text-text"
       >
         <span className={`inline-block transition-transform ${open ? "rotate-90" : ""}`} aria-hidden>
           ›

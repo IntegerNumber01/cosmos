@@ -74,6 +74,7 @@ with sync_playwright() as p:
     page.goto(BASE + links[2], wait_until="domcontentloaded")
     expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("Not calibrated", timeout=45000)
     expect(page.get_by_role("region", name="Measurement summary")).to_contain_text("neighbouring star")
+    page.get_by_role("navigation", name="Measurement views").get_by_role("button", name="Evidence", exact=True).click()
     sheet = page.get_by_role("region", name="Evidence worksheet")
     expect(sheet.locator("[data-verdict]")).not_to_have_attribute("data-verdict", "supported")
     sheet.get_by_label("Your notes", exact=False).nth(4).fill("Use a sharper image to separate the neighbour.")
@@ -95,7 +96,7 @@ with sync_playwright() as p:
     clone = ctx.new_page()
     clone.goto(report["investigationUrl"], wait_until="domcontentloaded")
     expect(clone.get_by_role("region", name="Measurement summary")).to_contain_text("neighbouring star", timeout=45000)
-    page.screenshot(path=str(ART / "blended-restored.png"), full_page=True)
+    page.screenshot(path=str(ART / "blended-restored.png"), full_page=False)
     print("PASS: selected blended source reopens exactly; readable and JSON reports retain the refusal, service failures and notes")
 
     page.goto(BASE + "/learn/kit", wait_until="domcontentloaded")
@@ -104,7 +105,7 @@ with sync_playwright() as p:
     expect(page.get_by_role("navigation", name="Main navigation")).not_to_be_visible()
     page.pdf(path=str(ART / "investigation-kit.pdf"), format="A4", margin={"top": "12mm", "bottom": "12mm", "left": "12mm", "right": "12mm"})
     page.emulate_media(media="screen")
-    page.screenshot(path=str(ART / "kit-desktop.png"), full_page=True)
+    page.screenshot(path=str(ART / "kit-desktop.png"), full_page=False)
     mobile = ctx.new_page()
     mobile.set_viewport_size({"width": 390, "height": 844})
     for path in ["/learn", "/learn/kit", "/learn/lab"]:
@@ -112,7 +113,7 @@ with sync_playwright() as p:
         if path.endswith("lab"):
             expect(mobile.get_by_role("region", name="Brightness evidence")).to_be_visible(timeout=30000)
         assert not mobile.evaluate("document.documentElement.scrollWidth > innerWidth"), path
-        mobile.screenshot(path=str(ART / (path.replace("/", "-").strip("-") + "-mobile.png")), full_page=True)
+        mobile.screenshot(path=str(ART / (path.replace("/", "-").strip("-") + "-mobile.png")), full_page=False)
     # Reloading does not claim to have retained answers; there is no silent server storage.
     mobile.reload(wait_until="domcontentloaded")
     expect(mobile.get_by_role("textbox", name="Why? Refer to a measurement or a failed check.", exact=True)).to_have_value("")

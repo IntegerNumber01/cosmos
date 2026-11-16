@@ -1,0 +1,732 @@
+{
+  "engine": "dr1-wcs-v2",
+  "release": "dr1",
+  "target": {
+    "ra": 76.95659,
+    "dec": 30.40129
+  },
+  "note": "Preflight of saved selections, recomputed from native pixels. The app recomputes for the actual selected position and frames. A refused measurement is not a scientific non-detection. The SWAN quick pick is a fixed sky field, not a comet ephemeris fit.",
+  "catalog": {
+    "file": "calib_stars.json",
+    "sha256": "4a2f54c9ee031c731924a7c46c66fe5b451ea81f83405f9b241ea0906dabc044",
+    "source": "ESA Gaia DR3 (gaiadr3.gaia_source via ESA TAP), queried for the independent validation; positions at J2016.0"
+  },
+  "selections": [
+    {
+      "cadence": "exposures",
+      "default": true,
+      "page": 0,
+      "detector": 1,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0233_2D1_0.2.bin",
+          "sha256": "54e8b793cd87fa622fa1a5241d4a6d0af9584821ed80e34c3cb7ab6f7520d9ec"
+        },
+        {
+          "file": "frames/2026W10_2B_0591_3D1_0.2.bin",
+          "sha256": "a1ac2ea34c48296e920365601a5e80bff02375d7bca946ab6a1c67124f9ff9f7"
+        }
+      ],
+      "result": {
+        "ok": true,
+        "positions": [
+          {
+            "obsid": "2025W36_1A_0233_2",
+            "date": "2025-09-02T00:44:21.538",
+            "mjd": 60920.030804835,
+            "east": -0.8210354695551909,
+            "north": -0.26153102286059493,
+            "error": 0.3430468719333498,
+            "alignEast": -0.1750511690866619,
+            "alignNorth": 0.05263030916040634,
+            "alignError": 0.32137385759152237,
+            "references": [
+              {
+                "id": "156429997483589120",
+                "east": 0.04434243475264531,
+                "north": 0.18604495957248446,
+                "error": 0.500917870438254,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156429894403506048",
+                "east": -0.38429481781517955,
+                "north": -0.149473659152477,
+                "error": 0.627882234048946,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360627968",
+                "east": -0.11746177475121539,
+                "north": 0.3020580850275678,
+                "error": 0.643399390934702,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360480768",
+                "east": -0.19711483786143932,
+                "north": -0.17879311709236845,
+                "error": 0.7152440085028015,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382959000760832",
+                "east": -0.394384250969424,
+                "north": -0.03308484186135274,
+                "error": 0.5045985361622625,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156336878294789888",
+                "east": -0.09454912660711519,
+                "north": 0.36776285740245385,
+                "error": 0.8564302370390446,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156335645640414848",
+                "east": -0.11957818786984895,
+                "north": 0.17690698050785159,
+                "error": 0.8872499488296173,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156335405122243328",
+                "east": -0.3042589305878755,
+                "north": -0.018787426475341817,
+                "error": 0.7087204765685821,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382752842341376",
+                "east": -0.4336079806462399,
+                "north": 0.41717703979315957,
+                "error": 0.5557387095241946,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156337294907839232",
+                "east": 0.17648868072038887,
+                "north": 0.1240480447961545,
+                "error": 0.5045968914429488,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382649763117056",
+                "east": -0.15298750031188446,
+                "north": -0.20812178552063187,
+                "error": 0.5685795178269691,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430375439690368",
+                "east": -0.29575744064027704,
+                "north": -0.9177730309104959,
+                "error": 0.5594177042386171,
+                "parallaxKnown": true
+              }
+            ]
+          },
+          {
+            "obsid": "2026W10_2B_0591_3",
+            "date": "2026-03-08T16:13:49.635",
+            "mjd": 61107.676268921,
+            "east": -0.9812930763965606,
+            "north": -0.18445198858216827,
+            "error": 0.3587662323781468,
+            "alignEast": -0.03243852050525267,
+            "alignNorth": -0.2053114233504516,
+            "alignError": 0.33810236540848165,
+            "references": [
+              {
+                "id": "156434189370670336",
+                "east": -0.03243852050525267,
+                "north": 0.02273549787474849,
+                "error": 0.5002042433288353,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156429894403506048",
+                "east": -0.7523193254316162,
+                "north": -0.49918441226992627,
+                "error": 0.6284333552441128,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360627968",
+                "east": -0.358935411672662,
+                "north": 0.007053305152737721,
+                "error": 0.6032685763428278,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360480768",
+                "east": -0.2084967703104238,
+                "north": 0.0635117973956767,
+                "error": 0.6303892714439501,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431264495203200",
+                "east": -0.48604055647456085,
+                "north": -0.19000705422484998,
+                "error": 0.6058654271222549,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430783460273536",
+                "east": 0.05967101079727754,
+                "north": -0.46339982375513955,
+                "error": 0.5071772827366753,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431234433162368",
+                "east": 0.07554612180833362,
+                "north": -0.43018039461486524,
+                "error": 0.5080350911072441,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156337294907839232",
+                "east": 0.3740000453971088,
+                "north": -0.10033126333581777,
+                "error": 0.5059540625611679,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431268792897024",
+                "east": 0.05352803273744846,
+                "north": -0.6883973797911835,
+                "error": 0.8326977505572203,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430375439690368",
+                "east": -0.20245288989005358,
+                "north": -1.0531031679846592,
+                "error": 0.5382132996677539,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431234433162496",
+                "east": 0.6529915619738603,
+                "north": -0.2053114233504516,
+                "error": 0.700251881272206,
+                "parallaxKnown": true
+              }
+            ]
+          }
+        ],
+        "epochs": [
+          {
+            "mjd": 60920.030804835,
+            "date": "2025-09-02T00:44:21.538",
+            "east": -0.8210354695551909,
+            "north": -0.26153102286059493,
+            "error": 0.3430468719333498,
+            "frames": 1,
+            "minRefs": 12,
+            "parallaxEast": 0,
+            "parallaxNorth": 0
+          },
+          {
+            "mjd": 61107.676268921,
+            "date": "2026-03-08T16:13:49.635",
+            "east": -0.9812930763965606,
+            "north": -0.18445198858216827,
+            "error": 0.3587662323781468,
+            "frames": 1,
+            "minRefs": 11,
+            "parallaxEast": 0,
+            "parallaxNorth": 0
+          }
+        ],
+        "rejected": [],
+        "east": null,
+        "north": null,
+        "baselineDays": 187.6454640860029,
+        "shift": 0.1778304756666244,
+        "shiftError": 0.49638127063585563,
+        "parallaxMas": null,
+        "parallaxSource": null,
+        "controls": [
+          {
+            "sourceId": "156429894403506048",
+            "residualShift": 0.5322938922318158
+          },
+          {
+            "sourceId": "156430272360627968",
+            "residualShift": 0.44915063270829986
+          },
+          {
+            "sourceId": "156430272360480768",
+            "residualShift": 0.7061063907333536
+          },
+          {
+            "sourceId": "156337294907839232",
+            "residualShift": 0.13945911550091708
+          },
+          {
+            "sourceId": "156430375439690368",
+            "residualShift": 0.19916920290506382
+          }
+        ],
+        "caveats": [
+          "Native aperture centroids; no PSF fit or deblending. Unresolved binaries and wavelength-dependent photocenters can bias positions.",
+          "24-hour visits retain the full positional/reference scatter; shared-frame measurements are not independent.",
+          "Reference-star alignment corrects translation only, not field rotation or distortion.",
+          "No trusted target parallax supplied: fitted rates include any annual parallax and are apparent motion, not pure proper motion."
+        ],
+        "origin": {
+          "ra": 76.95659,
+          "dec": 30.40129,
+          "mjd": 60920.030804835
+        }
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 1,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0606_1D1_0.2.bin",
+          "sha256": "bad8647ea33f502eb87ae7ebfe917f8b0d9c2e81bbf89f2bf30850f397d2674f"
+        },
+        {
+          "file": "frames/2026W10_1A_0445_1D1_0.2.bin",
+          "sha256": "d463d3844bae5a0cd7c5d641bed6c8877f61aadd637d0ddedd4edebe9b1c5445"
+        },
+        {
+          "file": "frames/2026W11_1A_0645_1D1_0.2.bin",
+          "sha256": "5c8073fa09aabc81f252363f72a71a310a3833412881225cc75443578eee51ce"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W36_1A_0606_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W10_1A_0445_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W11_1A_0645_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 4,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0606_1D4_0.2.bin",
+          "sha256": "a1e521857eeff79f08d5510ef423fd630aeb58d6990ca165141aeb7468b9b5d6"
+        },
+        {
+          "file": "frames/2026W10_1A_0445_1D4_0.2.bin",
+          "sha256": "d455981d9067511ee1fcfac1de38828b2e9bd743b073ea020670a633505c123a"
+        },
+        {
+          "file": "frames/2026W11_1A_0645_1D4_0.2.bin",
+          "sha256": "4078e40d3394cf41351ad2ab02dddb00fe33db6ba3b1110b5fd87e56d4abb517"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W36_1A_0606_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W10_1A_0445_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W11_1A_0645_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 1,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0663_1D1_0.2.bin",
+          "sha256": "cd2c56a586e2007fed5a555dc027130599b4ea68dc5235506ccd65cce63659b4"
+        },
+        {
+          "file": "frames/2025W36_1A_0677_2D1_0.2.bin",
+          "sha256": "5398c7abd0e3f4120b737daef97c661c070ac3a96d7bd735adb3b9734b80f33d"
+        },
+        {
+          "file": "frames/2026W10_2B_0137_2D1_0.2.bin",
+          "sha256": "4ebe59d2afb09b04deba07311be9a1ac5803c20498dc0aef9c43d9e634ba302e"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W36_1A_0663_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W10_2B_0137_2",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 4,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0663_4D4_0.2.bin",
+          "sha256": "d0dc58858169e061028d0d7db793207449a88e0b23a8464f03dd6128aa8656d0"
+        },
+        {
+          "file": "frames/2026W10_2B_0626_1D4_0.2.bin",
+          "sha256": "d3677f341c218e98d1031a945cc5b1ca776eb994b7af1967232648967489e923"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W36_1A_0663_4",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W10_2B_0626_1",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "exposures",
+      "default": false,
+      "page": 0,
+      "detector": 4,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0677_2D4_0.2.bin",
+          "sha256": "f94e008179727d46db5295f46b0646d6c819f024a878611f6595c012368e6cc6"
+        },
+        {
+          "file": "frames/2026W10_2B_0137_2D4_0.2.bin",
+          "sha256": "d1d7ff179cb7b76f5b899f1dbe14a66f60e0376003537b2ec227184704af7b00"
+        }
+      ],
+      "result": {
+        "ok": false,
+        "reason": "Fewer than two dates have a clean target and at least three isolated reference stars.",
+        "rejected": [
+          {
+            "obsid": "2025W36_1A_0677_2",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          },
+          {
+            "obsid": "2026W10_2B_0137_2",
+            "reason": "Target is faint, flagged, incomplete or saturated."
+          }
+        ]
+      }
+    },
+    {
+      "cadence": "daily",
+      "default": true,
+      "page": 0,
+      "detector": 1,
+      "sources": [
+        {
+          "file": "frames/2025W36_1A_0233_2D1_0.2.bin",
+          "sha256": "54e8b793cd87fa622fa1a5241d4a6d0af9584821ed80e34c3cb7ab6f7520d9ec"
+        },
+        {
+          "file": "frames/2026W10_2B_0591_3D1_0.2.bin",
+          "sha256": "a1ac2ea34c48296e920365601a5e80bff02375d7bca946ab6a1c67124f9ff9f7"
+        }
+      ],
+      "result": {
+        "ok": true,
+        "positions": [
+          {
+            "obsid": "2025W36_1A_0233_2",
+            "date": "2025-09-02T00:44:21.538",
+            "mjd": 60920.030804835,
+            "east": -0.8210354695551909,
+            "north": -0.26153102286059493,
+            "error": 0.3430468719333498,
+            "alignEast": -0.1750511690866619,
+            "alignNorth": 0.05263030916040634,
+            "alignError": 0.32137385759152237,
+            "references": [
+              {
+                "id": "156429997483589120",
+                "east": 0.04434243475264531,
+                "north": 0.18604495957248446,
+                "error": 0.500917870438254,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156429894403506048",
+                "east": -0.38429481781517955,
+                "north": -0.149473659152477,
+                "error": 0.627882234048946,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360627968",
+                "east": -0.11746177475121539,
+                "north": 0.3020580850275678,
+                "error": 0.643399390934702,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360480768",
+                "east": -0.19711483786143932,
+                "north": -0.17879311709236845,
+                "error": 0.7152440085028015,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382959000760832",
+                "east": -0.394384250969424,
+                "north": -0.03308484186135274,
+                "error": 0.5045985361622625,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156336878294789888",
+                "east": -0.09454912660711519,
+                "north": 0.36776285740245385,
+                "error": 0.8564302370390446,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156335645640414848",
+                "east": -0.11957818786984895,
+                "north": 0.17690698050785159,
+                "error": 0.8872499488296173,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156335405122243328",
+                "east": -0.3042589305878755,
+                "north": -0.018787426475341817,
+                "error": 0.7087204765685821,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382752842341376",
+                "east": -0.4336079806462399,
+                "north": 0.41717703979315957,
+                "error": 0.5557387095241946,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156337294907839232",
+                "east": 0.17648868072038887,
+                "north": 0.1240480447961545,
+                "error": 0.5045968914429488,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156382649763117056",
+                "east": -0.15298750031188446,
+                "north": -0.20812178552063187,
+                "error": 0.5685795178269691,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430375439690368",
+                "east": -0.29575744064027704,
+                "north": -0.9177730309104959,
+                "error": 0.5594177042386171,
+                "parallaxKnown": true
+              }
+            ]
+          },
+          {
+            "obsid": "2026W10_2B_0591_3",
+            "date": "2026-03-08T16:13:49.635",
+            "mjd": 61107.676268921,
+            "east": -0.9812930763965606,
+            "north": -0.18445198858216827,
+            "error": 0.3587662323781468,
+            "alignEast": -0.03243852050525267,
+            "alignNorth": -0.2053114233504516,
+            "alignError": 0.33810236540848165,
+            "references": [
+              {
+                "id": "156434189370670336",
+                "east": -0.03243852050525267,
+                "north": 0.02273549787474849,
+                "error": 0.5002042433288353,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156429894403506048",
+                "east": -0.7523193254316162,
+                "north": -0.49918441226992627,
+                "error": 0.6284333552441128,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360627968",
+                "east": -0.358935411672662,
+                "north": 0.007053305152737721,
+                "error": 0.6032685763428278,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430272360480768",
+                "east": -0.2084967703104238,
+                "north": 0.0635117973956767,
+                "error": 0.6303892714439501,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431264495203200",
+                "east": -0.48604055647456085,
+                "north": -0.19000705422484998,
+                "error": 0.6058654271222549,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430783460273536",
+                "east": 0.05967101079727754,
+                "north": -0.46339982375513955,
+                "error": 0.5071772827366753,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431234433162368",
+                "east": 0.07554612180833362,
+                "north": -0.43018039461486524,
+                "error": 0.5080350911072441,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156337294907839232",
+                "east": 0.3740000453971088,
+                "north": -0.10033126333581777,
+                "error": 0.5059540625611679,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431268792897024",
+                "east": 0.05352803273744846,
+                "north": -0.6883973797911835,
+                "error": 0.8326977505572203,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156430375439690368",
+                "east": -0.20245288989005358,
+                "north": -1.0531031679846592,
+                "error": 0.5382132996677539,
+                "parallaxKnown": true
+              },
+              {
+                "id": "156431234433162496",
+                "east": 0.6529915619738603,
+                "north": -0.2053114233504516,
+                "error": 0.700251881272206,
+                "parallaxKnown": true
+              }
+            ]
+          }
+        ],
+        "epochs": [
+          {
+            "mjd": 60920.030804835,
+            "date": "2025-09-02T00:44:21.538",
+            "east": -0.8210354695551909,
+            "north": -0.26153102286059493,
+            "error": 0.3430468719333498,
+            "frames": 1,
+            "minRefs": 12,
+            "parallaxEast": 0,
+            "parallaxNorth": 0
+          },
+          {
+            "mjd": 61107.676268921,
+            "date": "2026-03-08T16:13:49.635",
+            "east": -0.9812930763965606,
+            "north": -0.18445198858216827,
+            "error": 0.3587662323781468,
+            "frames": 1,
+            "minRefs": 11,
+            "parallaxEast": 0,
+            "parallaxNorth": 0
+          }
+        ],
+        "rejected": [],
+        "east": null,
+        "north": null,
+        "baselineDays": 187.6454640860029,
+        "shift": 0.1778304756666244,
+        "shiftError": 0.49638127063585563,
+        "parallaxMas": null,
+        "parallaxSource": null,
+        "controls": [
+          {
+            "sourceId": "156429894403506048",
+            "residualShift": 0.5322938922318158
+          },
+          {
+            "sourceId": "156430272360627968",
+            "residualShift": 0.44915063270829986
+          },
+          {
+            "sourceId": "156430272360480768",
+            "residualShift": 0.7061063907333536
+          },
+          {
+            "sourceId": "156337294907839232",
+            "residualShift": 0.13945911550091708
+          },
+          {
+            "sourceId": "156430375439690368",
+            "residualShift": 0.19916920290506382
+          }
+        ],
+        "caveats": [
+          "Native aperture centroids; no PSF fit or deblending. Unresolved binaries and wavelength-dependent photocenters can bias positions.",
+          "24-hour visits retain the full positional/reference scatter; shared-frame measurements are not independent.",
+          "Reference-star alignment corrects translation only, not field rotation or distortion.",
+          "No trusted target parallax supplied: fitted rates include any annual parallax and are apparent motion, not pure proper motion."
+        ],
+        "origin": {
+          "ra": 76.95659,
+          "dec": 30.40129,
+          "mjd": 60920.030804835
+        }
+      }
+    }
+  ]
+}

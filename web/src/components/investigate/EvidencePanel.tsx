@@ -63,7 +63,7 @@ export default function EvidencePanel({ seq, frame }: { seq: Sequence; frame: Fr
               <li key={fl.name} className="text-[11.5px] leading-snug">
                 <span className="data font-semibold">{fl.name}</span>{" "}
                 <span className="text-muted">— {fl.description}</span>{" "}
-                <span className={TREAT[fl.treatment] ?? "text-accent"}>[{fl.treatment}]</span>
+                <span className={TREAT[fl.treatment] ?? "text-muted"}>[{fl.treatment}]</span>
               </li>
             ))}
           </ul>

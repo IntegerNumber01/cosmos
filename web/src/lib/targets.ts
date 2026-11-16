@@ -20,7 +20,7 @@ export type Target = {
 export const TARGETS: Target[] = [
   {
     id: "galactic-center",
-    name: "Galactic Centre",
+    name: "Galactic Center",
     kind: "Heart of our galaxy",
     ra: 266.405,
     dec: -28.936,
@@ -28,7 +28,7 @@ export const TARGETS: Target[] = [
     frame: 47,
     blurb:
       "The heart of our own galaxy, 26,000 light-years away. Thick dust hides it from our eyes, but infrared light shines through.",
-    detail: "Best seen from about 2 µm and longer, where dust extinction drops enough to reveal the crowded starlight near the centre.",
+    detail: "Best seen from about 2 µm and longer, where dust extinction drops enough to reveal the crowded starlight near the center.",
   },
   {
     id: "orion",
@@ -119,7 +119,7 @@ export const TARGETS: Target[] = [
     blurb:
       "A “failed star” 7.4 light-years away, about as cold as a winter day on Earth. Far too cool for our eyes: look in deep infrared.",
     caution: "It's very faint, so it may not stand out on this map. Time Travel shows dated photos.",
-    detail: "About 2.3 pc away. Marker at its mid-2025 position, worked out from catalogue proper motion (about 8.1″ per year westward).",
+    detail: "About 2.3 pc away. Marker at its mid-2025 position, worked out from catalog proper motion (about 8.1″ per year westward).",
   },
   {
     id: "barnard",
@@ -131,7 +131,7 @@ export const TARGETS: Target[] = [
     frame: 30,
     blurb: "The closest single star to the Sun, 6 light-years away, and the fastest-moving star across our sky.",
     caution: "It moves so fast that it can look slightly smeared on this map, which blends many dates.",
-    detail: "1.8 pc away; proper motion about 10.4″/yr. The marker is its mid-2025 position from Gaia DR3's measured proper motion (source 4472832130942575872), 4.4′ from its J2000 catalogue position. It moves about 1.7 SPHEREx pixels per year.",
+    detail: "1.8 pc away; proper motion about 10.4″/yr. The marker is its mid-2025 position from Gaia DR3's measured proper motion (source 4472832130942575872), 4.4′ from its J2000 catalog position. It moves about 1.7 SPHEREx pixels per year.",
   },
 ];
 

@@ -20,11 +20,11 @@ function ly(pc: number) {
 function colourWords(s: StarInfo): string | null {
   const b = s.bpRp;
   if (b !== null) {
-    if (b < 0.3) return "Appears blue-white in Gaia's measured colour";
-    if (b < 0.65) return "Appears white in Gaia's measured colour";
-    if (b < 1.0) return "Appears yellow in Gaia's measured colour";
-    if (b < 1.8) return "Appears orange in Gaia's measured colour";
-    return "Appears red in Gaia's measured colour";
+    if (b < 0.3) return "Appears blue-white in Gaia's measured color";
+    if (b < 0.65) return "Appears white in Gaia's measured color";
+    if (b < 1.0) return "Appears yellow in Gaia's measured color";
+    if (b < 1.8) return "Appears orange in Gaia's measured color";
+    return "Appears red in Gaia's measured color";
   }
   const t = s.teff;
   if (!t) return null;
@@ -73,7 +73,7 @@ export default function FlyClient() {
   const colour = sel ? colourWords(sel) : null;
 
   return (
-    <main className="fixed inset-0 overflow-hidden bg-[#020308]">
+    <main className="fixed inset-0 overflow-hidden bg-bg">
       <div className="absolute inset-0 isolate z-0">
         <StarField
           ref={field}
@@ -189,7 +189,7 @@ export default function FlyClient() {
                 <span className="text-right">{sel.g.toFixed(2)}</span>
                 <span className="text-dim">Absolute G</span>
                 <span className="text-right">{sel.absG.toFixed(2)}</span>
-                <span className="text-dim">BP − RP colour</span>
+                <span className="text-dim">BP − RP color</span>
                 <span className="text-right">{sel.bpRp === null ? "—" : sel.bpRp.toFixed(2)}</span>
                 <span className="text-dim">Teff (GSP-Phot)</span>
                 <span className="text-right">{sel.teff ? `${sel.teff} K` : "—"}</span>
@@ -202,7 +202,7 @@ export default function FlyClient() {
               </div>
               <p className="mt-2.5 text-[11.5px] leading-snug">
                 Distance = 1 / parallax (1 pc = {PC_TO_LY} ly). Precise because parallax / error ={" "}
-                {(sel.parallax / sel.parallaxErr).toFixed(0)}. Colour on screen and the colour words above come from BP − RP
+                {(sel.parallax / sel.parallaxErr).toFixed(0)}. Color on screen and the color words above come from BP − RP
                 (the Sun is about 0.82), or from Teff when BP − RP is missing. A star is named only when a Gaia source matches its
                 known position, distance and brightness.
               </p>
@@ -256,7 +256,7 @@ export default function FlyClient() {
             </button>
           )}
           <button
-            className={`rounded-full border px-2.5 py-0.5 text-[11px] transition ${sky ? "border-accent/50 text-accent" : "border-line text-muted"}`}
+            className={`chip !rounded-full px-2.5 py-0.5 text-[11px] ${sky ? "is-on" : ""}`}
             onClick={() => setSky((v) => !v)}
             title="A NASA SPHEREx infrared map of the whole sky, painted far in the background to help you find your way. It shows direction only, not distance."
           >

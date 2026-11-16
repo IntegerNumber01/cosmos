@@ -10,6 +10,7 @@ export type TTTarget = {
   why: string;
   challenge?: boolean;
   pm?: [number, number]; // mas/yr (for display)
+  parallaxMas?: number; // catalogue input from the saved validation record; not measured here
   prefer?: { obsid: string; detector: number }; // open on the wavelength set containing this exposure
   caseFile?: string;
   compare?: [string, string]; // preferred before/after exposure keys, when both are loaded
@@ -24,6 +25,7 @@ export const TT_TARGETS: TTTarget[] = [
     ra: 269.44629,
     dec: 4.76792,
     pm: [-801.6, 10362.4],
+    parallaxMas: 546.97594,
     challenge: true,
     why: "Moves about 10.4″ per year (1.7 SPHEREx pixels), so dates a year apart should show it shifting north.",
   },
@@ -34,6 +36,7 @@ export const TT_TARGETS: TTTarget[] = [
     ra: 133.75999,
     dec: -7.2422,
     pm: [-8123.7, 673.2],
+    parallaxMas: 439,
     challenge: true,
     why: "At about 250 K it is extremely faint and glows mainly beyond 4 µm, so it's a hard test of what SPHEREx can detect.",
     prefer: { obsid: "2025W45_2A_0292_3", detector: 5 }, // 4.22 µm set where the validation detected it (by stacking)
@@ -45,6 +48,7 @@ export const TT_TARGETS: TTTarget[] = [
     ra: 331.09644,
     dec: -56.80059,
     pm: [3982.0, -2466.8],
+    parallaxMas: 270.658032,
     challenge: true,
     why: "A nearby pair of brown dwarfs 6.7′ from the bright star ε Indi A, moving about 4.7″ per year.",
     prefer: { obsid: "2025W17_4B_0027_3", detector: 2 }, // 1.108 µm, one-year baseline (validation: confirmed)

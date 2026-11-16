@@ -92,8 +92,8 @@ export default function WavelengthDial({ frame, onChange }: Props) {
         <div className="flex items-center gap-2">
           {stripe && (
             <span
-              className="rounded-full border border-warn/40 bg-warn/10 px-2.5 py-1 text-[11px] text-warn"
-              title="The SPHEREx DR1 all-sky cube shows striping artefacts near this wavelength. Treat linear patterns with caution."
+              className="rounded-full bg-warn/15 px-2.5 py-1 text-[11px] text-warn"
+              title="The SPHEREx DR1 all-sky cube shows striping artifacts near this wavelength. Treat linear patterns with caution."
             >
               ⚠ striping reported near {stripe} µm
             </span>
@@ -144,7 +144,7 @@ export default function WavelengthDial({ frame, onChange }: Props) {
           step={1}
           value={frame}
           aria-label="SPHEREx wavelength channel"
-          aria-valuetext={`${um.toFixed(3)} micrometres, band ${band}`}
+          aria-valuetext={`${um.toFixed(3)} micrometers, band ${band}`}
           onChange={(e) => {
             const v = parseInt(e.target.value, 10);
             set(v, v >= frame ? 1 : -1);

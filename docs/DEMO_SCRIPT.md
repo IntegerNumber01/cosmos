@@ -1,5 +1,7 @@
 # 30-second demo: a defensible investigation
 
+A separate seven-slide alternative is available in [demo/COSMOS-demo.pdf](demo/COSMOS-demo.pdf) and its editable, standalone [HTML source](demo/COSMOS-demo.html). It uses real screenshots from the browser checks, leads with measured motion, and includes brightness, a refused false alarm, specified-track stacks and evidence handoff. It contains no personal details. Add any required team identification separately before submitting. Rebuild from captured screenshots with `pipeline/.venv/Scripts/python pipeline/build_submission_demo.py`, or pass a running local URL (for example `http://localhost:3652`) to capture fresh app images first.
+
 Record the real app (`npm run build && npm start`), 1920×1080, on a machine with a real GPU. Open each page once beforehand so the tiles and data are cached. Featured targets also load from the prepared cache.
 
 | Time | Screen | Action | Voice-over / caption |

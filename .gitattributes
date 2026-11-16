@@ -1,0 +1,9 @@
+# Prepared-data manifests hash exact bytes. Keep JSON stable across Windows and Unix checkouts.
+web/public/cache/**/*.json text eol=lf
+data/raw/identification/**/*.json text eol=lf
+
+# Science arrays and exported documents must retain their original bytes.
+*.bin -text
+*.f32 -text
+*.u32 -text
+*.pdf -text

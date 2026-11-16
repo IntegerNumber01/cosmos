@@ -36,17 +36,17 @@ export default function ObsTimeline({ obs, selected, onPick }: Props) {
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Timeline of ${inside.length} SPHEREx frames covering this position`}>
         {[1, 2, 3, 4, 5].map((wl) => (
           <g key={wl}>
-            <line x1={PAD.l} x2={W - PAD.r} y1={y(wl)} y2={y(wl)} stroke="rgba(150,175,255,0.08)" />
-            <text x={PAD.l - 8} y={y(wl) + 4} textAnchor="end" fontSize={11} fill="#8d96bd">
+            <line x1={PAD.l} x2={W - PAD.r} y1={y(wl)} y2={y(wl)} stroke="rgba(255,255,255,0.08)" />
+            <text x={PAD.l - 8} y={y(wl) + 4} textAnchor="end" fontSize={11} fill="#a1a1aa">
               {wl} µm
             </text>
           </g>
         ))}
         {months.map((m, i) => (
           <g key={m.mjd}>
-            <line x1={x(m.mjd)} x2={x(m.mjd)} y1={PAD.t} y2={H - PAD.b} stroke="rgba(150,175,255,0.06)" />
+            <line x1={x(m.mjd)} x2={x(m.mjd)} y1={PAD.t} y2={H - PAD.b} stroke="rgba(255,255,255,0.06)" />
             {(months.length < 10 || i % 2 === 0) && (
-              <text x={x(m.mjd)} y={H - PAD.b + 16} textAnchor="middle" fontSize={10.5} fill="#8d96bd">
+              <text x={x(m.mjd)} y={H - PAD.b + 16} textAnchor="middle" fontSize={10.5} fill="#a1a1aa">
                 {m.label}
               </text>
             )}
@@ -83,8 +83,8 @@ export default function ObsTimeline({ obs, selected, onPick }: Props) {
             </circle>
           );
         })}
-        <text x={W - PAD.r} y={PAD.t + 10} textAnchor="end" fontSize={10.5} fill="#5d668c">
-          click a dot to compare every date in that infrared colour
+        <text x={W - PAD.r} y={PAD.t + 10} textAnchor="end" fontSize={10.5} fill="#71717a">
+          click a dot to compare every date in that infrared color
         </text>
       </svg>
       {hover && (

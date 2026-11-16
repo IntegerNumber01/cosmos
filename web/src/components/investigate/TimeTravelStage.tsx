@@ -29,7 +29,7 @@ export default function TimeTravelStage({ pair, view }: Props) {
   return (
     <div
       ref={box}
-      className="relative aspect-square w-full select-none overflow-hidden rounded-2xl border border-line bg-black"
+      className="relative aspect-square w-full select-none overflow-hidden rounded-2xl bg-black"
       onPointerDown={(e) => {
         if (view !== "wipe") return;
         dragging.current = true;

@@ -36,7 +36,7 @@ function CaseRow({
   imgClass?: string;
 }) {
   return (
-    <Link href={href} className="glass group grid grid-cols-[96px_1fr] overflow-hidden rounded-2xl transition hover:border-accent/40 sm:grid-cols-[200px_1fr]">
+    <Link href={href} className="glass group grid grid-cols-[96px_1fr] overflow-hidden rounded-2xl transition glass-hover sm:grid-cols-[200px_1fr]">
       <div className="h-full min-h-[120px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={img} alt={imgAlt} className={`h-full w-full object-cover ${imgClass}`} />
@@ -45,7 +45,7 @@ function CaseRow({
         <span className={`inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold ${statusCls}`}>{status}</span>
         <h2 className="font-display mt-1.5 text-[20px] font-semibold leading-tight sm:text-[23px]">{title}</h2>
         <p className="mt-1 text-[13.5px] leading-relaxed text-text/80">{hook}</p>
-        <div className="mt-2 text-[13px] text-accent group-hover:underline">Open the case →</div>
+        <div className="mt-2 text-[13px] text-muted transition hover:text-text group-hover:underline">Open the case →</div>
       </div>
     </Link>
   );
@@ -64,10 +64,10 @@ export default function InvestigateHub() {
 
   return (
     <main className="relative min-h-screen bg-bg pb-20">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.05),transparent_70%)]" />
       <NavBar />
       <div className="relative mx-auto max-w-[1000px] px-4 pt-24 sm:px-6">
-        <div className="label text-accent">Investigate</div>
+        <div className="label">Investigate</div>
         <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight sm:text-[42px]">Case files</h1>
         <p className="mt-2 max-w-2xl text-[15px] text-muted">
           Detective work with real pictures from NASA&apos;s SPHEREx space telescope. Each case asks one question and shows you the evidence. Sometimes the
@@ -129,8 +129,8 @@ export default function InvestigateHub() {
               </div>
             );
           })}
-          <Link href="/timetravel" className="flex flex-col justify-center rounded-2xl border border-dashed border-line p-4 transition hover:border-accent/50">
-            <div className="text-[12px] text-accent">Your own case</div>
+          <Link href="/timetravel" className="flex flex-col justify-center rounded-2xl card p-4 transition hover:bg-surface-2">
+            <div className="text-[12px] font-medium text-text">Your own case</div>
             <div className="font-display mt-0.5 text-[19px] font-semibold">Any spot in the sky →</div>
             <p className="mt-1 text-[13px] text-muted">Pick a place, then compare pictures from different dates to see what changed.</p>
           </Link>

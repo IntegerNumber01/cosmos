@@ -60,13 +60,13 @@ export default function ValidationClient() {
     <main className="relative min-h-screen bg-bg pb-24">
       <NavBar />
       <div className="mx-auto max-w-[1080px] px-4 pt-24 sm:px-6">
-        <Link href="/investigate" className="text-[13px] text-accent">
+        <Link href="/investigate" className="text-[13px] text-muted transition hover:text-text">
           ← All case files
         </Link>
-        <div className="label mt-4 text-accent">Validation</div>
+        <div className="label mt-4">Validation</div>
         <h1 className="font-display mt-1 text-[34px] font-semibold leading-tight">How COSMOS did on the challenge&apos;s five test targets</h1>
         <p className="mt-2 max-w-3xl text-[15px] text-muted">
-          We compare pictures taken in closely matching infrared colours, then check for image artifacts and other explanations. Colour matching helps,
+          We compare pictures taken in closely matching infrared colors, then check for image artifacts and other explanations. Color matching helps,
           but does not by itself prove a real change. &quot;Too bright to measure&quot; is an honest result. We never force a detection.
         </p>
         <Advanced className="mt-2">
@@ -74,7 +74,7 @@ export default function ValidationClient() {
           we measured on the native pixels, and the limits. A clear &quot;not detected&quot; or &quot;inconclusive&quot; is a valid test result.
         </Advanced>
 
-        <div className="mt-6 overflow-hidden rounded-2xl border border-line">
+        <div className="mt-6 overflow-hidden rounded-2xl card">
           <table className="w-full text-[13px]">
             <thead className="bg-white/5 text-left text-muted">
               <tr>
@@ -91,7 +91,7 @@ export default function ValidationClient() {
                 return (
                   <tr key={id} className="border-t border-line/60 align-top">
                     <td className="px-4 py-2">
-                      <a href={`#${id}`} className="hover:text-accent">
+                      <a href={`#${id}`} className="hover:text-white hover:underline">
                         {r?.name ?? t?.name}
                       </a>
                     </td>
@@ -162,7 +162,7 @@ export default function ValidationClient() {
                 )}
                 {r.catalog && (
                   <div className="rounded-xl bg-white/[0.03] p-3">
-                    <div className="label mb-2">Catalogue astrometry used</div>
+                    <div className="label mb-2">Catalog astrometry used</div>
                     <KV obj={r.catalog} />
                   </div>
                 )}
@@ -179,7 +179,7 @@ export default function ValidationClient() {
                   <div className="label mb-2">Wavelength-matched sets compared</div>
                   <div className="space-y-2">
                     {r.matched_sets.map((m: any, i: number) => (
-                      <div key={i} className="rounded-xl border border-line p-3 text-[12px]">
+                      <div key={i} className="rounded-xl card p-3 text-[12px]">
                         <div className="data" style={{ color: m.lambda_ref_um ? wavelengthColor(m.lambda_ref_um) : undefined }}>
                           {String(m.detector).startsWith("D") ? m.detector : `D${m.detector}`} · {m.lambda_ref_um?.toFixed?.(4)} µm (channel width {m.bandwidth_um?.toFixed?.(4)})
                         </div>
@@ -191,7 +191,7 @@ export default function ValidationClient() {
                               <span>{f.wavelength_um?.toFixed?.(4)} µm</span>
                               {f.flags_at_target?.length > 0 && <span className="text-warn">{f.flags_at_target.join(", ")}</span>}
                               {f.source_fits && (
-                                <a className="text-accent hover:underline" href={f.source_fits} target="_blank" rel="noreferrer">
+                                <a className="link" href={f.source_fits} target="_blank" rel="noreferrer">
                                   FITS ↗
                                 </a>
                               )}

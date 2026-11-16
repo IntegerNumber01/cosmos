@@ -41,7 +41,7 @@ export function channelOf(frame: number) {
 export const BANDS = [
   { band: 1, range: "0.75–1.10 µm", note: "Edge of human vision — starlight dominates" },
   { band: 2, range: "1.11–1.63 µm", note: "Near-infrared — stars glow through dust" },
-  { band: 3, range: "1.63–2.42 µm", note: "Dust lanes thin out — the Galaxy's hidden centre appears" },
+  { band: 3, range: "1.63–2.42 µm", note: "Dust lanes thin out — the Galaxy's hidden center appears" },
   { band: 4, range: "2.42–3.82 µm", note: "Water-ice and organic (3.3 µm) features" },
   { band: 5, range: "3.83–4.41 µm", note: "Warm dust and CO₂ ice (4.27 µm)" },
   { band: 6, range: "4.42–5.00 µm", note: "Longest SPHEREx wavelengths — cool, dusty regions" },
@@ -100,7 +100,7 @@ export function frameForWavelength(um: number) {
 export const STOPS = [
   { frame: 5, name: "Almost visible", note: "Just past red light. Dark dust clouds still block the view." },
   { frame: 30, name: "Through the haze", note: "Infrared slips through thin dust. Hidden stars start to appear." },
-  { frame: 47, name: "Galaxy's heart", note: "Dust turns nearly see-through. The crowded centre of our galaxy shines." },
+  { frame: 47, name: "Galaxy's heart", note: "Dust turns nearly see-through. The crowded center of our galaxy shines." },
   { frame: 62, name: "Glowing dust", note: "Carbon-rich dust glows around newborn stars." },
   { frame: 88, name: "Warm dust", note: "Near the longest infrared SPHEREx sees. Warm dust glows." },
 ];

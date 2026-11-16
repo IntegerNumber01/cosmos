@@ -32,8 +32,8 @@ export function describeDirection(ra: number, dec: number) {
   const { l, b } = toGalactic(ra, dec);
   let where: string;
   if (Math.abs(b) > 30) where = b > 0 ? "up, out of our galaxy's disc" : "down, out of our galaxy's disc";
-  else if (l < 30 || l > 330) where = "toward the centre of our galaxy";
-  else if (l > 150 && l < 210) where = "away from the centre, toward the galaxy's outer edge";
+  else if (l < 30 || l > 330) where = "toward the center of our galaxy";
+  else if (l > 150 && l < 210) where = "away from the center, toward the galaxy's outer edge";
   else where = "along the disc of our galaxy";
   return { l, b, where };
 }
@@ -78,8 +78,8 @@ export default function WhereAmI({ ra, dec, fov, onClose }: { ra: number; dec: n
           <path key={i} d={d} fill="none" stroke="#c9d4ff" strokeOpacity="0.22" strokeWidth="5" strokeLinecap="round" />
         ))}
         <ellipse cx={C.x} cy={C.y} rx="15" ry="6" transform={`rotate(-28 ${C.x} ${C.y})`} fill="#fff1d0" fillOpacity="0.55" />
-        <text x={C.x} y={C.y - 12} textAnchor="middle" fontSize="8.5" fill="#e9edff" fillOpacity="0.7">
-          Galaxy centre
+        <text x={C.x} y={C.y - 12} textAnchor="middle" fontSize="8.5" fill="#f4f4f5" fillOpacity="0.7">
+          Galaxy center
         </text>
         {/* view cone */}
         <path d={`M${SUN.x},${SUN.y} L${p1.x},${p1.y} A${lenR},${lenR} 0 0 1 ${p2.x},${p2.y} Z`} fill="#7fd8ff" fillOpacity="0.16" stroke="#7fd8ff" strokeOpacity="0.5" strokeWidth="0.8" />
@@ -98,12 +98,12 @@ export default function WhereAmI({ ra, dec, fov, onClose }: { ra: number; dec: n
       <Advanced className="mt-1.5" label="About this map" openLabel="Hide">
         <p>
           The galaxy is a sketch: nobody has photographed the Milky Way from outside. The arrow is real. It points from the Sun
-          toward the centre of your view (galactic longitude {l.toFixed(0)}°, latitude {b.toFixed(0)}°).
+          toward the center of your view (galactic longitude {l.toFixed(0)}°, latitude {b.toFixed(0)}°).
         </p>
         <p className="mt-1.5">
-          Seen from above, with the centre at the top. The Sun is about 26,000 light-years from the centre; Earth is only
+          Seen from above, with the center at the top. The Sun is about 26,000 light-years from the center; Earth is only
           8 light-minutes from the Sun, so at this scale they are the same dot. The infrared sky around you is the inside of
-          a sphere with you at its centre.
+          a sphere with you at its center.
         </p>
       </Advanced>
     </div>

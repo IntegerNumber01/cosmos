@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { catalogueText, CATALOGUE_BUDGET_MS } from "@/lib/engine/catalogue";
 import { lookupGaia } from "@/lib/engine/gaia";
+import { lookupSmallBodies } from "@/lib/engine/smallBodies";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -21,24 +22,6 @@ function rowsOf(j: { metadata?: { name: string }[]; data?: unknown[][] }) {
   return (j.data ?? []).map((r) => Object.fromEntries(names.map((n, i) => [n, r[i]])) as Record<string, unknown>);
 }
 
-function sexRA(deg: number) {
-  const h = (((deg % 360) + 360) % 360) / 15;
-  const hh = Math.floor(h);
-  const m = (h - hh) * 60;
-  const mm = Math.floor(m);
-  const ss = (m - mm) * 60;
-  return `${String(hh).padStart(2, "0")}-${String(mm).padStart(2, "0")}-${ss.toFixed(2).padStart(5, "0")}`;
-}
-function sexDec(deg: number) {
-  const s = deg < 0 ? "M" : "";
-  const a = Math.abs(deg);
-  const d = Math.floor(a);
-  const m = (a - d) * 60;
-  const mm = Math.floor(m);
-  const ss = (m - mm) * 60;
-  return `${s}${String(d).padStart(2, "0")}-${String(mm).padStart(2, "0")}-${ss.toFixed(1).padStart(4, "0")}`;
-}
-
 export async function GET(req: NextRequest) {
   const p = req.nextUrl.searchParams;
   const ra = Number(p.get("ra"));
@@ -48,7 +31,7 @@ export async function GET(req: NextRequest) {
   const wide = services.length === 1 && services[0] === "gaia";
   const r = Math.min(wide ? 0.16 : 0.05, Math.max(0.001, Number(p.get("r") ?? 0.01)));
   const mjd = Number(p.get("mjd") ?? 61000);
-  if (![ra, dec, mjd].every(Number.isFinite)) return NextResponse.json({ error: "bad parameters" }, { status: 400 });
+  if (![ra, dec, mjd, r].every(Number.isFinite) || ra < 0 || ra >= 360 || Math.abs(dec) > 90 || services.some(s => !["gaia", "simbad", "sbc", "sba"].includes(s)) || (services.includes("sbc") && services.includes("sba"))) return NextResponse.json({ error: "bad parameters" }, { status: 400 });
   const deadline = AbortSignal.timeout(CATALOGUE_BUDGET_MS);
   const yr = 2000 + (mjd - 51544.5) / 365.25;
   const dt = yr - 2016.0;
@@ -111,47 +94,7 @@ export async function GET(req: NextRequest) {
     );
 
   const t = new Date((mjd - 40587) * 86400000).toISOString();
-  const obsTime = `${t.slice(0, 10)}_${t.slice(11, 19)}`;
-  const hw = Math.max(r, 0.01);
-  const sbUrl =
-    "https://ssd-api.jpl.nasa.gov/sb_ident.api?mpc-code=500" +
-    `&obs-time=${obsTime}&fov-ra-center=${sexRA(ra)}&fov-dec-center=${sexDec(dec)}` +
-    `&fov-ra-hwidth=${hw}&fov-dec-hwidth=${hw}&two-pass=true&suppress-first-pass=true` +
-    // comets (often no magnitude model) and asteroids (V <= 21, beyond SPHEREx's reach) as separate,
-    // faster queries; each stays inside a 60 s serverless limit
-    (services.includes("sbc") ? "&sb-kind=c&mag-required=false" : "&sb-kind=a&vmag-lim=21");
-  // A JPL answer counts only if it is HTTP 200 AND structurally valid. "No matching records" is the only
-  // empty result accepted as a successful search; anything else is an error, never "nothing known".
-  const sb = () =>
-    catalogueText(sbUrl, {}, deadline, 57000)
-      .then((text) => {
-        const j = JSON.parse(text) as {
-          signature?: { source?: string };
-          data_second_pass?: string[][];
-          n_second_pass?: number;
-          warning?: string;
-          message?: string;
-          code?: string | number;
-        };
-        if (!j.signature?.source?.includes("Small-Body Identification")) throw new Error("JPL returned an unexpected response");
-        if (Array.isArray(j.data_second_pass)) {
-          if (!j.data_second_pass.every((row) => Array.isArray(row) && row.length >= 9)) throw new Error("JPL rows malformed");
-          return j.data_second_pass;
-        }
-        if (typeof j.warning === "string" && /no matching records/i.test(j.warning)) return [];
-        throw new Error(`JPL: ${j.message ?? j.warning ?? "no result data"}`);
-      })
-      .then((rows) =>
-      rows.map((row) => ({
-        name: row[0],
-        ra_hms: row[1],
-        dec_dms: row[2],
-        sep_arcsec: Number(row[5]),
-        vmag: row[6],
-        ra_rate_arcsec_h: Number(row[7]),
-        dec_rate_arcsec_h: Number(row[8]),
-      })),
-    );
+  const sb = () => lookupSmallBodies(ra, dec, r, mjd, services.includes("sbc") ? "sbc" : "sba", deadline).then(result => result.rows);
 
   const NOT_REQUESTED = Symbol("not requested");
   const run = <T,>(want: boolean, f: () => Promise<T>): Promise<T | typeof NOT_REQUESTED> => (want ? f() : Promise.resolve(NOT_REQUESTED));

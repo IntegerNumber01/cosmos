@@ -16,7 +16,7 @@ export function Logo({ className = "" }: { className?: string }) {
     <Link href="/" className={`flex items-center gap-2.5 ${className}`} aria-label="COSMOS home">
       <span className="relative inline-block h-6 w-6">
         <span className="absolute inset-0 rounded-full bg-[conic-gradient(from_200deg,#7c5cff,#408cff,#28d2e6,#5ae68c,#ffc446,#ff5c48,#7c5cff)] opacity-90" />
-        <span className="absolute inset-[5px] rounded-full bg-[#03040a]" />
+        <span className="absolute inset-[5px] rounded-full bg-bg" />
         <span className="absolute inset-[9px] rounded-full bg-white/90" />
       </span>
       <span className="font-display hidden text-[17px] font-semibold tracking-[0.18em] sm:inline">COSMOS</span>

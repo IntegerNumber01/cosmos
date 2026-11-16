@@ -19,7 +19,9 @@ function mock(mode: Mode) {
       const sig = { source: "NASA/JPL Small-Body Identification API", version: "1.1" };
       if (mode.jpl === "empty") return new Response(JSON.stringify({ signature: sig, warning: "no matching records" }), { status: 200 });
       return new Response(
-        JSON.stringify({ signature: sig, data_second_pass: [["C/2025 R2 (SWAN)", "20:56:58.19", "-05 41'18.5\"", ".8", "4.5", "4.6", "11.7T", "522", "146"]] }),
+        JSON.stringify({ signature: sig, n_second_pass: 1,
+          fields_second: ["Object name", "Astrometric RA (hh:mm:ss)", "Astrometric Dec (dd mm'ss\")", "Dist. from center RA (\")", "Dist. from center Dec (\")", "Dist. from center Norm (\")", "Visual magnitude (V)", "RA rate (\"/h)", "Dec rate (\"/h)"],
+          data_second_pass: [["C/2025 R2 (SWAN)", "20:56:58.19", "-05 41'18.5\"", ".8", "4.5", "4.6", "11.7T", "522", "146"]] }),
         { status: 200 },
       );
     }

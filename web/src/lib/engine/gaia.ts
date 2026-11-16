@@ -79,7 +79,7 @@ export function parseGaiaTsv(text: string): GaiaRecord[] {
   return table(header, lines.map((line) => line.split("\t").map((s) => s.trim())), VIZIER_COLUMNS);
 }
 
-export async function lookupGaia(query: string, ra: number, dec: number, radius: number, deadline: AbortSignal): Promise<{ records: GaiaRecord[]; service: string }> {
+export async function lookupGaia(query: string, ra: number, dec: number, radius: number, deadline: AbortSignal, preparation?: { maxRows: number; allMagnitudes: boolean }): Promise<{ records: GaiaRecord[]; service: string }> {
   try {
     const text = await catalogueText("https://gea.esac.esa.int/tap-server/tap/sync", {
       method: "POST", body: new URLSearchParams({ REQUEST: "doQuery", LANG: "ADQL", FORMAT: "csv", QUERY: query }),
@@ -89,8 +89,8 @@ export async function lookupGaia(query: string, ra: number, dec: number, radius:
     deadline.throwIfAborted();
     const params = new URLSearchParams({
       "-source": "I/355/gaiadr3", "-c": `${ra} ${dec >= 0 ? "+" : ""}${dec}`, "-c.rd": String(radius + 0.04),
-      "-out": VIZIER_COLUMNS.join(","), "-sort": "Gmag", "-out.max": String(radius > 0.05 ? 1500 : 200),
-      ...(radius > 0.05 ? { Gmag: "<18" } : {}),
+      "-out": VIZIER_COLUMNS.join(","), "-sort": "Gmag", "-out.max": String(preparation?.maxRows ?? (radius > 0.05 ? 1500 : 200)),
+      ...(preparation?.allMagnitudes ? { Gmag: ">=-10" } : radius > 0.05 ? { Gmag: "<18" } : {}),
     });
     try {
       // One mirror attempt: the full Gaia chain is at most 20 + 25 seconds, inside the shared 55-second deadline.

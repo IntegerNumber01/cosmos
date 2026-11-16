@@ -39,7 +39,7 @@ with sync_playwright() as p:
     expect(page.get_by_role("button", name="Type sky coordinates or change search settings")).not_to_be_visible()
     expect(page.locator("p:visible").filter(has_text="This selected subset works without the archive")).to_be_visible()
     expect(page.get_by_role("region", name="Magnified target comparison")).to_be_visible()
-    page.screenshot(path=str(ART / "guided-desktop.png"), full_page=True)
+    page.screenshot(path=str(ART / "guided-desktop.png"), full_page=False)
     guide.get_by_role("button", name="Measure this source", exact=False).click()
     summary = page.get_by_role("region", name="Measurement summary")
     expect(summary).to_be_visible()
@@ -50,12 +50,14 @@ with sync_playwright() as p:
     assert "± " in calibrated and "brighter" in calibrated and "Not calibrated" not in calibrated, calibrated
     summary.get_by_role("button", name="How the brightness was checked").click()
     expect(summary).to_contain_text("Δm = −0.52")
-    page.screenshot(path=str(ART / "calibrated-brightness.png"), full_page=True)
+    summary.screenshot(path=str(ART / "brightness-summary.png"))
+    page.screenshot(path=str(ART / "calibrated-brightness.png"), full_page=False)
     print("PASS: calibrated headline:", calibrated)
     expect(page.get_by_text("We cannot tell whether this source is already known from this lookup", exact=False)).to_be_visible(timeout=30000)
     print("PASS: homepage starts a real guided brightness investigation; unavailable catalogues remain unavailable")
 
     # evidence worksheet: filled from checks that ran; an unavailable catalogue stays "not checked"
+    guide.get_by_role("button", name="Review the evidence", exact=False).click()
     sheet = page.get_by_role("region", name="Evidence worksheet")
     expect(sheet.locator("[data-verdict]")).to_contain_text("Supported so far")
     checks = sheet.get_by_role("list", name="Alternative explanations").locator("li")
@@ -119,7 +121,7 @@ with sync_playwright() as p:
     downloaded.value.save_as(ART / "epsindib-evidence.json")
     motion = json.loads((ART / "epsindib-evidence.json").read_text(encoding="utf-8"))
     assert motion["target"]["pm"] and len(motion["measurements"]) >= 2
-    page.screenshot(path=str(ART / "motion-measurements.png"), full_page=True)
+    page.get_by_role("region", name="Measurement summary").screenshot(path=str(ART / "motion-measurements.png"), timeout=60000)
     print("PASS: real motion example retains measured positions and separately labelled catalogue prediction")
 
     mobile = ctx.new_page()
@@ -136,7 +138,7 @@ with sync_playwright() as p:
             expect(mobile.get_by_text("A star can be bright in one infrared colour", exact=False)).to_be_visible()
             name = "learn-mobile"
         assert not mobile.evaluate("document.documentElement.scrollWidth > innerWidth"), path + " overflows on mobile"
-        mobile.screenshot(path=str(ART / (name + ".png")), full_page=True)
+        mobile.screenshot(path=str(ART / (name + ".png")), full_page=False)
     assert not errors, errors
     print("PASS: lessons, mobile layouts, expandable explanations and no browser runtime errors")
     browser.close()

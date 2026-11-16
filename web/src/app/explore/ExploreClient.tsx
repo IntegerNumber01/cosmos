@@ -186,7 +186,7 @@ export default function ExploreClient() {
         stops={stops}
       />
       {/* vignette for legibility */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(3,4,10,0.65)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_55%,rgba(9,9,11,0.65)_100%)]" />
 
       {!clean && <NavBar />}
 
@@ -199,7 +199,7 @@ export default function ExploreClient() {
         <div className="absolute inset-x-0 top-20 z-30 mx-auto w-fit max-w-lg">
           <div className="glass rounded-xl px-5 py-3 text-[13px] text-warn">
             The sky map couldn&apos;t load. It streams live from NASA&apos;s archive, so check your connection and reload.
-            <Link className="mt-2 block text-accent underline" href="/timetravel?target=epsindib">Open saved dated photos instead →</Link>
+            <Link className="mt-2 block link" href="/timetravel?target=epsindib">Open saved dated photos instead →</Link>
           </div>
         </div>
       )}
@@ -210,11 +210,11 @@ export default function ExploreClient() {
           {intro && status.s === "ready" && (
             <div className="absolute inset-0 z-40 grid place-items-center bg-black/30 px-4" onClick={dismissIntro}>
               <div className="glass-strong fade-up max-w-[440px] rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
-                <div className="label text-accent">What you&apos;re looking at</div>
+                <div className="label">What you&apos;re looking at</div>
                 <h2 className="font-display mt-2 text-[24px] font-semibold leading-tight">The whole sky around Earth, in light your eyes can&apos;t see</h2>
                 <p className="mt-3 text-[14px] leading-relaxed text-text/85">
                   Imagine standing on Earth inside a giant ball painted with every star. That&apos;s this map, and you&apos;re at its
-                  centre looking out. The glowing band is our own galaxy, the Milky Way, seen from the inside.
+                  center looking out. The glowing band is our own galaxy, the Milky Way, seen from the inside.
                 </p>
                 <p className="mt-2 text-[14px] leading-relaxed text-text/85">
                   It was made by NASA&apos;s SPHEREx telescope, which photographs the entire sky in infrared light.
@@ -224,7 +224,7 @@ export default function ExploreClient() {
                     <b className="text-text">Drag</b> to look around · <b className="text-text">scroll or pinch</b> to zoom
                   </li>
                   <li>
-                    <b className="text-text">Change the colour</b> at the bottom to see through dust
+                    <b className="text-text">Change the color</b> at the bottom to see through dust
                   </li>
                   <li>
                     <b className="text-text">Pick a place</b> to fly there
@@ -316,13 +316,13 @@ export default function ExploreClient() {
                   <div className="mt-2 flex flex-wrap gap-3">
                     {selected.investigate && (
                       <Link
-                        className="text-accent hover:underline"
+                        className="link"
                         href={`/timetravel?ra=${selected.ra.toFixed(5)}&dec=${selected.dec.toFixed(5)}&name=${encodeURIComponent(selected.name)}`}
                       >
                         Time Travel here
                       </Link>
                     )}
-                    <button className="text-accent hover:underline" onClick={() => router.push(`/fly?ra=${selected.ra.toFixed(3)}&dec=${selected.dec.toFixed(3)}`)}>
+                    <button className="link" onClick={() => router.push(`/fly?ra=${selected.ra.toFixed(3)}&dec=${selected.dec.toFixed(3)}`)}>
                       Face this way in 3D Fly
                     </button>
                   </div>
@@ -342,13 +342,13 @@ export default function ExploreClient() {
                   </button>
                 </div>
 
-                <div className="mt-3 text-muted">Colour scheme</div>
+                <div className="mt-3 text-muted">Color scheme</div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {COLORMAPS.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => setCmap(c.id)}
-                      className={`rounded-full border px-3 py-1 transition ${cmap === c.id ? "border-accent/50 bg-white/10 text-white" : "border-line text-muted hover:text-white"}`}
+                      className={`chip !rounded-full px-3 py-1 ${cmap === c.id ? "is-on" : ""}`}
                     >
                       {c.label}
                     </button>
@@ -381,7 +381,7 @@ export default function ExploreClient() {
                   )}
                 </div>
 
-                <div className="mt-4 text-muted">View centre</div>
+                <div className="mt-4 text-muted">View center</div>
                 <div className="data mt-1 text-[11.5px] text-text">
                   {fmtRA(view.ra)} {fmtDec(view.dec)}
                   <div className="text-muted">
@@ -399,15 +399,15 @@ export default function ExploreClient() {
                     value={gotoText}
                     onChange={(e) => setGotoText(e.target.value)}
                     placeholder="Go to RA Dec (degrees)"
-                    className="w-full rounded-lg border border-line bg-black/30 px-3 py-1.5 text-[12.5px] text-text placeholder:text-dim focus:border-accent/60 focus:outline-none"
+                    className="w-full field px-3 py-1.5 text-[12.5px] text-text placeholder:text-dim"
                     aria-label="Go to coordinates"
                   />
                 </form>
                 <div className="mt-2 flex flex-wrap gap-3">
-                  <button className="text-accent hover:underline" onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}>
-                    Time Travel the centre
+                  <button className="link" onClick={() => router.push(`/timetravel?ra=${view.ra.toFixed(5)}&dec=${view.dec.toFixed(5)}`)}>
+                    Time Travel the center
                   </button>
-                  <button className="text-accent hover:underline" onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}>
+                  <button className="link" onClick={() => router.push(`/fly?ra=${view.ra.toFixed(3)}&dec=${view.dec.toFixed(3)}`)}>
                     Fly from here
                   </button>
                 </div>
@@ -415,7 +415,7 @@ export default function ExploreClient() {
                 <div className="mt-4 text-muted">About this map</div>
                 <p className="mt-1 leading-relaxed text-dim">
                   NASA SPHEREx DR1 all-sky spectral cube (IRSA, doi:{HIPS_DOI}): 102 wavelengths from 0.75 to 5 µm. It is a
-                  time-averaged mosaic, not a single date. Colours are false colour. {um.toFixed(3)} µm is{" "}
+                  time-averaged mosaic, not a single date. Colors are false color. {um.toFixed(3)} µm is{" "}
                   {(um / 0.7).toFixed(1)}× longer than the reddest light your eyes can see. Use ← → to step one channel, Shift to
                   jump a band.
                 </p>
@@ -427,11 +427,11 @@ export default function ExploreClient() {
           <div className={`absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-1.5 px-3 pb-3 sm:px-5 sm:pb-4 ${advanced ? "md:pr-[150px]" : "md:pl-[270px] md:pr-[150px] xl:px-5"}`}>
             {advanced ? <WavelengthDial frame={frame} onChange={onFrame} /> : <WavelengthStops frame={frame} onChange={onFrame} />}
             <div className="text-center text-[11px] text-dim">
-              NASA SPHEREx infrared sky map, 2025–26 · colours are artificial · showing {fovWords(view.fov)}
+              NASA SPHEREx infrared sky map, 2025–26 · colors are artificial · showing {fovWords(view.fov)}
             </div>
           </div>
           <div className="absolute right-4 top-20 z-30 flex flex-col items-end gap-2 sm:right-5 md:bottom-4 md:top-auto">
-            <button className={`btn glass ${advanced ? "!border-accent/60 text-white" : ""}`} onClick={() => setAdvanced((a) => !a)} aria-expanded={advanced}>
+            <button className={`btn glass ${advanced ? "is-on" : ""}`} onClick={() => setAdvanced((a) => !a)} aria-expanded={advanced}>
               ⚙ Advanced
             </button>
             <button className="btn glass" onClick={share}>

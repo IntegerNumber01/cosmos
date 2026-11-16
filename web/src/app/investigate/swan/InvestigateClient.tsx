@@ -153,10 +153,10 @@ export default function InvestigateClient() {
 
   return (
     <main className="relative min-h-screen bg-bg pb-16">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(80,120,255,0.12),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.05),transparent_70%)]" />
       <NavBar />
       <div className="relative mx-auto max-w-[1320px] px-4 pt-20 sm:px-6">
-        <Link href="/investigate" className="text-[13px] text-accent">
+        <Link href="/investigate" className="text-[13px] text-muted transition hover:text-text">
           ← All case files
         </Link>
         {/* plain-language story: object, question, picture, answer */}
@@ -165,10 +165,10 @@ export default function InvestigateClient() {
           <img
             src="/img/investigate.webp"
             alt="Comet SWAN as a fuzzy blob in a real SPHEREx picture"
-            className="pixelated aspect-square w-full max-w-[180px] rounded-2xl border border-line object-cover md:max-w-[260px]"
+            className="pixelated aspect-square w-full max-w-[180px] rounded-2xl card object-cover md:max-w-[260px]"
           />
           <div>
-            <div className="label text-accent">Case file 001 · A comet on the move</div>
+            <div className="label">Case file 001 · A comet on the move</div>
             <h1 className="font-display mt-1 text-[30px] font-semibold leading-tight sm:text-[38px]">
               Can we catch comet SWAN moving in NASA&apos;s pictures?
             </h1>
@@ -176,7 +176,7 @@ export default function InvestigateClient() {
               Comet SWAN was discovered in September 2025. Its orbit tells us where it should be, but a prediction isn&apos;t a sighting. So we looked for it in
               real pictures from NASA&apos;s SPHEREx space telescope.
             </p>
-            <p className="mt-3 max-w-2xl rounded-lg border border-good/25 bg-good/5 px-3 py-2 text-[14px] leading-relaxed">
+            <p className="mt-3 max-w-2xl rounded-lg bg-good/10 px-3 py-2 text-[14px] leading-relaxed">
               <b className="text-good">The answer:</b> yes. It&apos;s in all 20 pictures from 27–28 Oct 2025, where its orbit said it would be, and it has left
               that spot by May 2026. SWAN was already known, so this confirms it. It isn&apos;t a discovery.
             </p>
@@ -194,13 +194,13 @@ export default function InvestigateClient() {
             <button
               key={s.id}
               onClick={() => setStep(s.id)}
-              className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] transition ${
-                step === s.id ? "border-accent/60 bg-accent/10 text-white" : i < stepIdx ? "border-line text-text/80" : "border-line text-muted hover:text-white"
+              className={`chip flex items-center gap-2 !rounded-full px-3.5 py-1.5 text-[13px] ${
+                step === s.id ? "is-on" : i < stepIdx ? "!text-text/85" : ""
               }`}
             >
               <span
                 className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-semibold ${
-                  step === s.id ? "bg-accent text-black" : i < stepIdx ? "bg-good/25 text-good" : "bg-white/10"
+                  step === s.id ? "bg-[#09090b] text-white" : i < stepIdx ? "bg-good/20 text-good" : "bg-white/10"
                 }`}
               >
                 {i < stepIdx ? "✓" : s.n}
@@ -214,7 +214,7 @@ export default function InvestigateClient() {
           {/* ================= STAGE ================= */}
           <section className="min-w-0">
             {step === "prediction" && (
-              <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-line">
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl card">
                 <SkyViewer
                   ra={345}
                   dec={4}
@@ -254,8 +254,8 @@ export default function InvestigateClient() {
                             setPlaying(false);
                             setMode("frames");
                           }}
-                          className={`flex-1 rounded-lg border px-2 py-1.5 text-left transition ${
-                            i === fi && mode === "frames" ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"
+                          className={`chip flex-1 !rounded-lg px-2 py-1.5 text-left ${
+                            i === fi && mode === "frames" ? "is-on" : ""
                           }`}
                         >
                           <div className="data text-[12px]">
@@ -304,7 +304,7 @@ export default function InvestigateClient() {
                         <button
                           key={s.id}
                           onClick={() => setSeqId(s.id)}
-                          className={`rounded-xl border px-3 py-1.5 text-left transition ${s.id === seqId ? "border-accent/60 bg-accent/10" : "border-line hover:bg-white/5"}`}
+                          className={`chip px-3 py-1.5 text-left ${s.id === seqId ? "is-on" : ""}`}
                         >
                           <div className="data text-[12px] text-text">{l.when} UTC</div>
                           <div className="text-[11px] text-muted">
@@ -338,7 +338,7 @@ export default function InvestigateClient() {
                     <button
                       key={p.id}
                       onClick={() => setPairId(p.id)}
-                      className={`rounded-lg border px-2.5 py-1 text-[11.5px] transition ${p.id === pairId ? "border-white/40 bg-white/10" : "border-line hover:bg-white/5"}`}
+                      className={`chip !rounded-lg px-2.5 py-1 text-[11.5px] ${p.id === pairId ? "is-on" : ""}`}
                     >
                       <span className="data" style={{ color: wavelengthColor(p.before.wavelength_um) }}>
                         D{p.detector} {p.before.wavelength_um.toFixed(3)}
@@ -356,7 +356,7 @@ export default function InvestigateClient() {
             {step === "verdict" && (
               <div className="grid gap-3 sm:grid-cols-2">
                 {lead.slice(0, 4).map((s) => (
-                  <div key={s.id} className="overflow-hidden rounded-2xl border border-line">
+                  <div key={s.id} className="overflow-hidden rounded-2xl card">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={s.diff_png} alt={`Difference image ${s.id}`} className="pixelated aspect-square w-full" />
                     <div className="px-3 py-2 text-[11.5px]">
@@ -384,16 +384,16 @@ export default function InvestigateClient() {
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-white/5 p-3">
-                    <div className="data text-[24px] font-semibold text-accent">{cf.most.n_matched_frames}</div>
+                    <div className="data text-[24px] font-semibold text-text">{cf.most.n_matched_frames}</div>
                     <div className="text-[12px] text-muted">pictures that should show the comet</div>
                   </div>
                   <div className="rounded-xl bg-white/5 p-3">
-                    <div className="data text-[24px] font-semibold text-accent">20</div>
+                    <div className="data text-[24px] font-semibold text-text">20</div>
                     <div className="text-[12px] text-muted">where it looks brightest, 27–28 Oct 2025</div>
                   </div>
                 </div>
-                <p className="mt-4 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2 text-[13px] leading-relaxed text-text/80">
-                  <b className="text-accent">A prediction isn&apos;t a sighting.</b> The dashed line is just maths. We still have to find the comet in the
+                <p className="mt-4 rounded-lg bg-surface px-3 py-2 text-[13px] leading-relaxed text-text/80">
+                  <b className="text-text">A prediction isn&apos;t a sighting.</b> The dashed line is just maths. We still have to find the comet in the
                   pictures, at the right place and time.
                 </p>
                 <Advanced className="mt-3">
@@ -418,8 +418,8 @@ export default function InvestigateClient() {
                 <p className="mt-3 text-[13px] leading-relaxed text-muted">
                   Press <b className="text-text">Show what moved</b>. The comet becomes a blue/red pair: where it was, and where it went.
                 </p>
-                <p className="mt-3 rounded-lg border border-warn/25 bg-warn/5 px-3 py-2 text-[13px] leading-relaxed text-warn/90">
-                  Each picture is taken in a slightly different infrared colour. So we use these pictures only to see <i>where</i> the comet is, not how
+                <p className="mt-3 rounded-lg bg-warn/10 px-3 py-2 text-[13px] leading-relaxed text-warn/90">
+                  Each picture is taken in a slightly different infrared color. So we use these pictures only to see <i>where</i> the comet is, not how
                   bright it is.
                 </p>
                 <Advanced className="mt-3">
@@ -455,7 +455,7 @@ export default function InvestigateClient() {
                   are all still there. The comet is gone.
                 </p>
                 <p className="mt-3 text-[13px] leading-relaxed text-muted">
-                  This is a fair test: same camera, nearly the same infrared colour. The change at the comet&apos;s old spot is far bigger than the normal noise in the
+                  This is a fair test: same camera, nearly the same infrared color. The change at the comet&apos;s old spot is far bigger than the normal noise in the
                   pictures.
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-3">
@@ -503,13 +503,13 @@ export default function InvestigateClient() {
                   <div className="label">Provenance</div>
                   <div>
                     Before:{" "}
-                    <a className="text-accent hover:underline" href={pair.before.source_fits} target="_blank" rel="noreferrer">
+                    <a className="link" href={pair.before.source_fits} target="_blank" rel="noreferrer">
                       {pair.before.productid} ↗
                     </a>
                   </div>
                   <div>
                     After:{" "}
-                    <a className="text-accent hover:underline" href={pair.after.source_fits} target="_blank" rel="noreferrer">
+                    <a className="link" href={pair.after.source_fits} target="_blank" rel="noreferrer">
                       {pair.after.productid} ↗
                     </a>{" "}
                     <span className="text-dim">(QA: {pair.after.l2dqa})</span>
@@ -536,9 +536,9 @@ export default function InvestigateClient() {
                 <div className="label">Step 4</div>
                 <h2 className="font-display mt-1 text-[22px] font-semibold">Does it match the prediction?</h2>
                 <p className="mt-2 text-[14px] leading-relaxed text-text/85">
-                  We found the comet&apos;s centre in each picture, then compared it with the prediction. Here&apos;s this set of pictures:
+                  We found the comet&apos;s center in each picture, then compared it with the prediction. Here&apos;s this set of pictures:
                 </p>
-                <div className="mt-3 overflow-hidden rounded-xl border border-line">
+                <div className="mt-3 overflow-hidden rounded-xl card">
                   <table className="w-full text-[12.5px]">
                     <thead className="bg-white/5 text-muted">
                       <tr>
@@ -612,7 +612,7 @@ export default function InvestigateClient() {
                   <Check ok title="Moves at the predicted speed and direction" detail="Five of six picture sets match the predicted speed. One is slightly faster, and we can't explain why. Every direction matches." />
                   <Check ok title="Background stars stay still" detail="So the movement isn't caused by the pictures being misaligned." />
                   <Check ok title="The comet leaves its old spot" detail="Within minutes its first spot fades. On 1 May 2026 that spot is empty." />
-                  <Check ok={false} title="What this is not" detail="Not a discovery: we found a known comet again. We also don't use these pictures to measure the comet's colours." />
+                  <Check ok={false} title="What this is not" detail="Not a discovery: we found a known comet again. We also don't use these pictures to measure the comet's colors." />
                 </ul>
                 <Advanced className="mt-4">
                   <ul className="list-disc space-y-1.5 pl-4">
@@ -640,7 +640,7 @@ export default function InvestigateClient() {
                       them only for position. The small along-track offset (≈2″, about 8″ at 4 µm) is reported, not explained.
                     </li>
                   </ul>
-                  <p className="mt-2 rounded-lg border border-good/25 bg-good/5 px-3 py-2 text-text/85">{cf.verdict}</p>
+                  <p className="mt-2 rounded-lg bg-good/10 px-3 py-2 text-text/85">{cf.verdict}</p>
                 </Advanced>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link href="/explore?target=swan" className="btn">

@@ -2,6 +2,14 @@
 
 **"The sky changes. See the evidence."** · Challenge: Planet X and SPHEREx
 
+## High-level summary for the submission form
+
+COSMOS helps students and citizen scientists investigate the changing infrared sky using real NASA SPHEREx observations. Enter sky coordinates or open a guided case, compare dates at matched wavelengths, and measure motion or brightness with explicit quality checks. Reference-star motion analysis, calibrated brightness, contrasting real-data learning cases and inspectable reports connect a visible difference to its evidence and uncertainty. Prepared observations keep selected investigations usable during archive outages. Educational benefit is intended; independent learning outcomes and adoption have not yet been measured.
+
+## Current motion workflow
+
+The compact guide and Summary / Motion / Evidence views keep optional science controls out of the initial result. Motion analysis corrects native positions against isolated reference stars, groups nearby exposures into visits and fits rates only with enough independent dates. Catalogue parallax is an explicit fixed input; no new distance is inferred. The selected Epsilon Indi B D2 sequence gives 4.79 ± 0.59″ displacement, with fitted east/north rates agreeing with the catalogue. RW Aur's positional control is consistent with zero. A specified-trajectory stack can be compared with a single exposure and a sky-aligned mean; diagnostic noise ratios are not discovery significance. JSON/readable reports retain the motion result and failed checks. Full methods and limits: `MOTION.md`.
+
 ## Intended audience and benefit
 COSMOS helps curious students, amateur astronomers and citizen scientists investigate the changing infrared sky without installing astronomy software. Educators can use its guided examples and shareable investigations for authentic-data activities. Beginners can start with RW Aurigae's brightness change or Epsilon Indi B's motion at `/learn`; experienced users can open the full observation controls directly.
 

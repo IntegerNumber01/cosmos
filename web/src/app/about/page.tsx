@@ -32,7 +32,7 @@ const SOURCES = [
     link: "https://irsa.ipac.caltech.edu/applications/MOST/",
   },
   {
-    title: "Catalogues of known stars, galaxies, asteroids and comets",
+    title: "Catalogs of known stars, galaxies, asteroids and comets",
     plain: "Answers \"is this already known?\" in Time Travel.",
     name: "SIMBAD and NASA/JPL Small-Body Identification",
     use: "Time Travel: \"is it already known?\"",
@@ -50,17 +50,17 @@ const SOURCES = [
 ];
 
 const TRUTH = [
-  ["Sky brightness at each wavelength", "Measured (SPHEREx DR1 cube)", "Colours are false-colour maps of intensity"],
+  ["Sky brightness at each wavelength", "Measured (SPHEREx DR1 cube)", "Colors are false-color maps of intensity"],
   ["Dates and times of every frame", "Measured (FITS DATE-AVG)", "Shown in UTC"],
   ["Wavelength of each exposure at the comet", "Measured (WCS-WAVE lookup)", "Each SPHEREx exposure is a different wavelength"],
-  ["Comet positions and motion", "Measured by us from the pixels", "Gaussian photocentre fit, compared with the MOST prediction"],
-  ["Comet's predicted path", "Calculated (MOST ephemeris)", "Always labelled as a prediction"],
+  ["Comet positions and motion", "Measured by us from the pixels", "Gaussian photocenter fit, compared with the MOST prediction"],
+  ["Comet's predicted path", "Calculated (MOST ephemeris)", "Always labeled as a prediction"],
   ["Which dates are compared", "Measured (WCS-WAVE at the target)", "Same detector; every pair within half a channel"],
   ["Change maps (Find changes)", "Derived, empirically scaled", "Indicator only; scaled by the measured scatter of the difference"],
   ["Brightness and position on each date", "Measured on native pixels", "Empirical errors; flagged apertures report no value"],
   ["Gaia stars drawn on dated frames", "Calculated (Gaia DR3 proper motion)", "A prediction for each date"],
   ["Star positions in 3D", "Measured (Gaia DR3 parallax)", "Uncertainty shown for every star"],
-  ["Star colours in 3D", "Approximated from Gaia BP−RP", "Display only"],
+  ["Star colors in 3D", "Approximated from Gaia BP−RP", "Display only"],
   ["Depth in SPHEREx images", "Not available", "SPHEREx records no distance per pixel; COSMOS adds none"],
 ];
 
@@ -89,7 +89,7 @@ export default function About() {
     <main className="min-h-screen bg-bg pb-24">
       <NavBar />
       <div className="mx-auto max-w-[980px] px-5 pt-24">
-        <div className="label text-accent">About</div>
+        <div className="label">About</div>
         <h1 className="font-display mt-2 text-[34px] font-semibold leading-tight sm:text-[38px]">Where this data comes from</h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-text/80">
           COSMOS turns real NASA space-telescope data into something anyone can explore. Nothing here is invented.
@@ -117,14 +117,14 @@ export default function About() {
               <p className="mt-0.5 text-[13.5px] text-text/80">{s.plain}</p>
               <Advanced label="Technical details and links" openLabel="Hide technical details" className="mt-2">
                 <div className="text-[12.5px] font-semibold text-text/90">{s.name}</div>
-                <div className="text-accent">{s.use}</div>
+                <div className="text-text">{s.use}</div>
                 <p className="mt-1">{s.detail}</p>
                 <div className="mt-2 flex flex-wrap gap-3">
-                  <a className="text-accent hover:underline" href={s.link} target="_blank" rel="noreferrer">
+                  <a className="link" href={s.link} target="_blank" rel="noreferrer">
                     Source ↗
                   </a>
                   {s.doi && (
-                    <a className="text-accent hover:underline" href={`https://doi.org/${s.doi}`} target="_blank" rel="noreferrer">
+                    <a className="link" href={`https://doi.org/${s.doi}`} target="_blank" rel="noreferrer">
                       doi:{s.doi} ↗
                     </a>
                   )}
@@ -140,7 +140,7 @@ export default function About() {
           depth, so we never add any.
         </p>
         <Advanced label="Show the full list" openLabel="Hide the full list" className={ADV}>
-          <div className="overflow-x-auto rounded-2xl border border-line">
+          <div className="overflow-x-auto rounded-2xl card">
             <table className="w-full text-[13px]">
               <thead className="bg-white/5 text-left text-muted">
                 <tr>
@@ -153,7 +153,7 @@ export default function About() {
                 {TRUTH.map(([a, b, c]) => (
                   <tr key={a} className="border-t border-line/60">
                     <td className="px-4 py-2 text-text/90">{a}</td>
-                    <td className={`px-4 py-2 ${b.startsWith("Measured") ? "text-good" : b.startsWith("Not") ? "text-warn" : "text-accent"}`}>{b}</td>
+                    <td className={`px-4 py-2 ${b.startsWith("Measured") ? "text-good" : b.startsWith("Not") ? "text-warn" : "link"}`}>{b}</td>
                     <td className="px-4 py-2 text-muted">{c}</td>
                   </tr>
                 ))}
@@ -168,7 +168,7 @@ export default function About() {
           lines them up and points out what changed.
         </p>
         <p className="mt-2 text-[13px]">
-          <Link href="/validation" className="text-accent hover:underline">
+          <Link href="/validation" className="link">
             See how we tested it on the five challenge targets →
           </Link>
         </p>
@@ -195,7 +195,7 @@ export default function About() {
             <li>
               <b>Measure.</b> Brightness and centroid come from each frame&apos;s native pixels, with errors from blank-sky control apertures. Positions also carry a
               stated 0.5″ alignment allowance. The headline brightness change is calibrated against Gaia reference stars measured the same way in the same
-              images; with too few clean references or an overlapping neighbour, no calibrated number is given.
+              images; with too few clean references or an overlapping neighbor, no calibrated number is given.
             </li>
             <li>
               <b>Is it known?</b> Gaia DR3 and SIMBAD positions are propagated to the date. NASA/JPL lists the known asteroids and comets in the field at the time
@@ -217,7 +217,7 @@ export default function About() {
             The Wavelength lab samples up to one exposure per nominal channel and creates six detector-band previews from the available channels. Channels
             receive equal weight; missing or flagged samples are excluded and coverage is reported. These previews may mix observing dates and are not
             integrated filter fluxes. The aperture spectrum uses a 2-pixel radius, local background subtraction, empirical blank-sky errors, and a local WCS
-            solid angle to convert to mJy. It has no aperture correction, PSF fit, or deblending, so blended neighbours and changing source brightness can
+            solid angle to convert to mJy. It has no aperture correction, PSF fit, or deblending, so blended neighbors and changing source brightness can
             distort its shape. Per-point dates, flags, errors and source FITS links are available in the table and CSV.
           </p>
           <p className="mt-2">
@@ -243,7 +243,7 @@ export default function About() {
               file&apos;s FLAGS header (MSKN/MSKM/MSKD cards), never typed in by hand.
             </li>
             <li>
-              <b>Measure.</b> In every frame, the coma photocentre is found by a peak search and a 2D Gaussian fit with a planar background. It&apos;s converted
+              <b>Measure.</b> In every frame, the coma photocenter is found by a peak search and a 2D Gaussian fit with a planar background. It&apos;s converted
               to RA/Dec with that frame&apos;s own WCS. S/N comes from the VARIANCE plane.
             </li>
             <li>
@@ -289,7 +289,7 @@ export default function About() {
               measured scatter. Even then, 0.2–3% of field pixels exceed 5 from star residuals. We call these maps indicators, not probabilities.
             </li>
             <li>
-              Within one SWAN sequence, the first and last exposures are 3–4 channel widths apart in wavelength. Those difference images mix time and colour,
+              Within one SWAN sequence, the first and last exposures are 3–4 channel widths apart in wavelength. Those difference images mix time and color,
               so we use them only to show <i>where</i> the comet moved.
             </li>
             <li>
@@ -310,7 +310,7 @@ export default function About() {
         <h2 className={H2}>Check our work</h2>
         <p className={PLAIN}>All the code that downloads and processes the data is in the project, so anyone can rerun it.</p>
         <Advanced label="Show the scripts" openLabel="Hide the scripts" className={ADV}>
-          <pre className="data overflow-x-auto rounded-2xl border border-line bg-black/40 p-4 text-[12px] leading-relaxed text-text/80">
+          <pre className="data overflow-x-auto rounded-2xl bg-surface p-4 text-[12px] leading-relaxed text-text/80">
 {`pipeline/fetch_swan.py          # MOST table -> 20 verified SPHEREx cutouts
 pipeline/swan_measure.py        # detection, motion, star control, vacancy test
 pipeline/build_swan_assets.py   # aligned frames, difference images, case.json

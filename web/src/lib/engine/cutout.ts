@@ -65,6 +65,17 @@ export async function fetchCutout(url: string, ra: number, dec: number, size: nu
   const mirrored = !buf || !img || !flg || !vr ? await cloudCutout(url, ra, dec, size, started + 54000).catch((e) => {
     throw new Error(`IRSA cutout unavailable; AWS mirror fallback failed: ${(e as Error).message}`);
   }) : null;
+  return encodeCutout(url, ra, dec, size, buf, img, flg, vr, mirrored);
+}
+
+/** Preparation can read the official mirror directly without waiting for an unavailable IBE. */
+export async function fetchCloudCutout(url: string, ra: number, dec: number, size: number): Promise<ArrayBuffer> {
+  return encodeCutout(url, ra, dec, size, null, undefined, undefined, undefined, await cloudCutout(url, ra, dec, size));
+}
+
+function encodeCutout(url: string, ra: number, dec: number, size: number, buf: ArrayBuffer | null,
+  img: ReturnType<typeof parseFits>[number] | undefined, flg: ReturnType<typeof parseFits>[number] | undefined,
+  vr: ReturnType<typeof parseFits>[number] | undefined, mirrored: Awaited<ReturnType<typeof cloudCutout>> | null) {
   const h = mirrored ? mirrored.header : img!.header;
   const { data, nx, ny } = mirrored ?? readImage(buf!, img!);
   const flags = mirrored ? mirrored.flags : readInt32Image(buf!, flg!);
