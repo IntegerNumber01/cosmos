@@ -20,7 +20,7 @@ The practical problem is moving from an apparent difference in archive images to
 
 There is no independent participant study, measured educational gain, documented classroom or club adoption, comparative time saving, confirmed novel discovery, or established scientific review partnership. Automated regression results establish engineering behaviour, not audience benefit.
 
-The creator gave informal walkthrough feedback on 15 November 2026: “seems to be good.” This provides no scored reasoning result, specific usability observation or independent evidence of learning. `SELF_REVIEW.md` distinguishes this feedback from the fuller review worksheet. `USER_TEST.md` remains available for an optional later study. No one was contacted and no feedback was fabricated.
+No scored independent participant results are recorded. `SELF_REVIEW.md` provides a creator walkthrough worksheet; `USER_TEST.md` provides a protocol for a future independent study.
 
 ## Earlier engineering verification on 15 November 2026
 

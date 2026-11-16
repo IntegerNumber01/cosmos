@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# COSMOS web app
 
-## Getting Started
+Next.js app with a TypeScript FITS/WCS measurement engine, prepared SPHEREx observations, and Node API routes for archive and catalogue access.
 
-First, run the development server:
+From this directory, using Node.js 22 LTS and npm:
 
-```bash
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. No API keys or Python backend are required. Featured investigations use committed observations; arbitrary sky positions and live catalogue checks depend on public archive services.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm test
+npm run lint
+npm run typecheck
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The build regenerates the partial exposure index and validates prepared observation menus before compiling. Development uses `.next-dev/`; production uses `.next/`.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deploy with `web/` as the project root and a Node runtime supporting the API routes' 60-second limit. See the [project README](../README.md), [contributor guide](../CONTRIBUTING.md), and [technical overview](../docs/TECHNICAL_OVERVIEW.md) for methods, data rebuilding, and limitations.

@@ -1,6 +1,6 @@
 # COSMOS: creator self-review
 
-Status: informal creator feedback received on 15 November 2026: “seems to be good,” in response to a request to try the moving-brown-dwarf guide and GP Mon activity. No specific explanation, confusion point or scored response was supplied. The structured worksheet below remains uncompleted; no independent participant study or measured learning gain is claimed. Automated browser checks are recorded separately.
+Status: self-review worksheet; no completed structured session or independent participant study is recorded. Automated browser checks are documented separately.
 
 ## Session
 

@@ -1,8 +1,8 @@
 # COSMOS: short formative user test
 
-Status: **protocol prepared; no human participants tested by this change**. Browser regressions verify behavior but are not evidence of audience appeal, learning or adoption.
+Status: **protocol prepared; no independent participant results recorded**. Browser regressions verify behavior but are not evidence of audience appeal, learning or adoption.
 
-The creator currently cannot recruit participants and will experiment personally. Use `SELF_REVIEW.md` for that work; keep it separate from independent participant results. The printable `/learn/kit` and three-case `/learn/lab` can be used alone or with a group. No independent study is required to use them.
+Use `SELF_REVIEW.md` for a creator walkthrough; keep it separate from independent participant results. The printable `/learn/kit` and three-case `/learn/lab` can be used alone or with a group. No independent study is required to use them.
 
 ## Purpose
 

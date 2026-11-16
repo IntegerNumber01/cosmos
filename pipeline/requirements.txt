@@ -1,0 +1,10 @@
+# Offline science pipeline. Use Python 3.12; these are direct dependencies,
+# not a frozen environment for reproducing historical numerical results.
+astropy
+astropy-healpix
+matplotlib
+numpy
+pillow
+reproject
+requests
+scipy

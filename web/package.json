@@ -10,7 +10,8 @@
     "prepare:index": "node scripts/build-exposure-index.cjs",
     "benchmark:motion": "node scripts/benchmark-motion.cjs --write",
     "prepare:offline": "node scripts/prepare-offline.cjs",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.9",

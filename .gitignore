@@ -16,7 +16,15 @@ out/
 .vercel/
 *.tsbuildinfo
 next-env.d.ts
-.env*.local
+# Credentials and local environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.aws/
+.DS_Store
+Thumbs.db
 data/dev.log
 data/serve.log
 data/prod.log
