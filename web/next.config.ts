@@ -6,7 +6,7 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 const nextConfig = (phase: string): NextConfig => ({
   images: { unoptimized: true },
   // lets a dev server and a production build run side by side without clobbering each other
-  distDir: process.env.NEXT_DIST_DIR ?? (phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next-build"),
+  distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
 });
 
 export default nextConfig;
